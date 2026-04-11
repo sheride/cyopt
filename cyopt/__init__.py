@@ -1,6 +1,7 @@
 """cyopt -- Discrete optimization toolkit for bounded integer-tuple search spaces."""
 
 from cyopt._types import DNA, Bounds, FitnessFunction, Result
+from cyopt.base import DiscreteOptimizer
 
 __all__ = [
     "DiscreteOptimizer",
@@ -11,11 +12,3 @@ __all__ = [
 ]
 
 __version__ = "0.1.0"
-
-
-def __getattr__(name: str):
-    if name == "DiscreteOptimizer":
-        from cyopt.base import DiscreteOptimizer
-
-        return DiscreteOptimizer
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
