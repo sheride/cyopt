@@ -2,11 +2,13 @@
 
 from cyopt._types import DNA, Bounds, FitnessFunction, Result
 from cyopt.base import DiscreteOptimizer
+from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
 from cyopt.optimizers.random_sample import RandomSample
 
 __all__ = [
     "DiscreteOptimizer",
+    "GA",
     "GreedyWalk",
     "RandomSample",
     "Result",
