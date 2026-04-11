@@ -1,7 +1,8 @@
 """Cross-optimizer seeding reproducibility tests."""
 
-from cyopt.optimizers.random_sample import RandomSample
+from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
+from cyopt.optimizers.random_sample import RandomSample
 
 
 class TestSeedingReproducibility:
@@ -27,6 +28,19 @@ class TestSeedingReproducibility:
 
         opt2 = GreedyWalk(sphere_fitness, standard_bounds, seed=777)
         result2 = opt2.run(30)
+
+        assert result1.best_solution == result2.best_solution
+        assert result1.best_value == result2.best_value
+        assert result1.history == result2.history
+        assert result1.n_evaluations == result2.n_evaluations
+
+    def test_ga_seeding(self, sphere_fitness, standard_bounds):
+        """GA: same seed -> identical results."""
+        opt1 = GA(sphere_fitness, standard_bounds, seed=777, population_size=10)
+        result1 = opt1.run(20)
+
+        opt2 = GA(sphere_fitness, standard_bounds, seed=777, population_size=10)
+        result2 = opt2.run(20)
 
         assert result1.best_solution == result2.best_solution
         assert result1.best_value == result2.best_value
