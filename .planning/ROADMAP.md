@@ -30,7 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Running the same optimizer with the same seed produces identical results
   4. Repeated evaluations of the same point are served from cache (observable via n_evaluations count vs. actual function calls)
   5. Running with `progress=True` displays a tqdm progress bar
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 2: Remaining Optimizers
 **Goal**: All 8 optimizer types are available, covering population-based, local search, and stochastic methods on generic integer-tuple spaces
@@ -41,7 +45,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. BestFirstSearch and GreedyWalk accept user-provided neighbor functions that change search behavior
   3. DifferentialEvolution uses SciPy public API (`integrality` parameter), not private internals
   4. All 8 optimizers pass the same base-class contract tests (Result shape, seeding reproducibility, caching, bounds enforcement)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 3: FRST Wrapper
 **Goal**: Users can optimize over FRST classes of reflexive polytopes using the DNA encoding, connecting any of the 8 generic optimizers to CYTools triangulations
@@ -52,7 +60,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. `dna_to_frst` and `triang_to_dna` roundtrip correctly: encoding a known triangulation and decoding it back produces the same triangulation
   3. User can run any FRST-wrapped optimizer (e.g., FRST-GA) on a polytope and get back a CYTools Triangulation / CalabiYau object as the best result
   4. All FRST wrapper code works with the current CYTools version installed in the cytools conda environment
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 4: Advanced Infrastructure
 **Goal**: Users can attach iteration callbacks for logging/early-stopping and save/resume optimizer state across sessions
@@ -61,7 +73,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. User can pass an `on_iteration` callback that receives iteration data and can trigger early stopping by returning a sentinel value
   2. User can save optimizer state to disk mid-run and resume from the checkpoint, continuing optimization without loss of cache or best-so-far tracking
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 5: Documentation
 **Goal**: Users can learn and use cyopt through comprehensive API docs and worked tutorials
@@ -71,7 +87,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. `make html` in the docs directory produces a Sphinx site with sphinx-book-theme, autodoc-generated API reference for all public classes and functions
   2. At least two tutorial notebooks exist: one for generic optimizer usage and one for FRST optimization with CYTools
   3. README includes installation instructions (with optional `[frst]` extras) and a quickstart code example that runs
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ## Progress
 
