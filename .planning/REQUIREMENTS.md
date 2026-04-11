@@ -75,38 +75,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | — | Pending |
-| CORE-02 | — | Pending |
-| CORE-03 | — | Pending |
-| CORE-04 | — | Pending |
-| CORE-05 | — | Pending |
-| CORE-06 | — | Pending |
-| CORE-07 | — | Pending |
-| CORE-08 | — | Pending |
-| CORE-09 | — | Pending |
-| CORE-10 | — | Pending |
-| OPT-01 | — | Pending |
-| OPT-02 | — | Pending |
-| OPT-03 | — | Pending |
-| OPT-04 | — | Pending |
-| OPT-05 | — | Pending |
-| OPT-06 | — | Pending |
-| OPT-07 | — | Pending |
-| OPT-08 | — | Pending |
-| FRST-01 | — | Pending |
-| FRST-02 | — | Pending |
-| FRST-03 | — | Pending |
-| FRST-04 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
-| DOC-03 | — | Pending |
-| DOC-04 | — | Pending |
+| CORE-01 | Phase 1 | Pending |
+| CORE-02 | Phase 1 | Pending |
+| CORE-03 | Phase 1 | Pending |
+| CORE-04 | Phase 1 | Pending |
+| CORE-05 | Phase 1 | Pending |
+| CORE-06 | Phase 1 | Pending |
+| CORE-07 | Phase 1 | Pending |
+| CORE-08 | Phase 4 | Pending |
+| CORE-09 | Phase 4 | Pending |
+| CORE-10 | Phase 1 | Pending |
+| OPT-01 | Phase 1 | Pending |
+| OPT-02 | Phase 1 | Pending |
+| OPT-03 | Phase 1 | Pending |
+| OPT-04 | Phase 2 | Pending |
+| OPT-05 | Phase 2 | Pending |
+| OPT-06 | Phase 2 | Pending |
+| OPT-07 | Phase 2 | Pending |
+| OPT-08 | Phase 2 | Pending |
+| FRST-01 | Phase 3 | Pending |
+| FRST-02 | Phase 3 | Pending |
+| FRST-03 | Phase 3 | Pending |
+| FRST-04 | Phase 3 | Pending |
+| DOC-01 | Phase 5 | Pending |
+| DOC-02 | Phase 5 | Pending |
+| DOC-03 | Phase 1 | Pending |
+| DOC-04 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 ⚠️
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-11*
-*Last updated: 2026-04-11 after initial definition*
+*Last updated: 2026-04-11 after roadmap creation*
