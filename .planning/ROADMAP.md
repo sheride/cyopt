@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Running with `progress=True` displays a tqdm progress bar
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [x] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [x] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [x] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 2: Remaining Optimizers
 **Goal**: All 8 optimizer types are available, covering population-based, local search, and stochastic methods on generic integer-tuple spaces
@@ -47,9 +47,9 @@ Plans:
   4. All 8 optimizers pass the same base-class contract tests (Result shape, seeding reproducibility, caching, bounds enforcement)
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [x] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [x] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [x] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 3: FRST Wrapper
 **Goal**: Users can optimize over FRST classes of reflexive polytopes using the DNA encoding, connecting any of the 8 generic optimizers to CYTools triangulations
@@ -62,8 +62,8 @@ Plans:
   4. All FRST wrapper code works with the current CYTools version installed in the cytools conda environment
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
+- [x] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
+- [x] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
 - [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
 
 ### Phase 4: Advanced Infrastructure
