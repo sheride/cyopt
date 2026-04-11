@@ -28,6 +28,12 @@ class DifferentialEvolution(DiscreteOptimizer):
     ``integrality=True`` for all dimensions, enabling native integer
     optimization without private API access.
 
+    .. note::
+        Unlike other optimizers, consecutive ``run()`` calls do **not**
+        preserve the DE population. Each call restarts the evolutionary
+        process from a fresh random population. The evaluation cache is
+        preserved, so repeated evaluations of the same candidate are free.
+
     Parameters
     ----------
     fitness_fn : Callable[[DNA], float]
