@@ -203,10 +203,15 @@ class BestFirstSearch(DiscreteOptimizer):
             self._current = candidate
             self._current_value = value
         else:
-            # Frontier exhausted -- random restart
-            self._current = self._random_dna()
-            self._current_value = self._evaluate(self._current)
-            self._visited.add(self._current)
+            # Frontier exhausted -- random restart (avoid revisiting)
+            candidate = self._random_dna()
+            for _ in range(100):
+                if candidate not in self._visited:
+                    break
+                candidate = self._random_dna()
+            self._current = candidate
+            self._current_value = self._evaluate(candidate)
+            self._visited.add(candidate)
 
         if self._record_history:
             return {
