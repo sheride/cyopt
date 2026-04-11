@@ -47,9 +47,9 @@ Plans:
   4. All 8 optimizers pass the same base-class contract tests (Result shape, seeding reproducibility, caching, bounds enforcement)
 **Plans**: 3 plans
 Plans:
-- [x] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [x] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [x] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [ ] 02-01-PLAN.md — BestFirstSearch (two modes), MCMC, SimulatedAnnealing + shared neighbors module
+- [ ] 02-02-PLAN.md — BasinHopping (custom discrete) + DifferentialEvolution (SciPy wrapper)
+- [ ] 02-03-PLAN.md — Wire exports + extend integration/seeding tests to all 8 optimizers
 
 ### Phase 3: FRST Wrapper
 **Goal**: Users can optimize over FRST classes of reflexive polytopes using the DNA encoding, connecting any of the 8 generic optimizers to CYTools triangulations
@@ -101,8 +101,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + First Optimizers | 0/? | Not started | - |
-| 2. Remaining Optimizers | 0/? | Not started | - |
+| 1. Foundation + First Optimizers | 3/3 | Complete | - |
+| 2. Remaining Optimizers | 0/3 | Planning | - |
 | 3. FRST Wrapper | 0/? | Not started | - |
 | 4. Advanced Infrastructure | 0/? | Not started | - |
 | 5. Documentation | 0/? | Not started | - |
