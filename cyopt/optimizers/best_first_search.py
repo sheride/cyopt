@@ -138,28 +138,18 @@ class BestFirstSearch(DiscreteOptimizer):
             self._current_value = self._evaluate(self._current)
             self._path.append(self._current)
         else:
-            moved = False
-            best_neighbor: DNA | None = None
-            best_value = float("inf")
+            # Evaluate all neighbors and sort by fitness
+            scored = [
+                (self._evaluate(neighbor), neighbor) for neighbor in valid
+            ]
+            scored.sort(key=lambda x: x[0])
 
-            for neighbor in valid:
-                value = self._evaluate(neighbor)
-                if value < best_value:
-                    best_value = value
-                    best_neighbor = neighbor
-                # First improving move (relaxed greedy)
-                if value < self._current_value and not moved:
-                    self._path.append(self._current)
-                    self._current = neighbor
-                    self._current_value = value
-                    moved = True
-                    break
+            best_value, best_neighbor = scored[0]
 
-            if not moved and best_neighbor is not None:
-                # No improving neighbor -- move to best anyway
-                self._path.append(self._current)
-                self._current = best_neighbor
-                self._current_value = best_value
+            # Move to best neighbor (improving or not)
+            self._path.append(self._current)
+            self._current = best_neighbor
+            self._current_value = best_value
 
             # Oscillation detection
             if (
