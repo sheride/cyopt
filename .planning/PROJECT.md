@@ -18,12 +18,13 @@ A clean, reusable discrete optimization toolkit that works standalone, with a th
 - [x] GreedyWalk optimizer (configurable graph structure via neighbor function) — Validated in Phase 1
 - [x] Package structure matching dbrane-tools conventions (pyproject.toml, proper __init__.py, etc.) — Validated in Phase 1
 
+- [x] BestFirstSearch optimizer (backtrack + frontier modes, injectable neighbor function) — Validated in Phase 2
+- [x] BasinHopping optimizer (custom greedy descent, Metropolis acceptance, injectable functions) — Validated in Phase 2
+- [x] DifferentialEvolution optimizer (SciPy wrapper with integrality, public API only) — Validated in Phase 2
+- [x] MCMC optimizer (Metropolis-Hastings, injectable step function) — Validated in Phase 2
+- [x] SimulatedAnnealing optimizer (exponential cooling, injectable step function) — Validated in Phase 2
+
 ### Active
-- [ ] BestFirstSearch optimizer
-- [ ] BasinHopping optimizer
-- [ ] DifferentialEvolution optimizer
-- [ ] MCMC optimizer
-- [ ] SimulatedAnnealing optimizer
 - [ ] FRST wrapper: monkey-patch Polytope with prep_for_optimizers, dna_to_frst, dna_to_cy, triang_to_dna, etc.
 - [ ] FRST-specific optimizer wrappers that connect generic optimizers to the DNA encoding
 - [ ] Sphinx documentation (sphinx-book-theme, autodoc, napoleon, tutorials as notebooks)
@@ -79,4 +80,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-11 after Phase 1 completion*
+*Last updated: 2026-04-11 after Phase 2 completion*
