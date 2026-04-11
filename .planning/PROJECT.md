@@ -12,14 +12,13 @@ A clean, reusable discrete optimization toolkit that works standalone, with a th
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Generic discrete optimizer base class operating on integer tuples with per-position bounds — Validated in Phase 1: Foundation + First Optimizers
+- [x] GA implementation: selection (roulette wheel, tournament, ranked), crossover (n-point, uniform), mutation (random k-point), survival (elitist), fitness functions — Validated in Phase 1
+- [x] RandomSample optimizer — Validated in Phase 1
+- [x] GreedyWalk optimizer (configurable graph structure via neighbor function) — Validated in Phase 1
+- [x] Package structure matching dbrane-tools conventions (pyproject.toml, proper __init__.py, etc.) — Validated in Phase 1
 
 ### Active
-
-- [ ] Generic discrete optimizer base class operating on integer tuples with per-position bounds
-- [ ] GA implementation: selection (roulette wheel, tournament, ranked), crossover (n-point, uniform), mutation (random k-point), survival (elitist), fitness functions
-- [ ] RandomSample optimizer
-- [ ] GreedyWalk optimizer (configurable graph structure via neighbor function)
 - [ ] BestFirstSearch optimizer
 - [ ] BasinHopping optimizer
 - [ ] DifferentialEvolution optimizer
@@ -29,7 +28,6 @@ A clean, reusable discrete optimization toolkit that works standalone, with a th
 - [ ] FRST-specific optimizer wrappers that connect generic optimizers to the DNA encoding
 - [ ] Sphinx documentation (sphinx-book-theme, autodoc, napoleon, tutorials as notebooks)
 - [ ] Compatibility with current CYTools API (functions have been moved/renamed since the old code)
-- [ ] Package structure matching dbrane-tools conventions (pyproject.toml or setup.py, proper __init__.py, etc.)
 
 ### Out of Scope
 
@@ -81,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-11 after initialization*
+*Last updated: 2026-04-11 after Phase 1 completion*
