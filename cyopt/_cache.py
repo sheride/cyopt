@@ -24,8 +24,9 @@ class EvaluationCache:
         return key in self._cache
 
     def __getitem__(self, key: tuple[int, ...]) -> float:
+        value = self._cache[key]
         self._cache.move_to_end(key)
-        return self._cache[key]
+        return value
 
     def __setitem__(self, key: tuple[int, ...], value: float) -> None:
         if key in self._cache:

@@ -126,10 +126,16 @@ class DiscreteOptimizer(ABC):
         for i in iterator:
             step_info = self._step(i)
             history.append(self._best_value)
-            if self._record_history and full_history is not None and step_info:
+            if self._record_history and full_history is not None and step_info is not None:
                 full_history.append(step_info)
 
         wall_time = time.perf_counter() - t0
+
+        if self._best_solution is None:
+            raise RuntimeError(
+                "No solution was evaluated during run(). "
+                "Ensure n_iterations > 0 and _step() calls _evaluate()."
+            )
 
         return Result(
             best_solution=self._best_solution,

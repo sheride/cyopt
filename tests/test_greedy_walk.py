@@ -85,17 +85,15 @@ class TestGreedyWalk:
         assert result1.best_solution == result2.best_solution
         assert result1.best_value == result2.best_value
 
-    def test_reset_on_run(self, sphere_fitness, standard_bounds):
-        """Two consecutive runs with same seed produce identical results."""
+    def test_continuation(self, sphere_fitness, standard_bounds):
+        """Consecutive runs continue from prior state (no reset)."""
         opt = GreedyWalk(sphere_fitness, standard_bounds, seed=42)
-        result1 = opt.run(20)
-
-        # Re-create to get same seed state
-        opt2 = GreedyWalk(sphere_fitness, standard_bounds, seed=42)
-        result2 = opt2.run(20)
-
-        assert result1.best_solution == result2.best_solution
-        assert result1.best_value == result2.best_value
+        result1 = opt.run(10)
+        result2 = opt.run(10)
+        # Second run should be at least as good (keeps best-so-far)
+        assert result2.best_value <= result1.best_value
+        # Evaluations accumulate across runs
+        assert result2.n_evaluations >= result1.n_evaluations
 
     def test_full_history(self, sphere_fitness, standard_bounds):
         """record_history=True populates full_history."""

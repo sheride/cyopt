@@ -91,27 +91,6 @@ class GreedyWalk(DiscreteOptimizer):
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
-    def run(self, n_iterations: int):
-        """Reset walker state and run optimization.
-
-        Pitfall 5: walker state must reset so consecutive runs with the
-        same seed produce identical results.
-
-        Parameters
-        ----------
-        n_iterations : int
-            Number of iterations to run.
-
-        Returns
-        -------
-        Result
-            Optimization result.
-        """
-        # Reset walker state before each run
-        self._current = None
-        self._current_value = float("inf")
-        return super().run(n_iterations)
-
     def _step(self, iteration: int) -> dict | None:
         """Take one greedy step: evaluate neighbors, move to best if improving.
 
