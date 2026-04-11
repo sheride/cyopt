@@ -60,11 +60,10 @@ Plans:
   2. `dna_to_frst` and `triang_to_dna` roundtrip correctly: encoding a known triangulation and decoding it back produces the same triangulation
   3. User can run any FRST-wrapped optimizer (e.g., FRST-GA) on a polytope and get back a CYTools Triangulation / CalabiYau object as the best result
   4. All FRST wrapper code works with the current CYTools version installed in the cytools conda environment
-**Plans**: 3 plans
+**Plans**: 2 plans
 Plans:
-- [x] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [x] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [ ] 03-01-PLAN.md — DNA encoding module, Polytope monkey-patch, and encoding unit tests
+- [ ] 03-02-PLAN.md — FRSTResult, FRSTOptimizer wrapper/factory, export wiring, integration tests
 
 ### Phase 4: Advanced Infrastructure
 **Goal**: Users can attach iteration callbacks for logging/early-stopping and save/resume optimizer state across sessions
@@ -102,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + First Optimizers | 3/3 | Complete | - |
-| 2. Remaining Optimizers | 0/3 | Planning | - |
-| 3. FRST Wrapper | 0/? | Not started | - |
+| 2. Remaining Optimizers | 3/3 | Complete | - |
+| 3. FRST Wrapper | 0/2 | Planning | - |
 | 4. Advanced Infrastructure | 0/? | Not started | - |
 | 5. Documentation | 0/? | Not started | - |
