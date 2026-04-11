@@ -13,38 +13,8 @@ import numpy as np
 
 from cyopt._types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
+from cyopt.optimizers._neighbors import random_single_flip
 from cyopt.optimizers.greedy_walk import hamming_neighbors
-
-
-# ---------------------------------------------------------------------------
-# Default perturbation (inline since _neighbors.py may not exist yet)
-# ---------------------------------------------------------------------------
-
-def random_single_flip(dna: DNA, bounds: Bounds, rng: np.random.Generator) -> DNA:
-    """Flip one random dimension to a different random value within bounds.
-
-    Parameters
-    ----------
-    dna : DNA
-        Current solution.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
-    rng : np.random.Generator
-        Random number generator.
-
-    Returns
-    -------
-    DNA
-        New solution differing in exactly one position.
-    """
-    i = int(rng.integers(0, len(dna)))
-    lo, hi = bounds[i]
-    new_val = dna[i]
-    while new_val == dna[i] and hi > lo:
-        new_val = int(rng.integers(lo, hi + 1))
-    result = list(dna)
-    result[i] = new_val
-    return tuple(result)
 
 
 # ---------------------------------------------------------------------------
