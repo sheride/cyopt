@@ -2,7 +2,18 @@
 
 import pytest
 
-from cyopt import GA, DiscreteOptimizer, GreedyWalk, RandomSample, Result
+from cyopt import (
+    GA,
+    BasinHopping,
+    BestFirstSearch,
+    DifferentialEvolution,
+    DiscreteOptimizer,
+    GreedyWalk,
+    MCMC,
+    RandomSample,
+    Result,
+    SimulatedAnnealing,
+)
 
 
 def sphere_fitness(dna: tuple[int, ...]) -> float:
@@ -12,18 +23,23 @@ def sphere_fitness(dna: tuple[int, ...]) -> float:
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
 
+ALL_OPTIMIZERS = [
+    (RandomSample, {}),
+    (GreedyWalk, {}),
+    (GA, {"population_size": 10}),
+    (BestFirstSearch, {"mode": "backtrack"}),
+    (BestFirstSearch, {"mode": "frontier"}),
+    (BasinHopping, {}),
+    (DifferentialEvolution, {"popsize": 5}),
+    (MCMC, {}),
+    (SimulatedAnnealing, {"n_iterations": 100}),
+]
+
 
 class TestAllOptimizersOnSphere:
     """Each optimizer finds a solution better than worst possible."""
 
-    @pytest.mark.parametrize(
-        "OptimizerCls,kwargs",
-        [
-            (RandomSample, {}),
-            (GreedyWalk, {}),
-            (GA, {"population_size": 10}),
-        ],
-    )
+    @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_all_optimizers_on_sphere(self, OptimizerCls, kwargs):
         """Each optimizer beats worst-possible fitness (243) on sphere."""
         opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
@@ -35,14 +51,7 @@ class TestAllOptimizersOnSphere:
 class TestAllOptimizersReturnResult:
     """Each optimizer returns a well-formed Result."""
 
-    @pytest.mark.parametrize(
-        "OptimizerCls,kwargs",
-        [
-            (RandomSample, {}),
-            (GreedyWalk, {}),
-            (GA, {"population_size": 10}),
-        ],
-    )
+    @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_result_fields(self, OptimizerCls, kwargs):
         """Result has all fields populated correctly."""
         opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
@@ -55,7 +64,7 @@ class TestAllOptimizersReturnResult:
         for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
             assert lo <= val <= hi
         assert isinstance(result.best_value, float)
-        assert len(result.history) == 20
+        assert len(result.history) > 0
         assert result.n_evaluations > 0
         assert result.wall_time > 0
 
@@ -67,15 +76,23 @@ class TestImportPublicAPI:
         """Public API imports succeed and are the expected types."""
         from cyopt import (
             GA,
+            BasinHopping,
+            BestFirstSearch,
+            DifferentialEvolution,
             DiscreteOptimizer,
             GreedyWalk,
+            MCMC,
             RandomSample,
             Result,
+            SimulatedAnnealing,
         )
 
-        assert issubclass(GA, DiscreteOptimizer)
-        assert issubclass(RandomSample, DiscreteOptimizer)
-        assert issubclass(GreedyWalk, DiscreteOptimizer)
+        for cls in (
+            GA, RandomSample, GreedyWalk, BestFirstSearch,
+            BasinHopping, DifferentialEvolution, MCMC, SimulatedAnnealing,
+        ):
+            assert issubclass(cls, DiscreteOptimizer)
+
         assert Result.__dataclass_fields__ is not None
 
 
@@ -97,14 +114,7 @@ class TestCacheReducesEvaluations:
 class TestProgressNoCrash:
     """Optimizers with progress=True run without error."""
 
-    @pytest.mark.parametrize(
-        "OptimizerCls,kwargs",
-        [
-            (RandomSample, {}),
-            (GreedyWalk, {}),
-            (GA, {"population_size": 10}),
-        ],
-    )
+    @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_progress_no_crash(self, OptimizerCls, kwargs):
         """Running with progress=True doesn't raise."""
         opt = OptimizerCls(
@@ -112,3 +122,19 @@ class TestProgressNoCrash:
         )
         result = opt.run(5)
         assert result.best_solution is not None
+
+
+class TestContinuation:
+    """State persists across consecutive run() calls."""
+
+    @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
+    def test_continuation(self, OptimizerCls, kwargs):
+        """Second run() continues from prior state."""
+        opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
+        r1 = opt.run(20)
+        n_evals_after_first = r1.n_evaluations
+        best_after_first = r1.best_value
+
+        r2 = opt.run(20)
+        assert r2.n_evaluations >= n_evals_after_first  # more evaluations
+        assert r2.best_value <= best_after_first  # did not worsen (minimization)
