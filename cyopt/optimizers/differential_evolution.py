@@ -176,6 +176,12 @@ class DifferentialEvolution(DiscreteOptimizer):
         wall_time = time.perf_counter() - t0
         self._iteration_offset += len(history)
 
+        if self._best_solution is None:
+            raise RuntimeError(
+                "No solution was evaluated during run(). "
+                "Ensure n_iterations > 0."
+            )
+
         return Result(
             best_solution=self._best_solution,
             best_value=self._best_value,
