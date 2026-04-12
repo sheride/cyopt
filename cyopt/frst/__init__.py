@@ -15,8 +15,15 @@ except ImportError as e:
     ) from e
 
 from cyopt.frst._encoding import patch_polytope
+from cyopt.frst._result import FRSTResult
+from cyopt.frst._wrapper import FRSTOptimizer, frst_optimizer
 
-__all__ = ["patch_polytope"]
+__all__ = [
+    "FRSTOptimizer",
+    "FRSTResult",
+    "frst_optimizer",
+    "patch_polytope",
+]
 
 # Apply monkey patches on import
 patch_polytope()

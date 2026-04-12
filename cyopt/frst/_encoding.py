@@ -100,7 +100,11 @@ def _dna_to_frst(self, dna: DNA) -> object | None:
     triangs: list = [None] * n_faces
 
     for i, face_idx in enumerate(self._cyopt_interesting):
-        triangs[face_idx] = self._cyopt_face_triangs[face_idx][dna[i]]
+        face_list = self._cyopt_face_triangs[face_idx]
+        # Clamp index to valid range (some optimizers like DE may produce
+        # boundary values due to floating-point rounding in integrality mode)
+        idx = max(0, min(dna[i], len(face_list) - 1))
+        triangs[face_idx] = face_list[idx]
 
     return self.triangfaces_to_frst(triangs)
 
