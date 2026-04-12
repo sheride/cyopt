@@ -37,7 +37,7 @@ def _normalize_simplices(simplices) -> frozenset[tuple[int, ...]]:
     return frozenset(tuple(sorted(int(v) for v in s)) for s in simplices)
 
 
-def _prep_for_optimizers(self, **kwargs) -> None:
+def _prep_for_optimizers(self, face_triangs=None, **kwargs) -> None:
     """Precompute 2-face triangulation data for FRST optimization.
 
     Must be called before any DNA encoding/decoding methods. Idempotent --
@@ -45,8 +45,13 @@ def _prep_for_optimizers(self, **kwargs) -> None:
 
     Parameters
     ----------
+    face_triangs : list, optional
+        Pre-computed face triangulations (output of ``self.face_triangs()``).
+        If provided, skips the ``face_triangs()`` call. Use this to ensure
+        reproducible DNA mappings from saved data.
     **kwargs
-        Passed through to ``self.face_triangs()``.
+        Passed through to ``self.face_triangs()`` when ``face_triangs``
+        is not provided.
 
     Raises
     ------
@@ -60,7 +65,10 @@ def _prep_for_optimizers(self, **kwargs) -> None:
         raise ValueError("FRST optimization requires reflexive polytopes.")
 
     # Precompute all 2-face triangulations
-    self._cyopt_face_triangs: list = self.face_triangs(**kwargs)
+    self._cyopt_face_triangs: list = (
+        face_triangs if face_triangs is not None
+        else self.face_triangs(**kwargs)
+    )
 
     # Identify interesting faces (>1 triangulation) and compute bounds
     self._cyopt_interesting: list[int] = []
