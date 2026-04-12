@@ -239,6 +239,8 @@ class DiscreteOptimizer(ABC):
         self._best_value = state['best_value']
         self._n_evaluations = state['n_evaluations']
         self._iteration_offset = state['iteration_offset']
+        self._record_history = state.get('record_history', False)
+        self._progress = state.get('progress', False)
 
     def _get_state(self) -> dict:
         """Return optimizer-specific state. Override in subclasses."""
