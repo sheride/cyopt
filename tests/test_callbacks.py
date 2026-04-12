@@ -14,7 +14,7 @@ import pytest
 
 from cyopt._types import DNA, Bounds, Callback, CallbackInfo
 from cyopt.optimizers.random_sample import RandomSample
-from cyopt.optimizers.ga import GeneticAlgorithm
+from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
 from cyopt.optimizers.best_first_search import BestFirstSearch
 from cyopt.optimizers.basin_hopping import BasinHopping
@@ -40,7 +40,7 @@ class TestCallbackEmptyList:
         assert len(result.history) == 10
 
     def test_ga_empty_callbacks(self):
-        opt = GeneticAlgorithm(sphere, BOUNDS, seed=42, callbacks=[])
+        opt = GA(sphere, BOUNDS, seed=42, callbacks=[])
         result = opt.run(5)
         assert len(result.history) == 5
 
@@ -172,7 +172,7 @@ class TestAllOptimizersAcceptCallbacks:
 
     @pytest.mark.parametrize("OptimizerClass", [
         RandomSample,
-        GeneticAlgorithm,
+        GA,
         GreedyWalk,
         BestFirstSearch,
         BasinHopping,

@@ -58,6 +58,8 @@ class DifferentialEvolution(DiscreteOptimizer):
         ``full_history=None``.
     progress : bool
         Accepted for API consistency but DE does not use tqdm.
+    callbacks : list | None
+        Optional list of callback functions invoked each generation.
     """
 
     def __init__(
@@ -73,11 +75,13 @@ class DifferentialEvolution(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         super().__init__(
             fitness_fn, bounds,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
+            callbacks=callbacks,
         )
 
         self._popsize = popsize
@@ -119,6 +123,17 @@ class DifferentialEvolution(DiscreteOptimizer):
 
         def callback(xk: np.ndarray, convergence: float = 0) -> bool:
             history.append(self._best_value)
+            if self._callbacks:
+                cb_info = {
+                    'iteration': len(history) - 1 + self._iteration_offset,
+                    'best_value': self._best_value,
+                    'best_solution': self._best_solution,
+                    'n_evaluations': self._n_evaluations,
+                    'wall_time': time.perf_counter() - t0,
+                }
+                for cb in self._callbacks:
+                    if cb(cb_info) is True:
+                        return True  # SciPy stops when callback returns True
             return False
 
         # CRITICAL: half-open bounds for integrality

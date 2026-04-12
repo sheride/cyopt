@@ -63,6 +63,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         if n_iterations <= 0:
             raise ValueError(
@@ -83,6 +84,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
             cache_size=cache_size,
             record_history=record_history,
             progress=progress,
+            callbacks=callbacks,
         )
         self._n_iterations = n_iterations
         self._t_max = t_max

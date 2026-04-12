@@ -10,7 +10,7 @@ import numpy as np
 from tqdm import tqdm
 
 from cyopt._cache import EvaluationCache
-from cyopt._types import DNA, Bounds, Result
+from cyopt._types import DNA, Bounds, Callback, Result
 
 
 class DiscreteOptimizer(ABC):
@@ -34,6 +34,9 @@ class DiscreteOptimizer(ABC):
         If ``True``, collect per-iteration dicts in ``Result.full_history``.
     progress : bool
         If ``True``, display a tqdm progress bar during ``run()``.
+    callbacks : list[Callback] | None
+        Optional list of callback functions invoked each iteration.
+        Each receives a ``CallbackInfo`` dict. Return ``True`` to stop early.
     """
 
     def __init__(
@@ -44,6 +47,7 @@ class DiscreteOptimizer(ABC):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list[Callback] | None = None,
     ) -> None:
         self._fitness_fn = fitness_fn
         self._bounds = bounds
@@ -51,6 +55,8 @@ class DiscreteOptimizer(ABC):
         self._cache = EvaluationCache(maxsize=cache_size)
         self._record_history = record_history
         self._progress = progress
+        self._callbacks: list[Callback] = list(callbacks) if callbacks else []
+        self._iteration_offset: int = 0
 
         # Best-so-far tracking (minimization)
         self._best_solution: DNA | None = None
@@ -128,6 +134,31 @@ class DiscreteOptimizer(ABC):
             history.append(self._best_value)
             if self._record_history and full_history is not None and step_info is not None:
                 full_history.append(step_info)
+
+            if self._callbacks:
+                cb_info = {
+                    'iteration': self._iteration_offset + i,
+                    'best_value': self._best_value,
+                    'best_solution': self._best_solution,
+                    'n_evaluations': self._n_evaluations,
+                    'wall_time': time.perf_counter() - t0,
+                }
+                for cb in self._callbacks:
+                    if cb(cb_info) is True:
+                        wall_time = time.perf_counter() - t0
+                        if self._best_solution is None:
+                            raise RuntimeError(
+                                "No solution was evaluated during run(). "
+                                "Ensure n_iterations > 0 and _step() calls _evaluate()."
+                            )
+                        return Result(
+                            best_solution=self._best_solution,
+                            best_value=self._best_value,
+                            history=history,
+                            full_history=full_history,
+                            n_evaluations=self._n_evaluations,
+                            wall_time=wall_time,
+                        )
 
         wall_time = time.perf_counter() - t0
 

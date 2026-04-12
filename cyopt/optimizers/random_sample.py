@@ -39,6 +39,7 @@ class RandomSample(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         super().__init__(
             fitness_fn,
@@ -47,6 +48,7 @@ class RandomSample(DiscreteOptimizer):
             cache_size=cache_size,
             record_history=record_history,
             progress=progress,
+            callbacks=callbacks,
         )
 
     def _step(self, iteration: int) -> dict | None:

@@ -217,6 +217,7 @@ class GA(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         # Validate hyperparameters (CORE-06)
         if population_size < 4:
@@ -236,6 +237,7 @@ class GA(DiscreteOptimizer):
             fitness_fn, bounds,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
+            callbacks=callbacks,
         )
 
         self._population_size = population_size

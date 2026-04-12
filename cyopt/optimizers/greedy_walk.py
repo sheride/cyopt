@@ -78,6 +78,7 @@ class GreedyWalk(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         super().__init__(
             fitness_fn,
@@ -86,6 +87,7 @@ class GreedyWalk(DiscreteOptimizer):
             cache_size=cache_size,
             record_history=record_history,
             progress=progress,
+            callbacks=callbacks,
         )
         self._neighbor_fn: NeighborFunction = neighbor_fn or hamming_neighbors
         self._current: DNA | None = None

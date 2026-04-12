@@ -125,6 +125,7 @@ class BasinHopping(DiscreteOptimizer):
         cache_size: int | None = None,
         record_history: bool = False,
         progress: bool = False,
+        callbacks: list | None = None,
     ) -> None:
         if temperature <= 0:
             raise ValueError(
@@ -135,6 +136,7 @@ class BasinHopping(DiscreteOptimizer):
             fitness_fn, bounds,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
+            callbacks=callbacks,
         )
 
         self._temperature = temperature
