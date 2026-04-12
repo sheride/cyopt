@@ -107,7 +107,7 @@ def _dna_to_frst(self, dna: DNA) -> object | None:
     """
     _check_prepped(self, "dna_to_frst")
     n_faces = len(self._cyopt_face_triangs)
-    triangs: list = [None] * n_faces
+    triangs: list = [ft[0] for ft in self._cyopt_face_triangs]
 
     for i, face_idx in enumerate(self._cyopt_interesting):
         face_list = self._cyopt_face_triangs[face_idx]
