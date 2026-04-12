@@ -74,9 +74,9 @@ Plans:
   2. User can save optimizer state to disk mid-run and resume from the checkpoint, continuing optimization without loss of cache or best-so-far tracking
 **Plans**: 3 plans
 Plans:
-- [ ] 04-01-PLAN.md — Callback system: type aliases, base class integration, DE support, tests
-- [ ] 04-02-PLAN.md — Checkpoint/resume: _checkpoint module, save/load on base, _get_state/_set_state on all 8 optimizers
-- [ ] 04-03-PLAN.md — Wire exports, CheckpointCallback integration, cross-optimizer checkpoint tests
+- [x] 04-01-PLAN.md — Callback system: type aliases, base class integration, DE support, tests
+- [x] 04-02-PLAN.md — Checkpoint/resume: _checkpoint module, save/load on base, _get_state/_set_state on all 8 optimizers
+- [x] 04-03-PLAN.md — Wire exports, CheckpointCallback integration, cross-optimizer checkpoint tests
 
 ### Phase 5: Documentation
 **Goal**: Users can learn and use cyopt through comprehensive API docs and worked tutorials
