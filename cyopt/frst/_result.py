@@ -42,7 +42,11 @@ class FRSTResult:
 
     @property
     def best_value(self) -> float:
-        """The best target value (un-negated: higher is better)."""
+        """The best target value (un-negated: higher is better).
+
+        Returns ``-inf`` if no valid FRST was found during optimization
+        (all DNA evaluations hit the penalty).
+        """
         return -self.result.best_value
 
     @property

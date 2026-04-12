@@ -145,15 +145,9 @@ def test_top_level_import_no_frst():
     import importlib
     import sys
 
-    # Remove any cached frst imports
-    frst_modules = [k for k in sys.modules if k.startswith("cyopt.frst")]
-    for mod in frst_modules:
-        del sys.modules[mod]
-
-    # Also remove cyopt itself to get a fresh import
-    cyopt_modules = [k for k in sys.modules if k.startswith("cyopt")]
+    # Save and remove all cyopt modules (including frst) for a clean import
     saved = {}
-    for mod in cyopt_modules:
+    for mod in [k for k in sys.modules if k.startswith("cyopt")]:
         saved[mod] = sys.modules.pop(mod)
 
     try:
@@ -163,5 +157,5 @@ def test_top_level_import_no_frst():
         # frst should not be in the namespace
         assert not hasattr(cyopt, "frst") or "cyopt.frst" not in sys.modules
     finally:
-        # Restore modules
+        # Restore all saved modules
         sys.modules.update(saved)

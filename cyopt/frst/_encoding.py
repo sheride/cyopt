@@ -72,13 +72,22 @@ def _prep_for_optimizers(self, **kwargs) -> None:
     self._cyopt_bounds: Bounds = tuple(bounds_list)
 
     # Precompute simplex sets for reverse mapping
-    self._cyopt_face_simp_sets: list[list[frozenset]] = []
+    self._cyopt_face_simp_sets: list[list[frozenset[tuple[int, ...]]]] = []
     for face_ts in self._cyopt_face_triangs:
         self._cyopt_face_simp_sets.append(
             [_normalize_simplices(ft.simplices()) for ft in face_ts]
         )
 
     self._cyopt_prepped = True
+
+
+def _check_prepped(self, method_name: str) -> None:
+    """Raise RuntimeError if prep_for_optimizers has not been called."""
+    if not getattr(self, "_cyopt_prepped", False):
+        raise RuntimeError(
+            f"Polytope.{method_name}() requires prep_for_optimizers() "
+            f"to be called first."
+        )
 
 
 def _dna_to_frst(self, dna: DNA) -> object | None:
@@ -96,6 +105,7 @@ def _dna_to_frst(self, dna: DNA) -> object | None:
         The FRST triangulation, or ``None`` if the face triangulation
         combination produces a non-solid cone.
     """
+    _check_prepped(self, "dna_to_frst")
     n_faces = len(self._cyopt_face_triangs)
     triangs: list = [None] * n_faces
 
@@ -123,6 +133,7 @@ def _dna_to_cy(self, dna: DNA) -> object | None:
         The CalabiYau manifold, or ``None`` if the DNA does not produce
         a valid FRST.
     """
+    _check_prepped(self, "dna_to_cy")
     triang = self.dna_to_frst(dna)
     if triang is None:
         return None
@@ -147,6 +158,7 @@ def _triang_to_dna(self, triang) -> DNA:
     ValueError
         If any face's restriction does not match any known triangulation.
     """
+    _check_prepped(self, "triang_to_dna")
     restrictions = triang.restrict()
 
     dna_components: list[int] = []
@@ -184,6 +196,7 @@ def _cy_to_dna(self, cy) -> DNA:
     DNA
         The DNA tuple corresponding to this CY's triangulation.
     """
+    _check_prepped(self, "cy_to_dna")
     return self.triang_to_dna(cy.triangulation())
 
 

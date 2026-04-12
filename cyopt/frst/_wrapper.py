@@ -113,12 +113,14 @@ class FRSTOptimizer:
 
             result = target(obj)
 
-            # Support target returning (value, ancillary_data) or just value
-            if isinstance(result, tuple):
+            # Support target returning (value, ancillary_data) or just value.
+            # Use length check + indexing rather than isinstance(result, tuple)
+            # to avoid false-positives when target returns a plain tuple.
+            if isinstance(result, tuple) and len(result) == 2:
                 value, anc = result
                 ancillary[dna] = anc
             else:
-                value = result
+                value = float(result)
 
             return -value  # negate: optimizer minimizes, user target maximizes
 
