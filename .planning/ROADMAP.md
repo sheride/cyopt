@@ -88,9 +88,9 @@ Plans:
   3. README includes installation instructions (with optional `[frst]` extras) and a quickstart code example that runs
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [ ] 05-01-PLAN.md — Sphinx scaffold, RST files, conf.py, Makefile, README, pyproject.toml docs extras
+- [ ] 05-02-PLAN.md — Generic optimizer tutorial notebook (no CYTools)
+- [ ] 05-03-PLAN.md — FRST optimization + Mori cone cap tutorial notebooks (CYTools required)
 
 ## Progress
 
@@ -103,5 +103,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Foundation + First Optimizers | 3/3 | Complete | - |
 | 2. Remaining Optimizers | 3/3 | Complete | - |
 | 3. FRST Wrapper | 2/2 | Complete | - |
-| 4. Advanced Infrastructure | 0/3 | Planning | - |
-| 5. Documentation | 0/? | Not started | - |
+| 4. Advanced Infrastructure | 3/3 | Complete | - |
+| 5. Documentation | 0/3 | Planning | - |
