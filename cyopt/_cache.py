@@ -65,6 +65,9 @@ class EvaluationCache:
             Maximum cache size for the new instance.
         """
         cache = cls(maxsize=maxsize)
+        # Trim to maxsize (keep most-recently-used tail) before inserting
+        if maxsize is not None and len(items) > maxsize:
+            items = items[-maxsize:]
         for k, v in items:
             cache._cache[k] = v
         return cache
