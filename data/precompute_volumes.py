@@ -2,6 +2,10 @@
 
 Run with: conda run -n cytools python data/precompute_volumes.py
 
+Uses cached face triangulations from data/h11_23_face_triangs.npz for
+reproducible DNA mappings. Falls back to computing face_triangs() fresh
+if the cache is missing.
+
 Saves results to data/h11_23_volumes.npz containing:
   - dna_array: (N, 8) int array of valid DNA vectors
   - volumes: (N,) float array of log10(CY volume) values
@@ -10,6 +14,7 @@ Saves results to data/h11_23_volumes.npz containing:
 """
 
 import itertools
+import os
 import sys
 import time
 
@@ -23,6 +28,7 @@ from cyopt.frst import patch_polytope
 patch_polytope()
 
 from cytools import Polytope
+from cytools.triangulation import Triangulation
 
 # Construct the h11=23 polytope from arXiv:2405.08871
 vertices = np.array(
@@ -34,7 +40,29 @@ vertices = np.array(
     ]
 ).T
 poly = Polytope(vertices)
-poly.prep_for_optimizers()
+
+# Load cached face triangulations if available
+FACE_TRIANGS_PATH = "data/h11_23_face_triangs.npz"
+if os.path.exists(FACE_TRIANGS_PATH):
+    print(f"Loading cached face triangulations from {FACE_TRIANGS_PATH}")
+    ft_data = np.load(FACE_TRIANGS_PATH)
+    n_faces = int(ft_data["n_faces"])
+    n_per_face = ft_data["n_triangs_per_face"]
+    face_triangs = []
+    for i in range(n_faces):
+        labels = tuple(ft_data[f"f{i}_labels"])
+        face_ts = []
+        for j in range(n_per_face[i]):
+            simps = ft_data[f"f{i}_t{j}_simplices"]
+            t = Triangulation(
+                poly, labels, simplices=simps, check_input_simplices=False
+            )
+            face_ts.append(t)
+        face_triangs.append(face_ts)
+    poly.prep_for_optimizers(face_triangs=face_triangs)
+else:
+    print("No cached face triangulations found, computing fresh...")
+    poly.prep_for_optimizers()
 
 bounds = poly._cyopt_bounds
 print(f"Bounds: {bounds}")
@@ -50,7 +78,10 @@ volumes = np.full(total, np.nan)
 valid_mask = np.zeros(total, dtype=bool)
 
 t0 = time.time()
-for idx, dna in enumerate(tqdm(itertools.product(*ranges), total=total, desc="Computing volumes")):
+PROGRESS_FILE = "data/precompute_progress.txt"
+CHECKPOINT_INTERVAL = 1000  # write progress every N DNA
+
+for idx, dna in enumerate(itertools.product(*ranges)):
     dna_tuple = tuple(dna)
     all_dna[idx] = dna_tuple
 
@@ -65,8 +96,19 @@ for idx, dna in enumerate(tqdm(itertools.product(*ranges), total=total, desc="Co
         volumes[idx] = np.log10(vol)
         valid_mask[idx] = True
     except Exception as e:
-        print(f"\nError at DNA {dna_tuple}: {e}")
-        continue
+        pass
+
+    if (idx + 1) % CHECKPOINT_INTERVAL == 0:
+        elapsed_so_far = time.time() - t0
+        rate = (idx + 1) / elapsed_so_far
+        remaining = (total - idx - 1) / rate
+        n_valid_so_far = valid_mask[:idx+1].sum()
+        with open(PROGRESS_FILE, "w") as f:
+            f.write(f"{idx+1}/{total} ({100*(idx+1)/total:.1f}%) | "
+                    f"valid={n_valid_so_far} | "
+                    f"rate={rate:.1f}/s | "
+                    f"elapsed={elapsed_so_far:.0f}s | "
+                    f"remaining={remaining:.0f}s ({remaining/60:.1f}min)\n")
 
 elapsed = time.time() - t0
 n_valid = valid_mask.sum()
