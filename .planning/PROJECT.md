@@ -24,11 +24,12 @@ A clean, reusable discrete optimization toolkit that works standalone, with a th
 - [x] MCMC optimizer (Metropolis-Hastings, injectable step function) — Validated in Phase 2
 - [x] SimulatedAnnealing optimizer (exponential cooling, injectable step function) — Validated in Phase 2
 
+- [x] FRST wrapper: monkey-patch Polytope with prep_for_optimizers, dna_to_frst, dna_to_cy, triang_to_dna, cy_to_dna — Validated in Phase 3
+- [x] FRST-specific optimizer wrappers that connect generic optimizers to the DNA encoding (FRSTOptimizer, frst_optimizer factory, all 8 optimizers verified) — Validated in Phase 3
+- [x] Compatibility with current CYTools API (functions have been moved/renamed since the old code) — Validated in Phase 3
+
 ### Active
-- [ ] FRST wrapper: monkey-patch Polytope with prep_for_optimizers, dna_to_frst, dna_to_cy, triang_to_dna, etc.
-- [ ] FRST-specific optimizer wrappers that connect generic optimizers to the DNA encoding
 - [ ] Sphinx documentation (sphinx-book-theme, autodoc, napoleon, tutorials as notebooks)
-- [ ] Compatibility with current CYTools API (functions have been moved/renamed since the old code)
 
 ### Out of Scope
 
