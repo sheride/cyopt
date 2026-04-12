@@ -41,3 +41,30 @@ class EvaluationCache:
     def clear(self) -> None:
         """Remove all entries from the cache."""
         self._cache.clear()
+
+    def to_list(self) -> list[tuple[tuple[int, ...], float]]:
+        """Serialize cache as ordered list of (key, value) pairs.
+
+        Preserves LRU ordering so that restored caches evict identically.
+        """
+        return list(self._cache.items())
+
+    @classmethod
+    def from_list(
+        cls,
+        items: list[tuple[tuple[int, ...], float]],
+        maxsize: int | None = None,
+    ) -> "EvaluationCache":
+        """Reconstruct cache from ordered list of (key, value) pairs.
+
+        Parameters
+        ----------
+        items : list[tuple[tuple[int, ...], float]]
+            Ordered (key, value) pairs from :meth:`to_list`.
+        maxsize : int | None
+            Maximum cache size for the new instance.
+        """
+        cache = cls(maxsize=maxsize)
+        for k, v in items:
+            cache._cache[k] = v
+        return cache

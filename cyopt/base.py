@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import pickle
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
 
 from cyopt._cache import EvaluationCache
+from cyopt._checkpoint import CHECKPOINT_VERSION, CheckpointCallback, _migrate
 from cyopt._types import DNA, Bounds, Callback, Result
 
 
@@ -57,6 +60,11 @@ class DiscreteOptimizer(ABC):
         self._progress = progress
         self._callbacks: list[Callback] = list(callbacks) if callbacks else []
         self._iteration_offset: int = 0
+
+        # Bind CheckpointCallback instances to this optimizer
+        for cb in self._callbacks:
+            if isinstance(cb, CheckpointCallback):
+                cb._optimizer = self
 
         # Best-so-far tracking (minimization)
         self._best_solution: DNA | None = None
@@ -151,6 +159,7 @@ class DiscreteOptimizer(ABC):
                                 "No solution was evaluated during run(). "
                                 "Ensure n_iterations > 0 and _step() calls _evaluate()."
                             )
+                        self._iteration_offset += i + 1
                         return Result(
                             best_solution=self._best_solution,
                             best_value=self._best_value,
@@ -168,6 +177,7 @@ class DiscreteOptimizer(ABC):
                 "Ensure n_iterations > 0 and _step() calls _evaluate()."
             )
 
+        self._iteration_offset += n_iterations
         return Result(
             best_solution=self._best_solution,
             best_value=self._best_value,
@@ -196,3 +206,121 @@ class DiscreteOptimizer(ABC):
             Per-iteration info dict for ``full_history``, or ``None``.
         """
         ...
+
+    # ------------------------------------------------------------------
+    # Checkpoint / resume
+    # ------------------------------------------------------------------
+
+    def _get_common_state(self) -> dict:
+        """Serialize base-class state to a plain dict."""
+        return {
+            '_checkpoint_version': CHECKPOINT_VERSION,
+            '_class': type(self).__name__,
+            '_module': type(self).__module__,
+            'rng_state': self._rng.bit_generator.state,
+            'cache_data': self._cache.to_list(),
+            'cache_maxsize': self._cache._maxsize,
+            'best_solution': self._best_solution,
+            'best_value': self._best_value,
+            'n_evaluations': self._n_evaluations,
+            'iteration_offset': self._iteration_offset,
+            'bounds': self._bounds,
+            'record_history': self._record_history,
+            'progress': self._progress,
+        }
+
+    def _set_common_state(self, state: dict) -> None:
+        """Restore base-class state from a plain dict."""
+        self._rng.bit_generator.state = state['rng_state']
+        self._cache = EvaluationCache.from_list(
+            state['cache_data'], maxsize=state['cache_maxsize']
+        )
+        self._best_solution = state['best_solution']
+        self._best_value = state['best_value']
+        self._n_evaluations = state['n_evaluations']
+        self._iteration_offset = state['iteration_offset']
+
+    def _get_state(self) -> dict:
+        """Return optimizer-specific state. Override in subclasses."""
+        return {}
+
+    def _set_state(self, state: dict) -> None:
+        """Restore optimizer-specific state. Override in subclasses."""
+        pass
+
+    def save_checkpoint(self, path: str | Path) -> None:
+        """Save optimizer state to a pickle file.
+
+        Parameters
+        ----------
+        path : str or Path
+            File path for the checkpoint.
+
+        Notes
+        -----
+        Only load checkpoints from trusted sources. Pickle can execute
+        arbitrary code during deserialization.
+        """
+        state = self._get_common_state()
+        state['optimizer_state'] = self._get_state()
+        with open(path, 'wb') as f:
+            pickle.dump(state, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    @classmethod
+    def load_checkpoint(
+        cls,
+        path: str | Path,
+        fitness_fn: Callable[[DNA], float],
+        *,
+        callbacks: list | None = None,
+        **kwargs,
+    ) -> "DiscreteOptimizer":
+        """Load optimizer state from a checkpoint file.
+
+        Parameters
+        ----------
+        path : str or Path
+            Path to checkpoint file.
+        fitness_fn : Callable[[DNA], float]
+            Fitness function (not serialized in checkpoints).
+        callbacks : list or None
+            Callbacks for the restored optimizer.
+        **kwargs
+            Additional constructor arguments (e.g., ``seed`` is ignored
+            since RNG state is restored from checkpoint).
+
+        Returns
+        -------
+        DiscreteOptimizer
+            A restored optimizer ready for continued optimization.
+
+        Raises
+        ------
+        TypeError
+            If the checkpoint was saved from a different optimizer class.
+        ValueError
+            If the checkpoint version is incompatible.
+        """
+        with open(path, 'rb') as f:
+            state = pickle.load(f)  # noqa: S301
+
+        version = state.get('_checkpoint_version', 0)
+        if version != CHECKPOINT_VERSION:
+            state = _migrate(state, version)
+
+        saved_class = state.get('_class', '')
+        if saved_class != cls.__name__:
+            raise TypeError(
+                f"Checkpoint was saved from {saved_class}, "
+                f"but loading as {cls.__name__}"
+            )
+
+        instance = cls(
+            fitness_fn=fitness_fn,
+            bounds=state['bounds'],
+            callbacks=callbacks,
+            **kwargs,
+        )
+        instance._set_common_state(state)
+        instance._set_state(state.get('optimizer_state', {}))
+        return instance

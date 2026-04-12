@@ -256,6 +256,7 @@ class GA(DiscreteOptimizer):
         # Population state (initialised in run())
         self._population: np.ndarray | None = None
         self._fitness_values: np.ndarray | None = None
+        self._initialized: bool = False
 
     @staticmethod
     def _resolve_operator(
@@ -293,21 +294,42 @@ class GA(DiscreteOptimizer):
         )
 
     def run(self, n_iterations: int):
-        """Initialise population and delegate to base-class loop."""
-        n_dims = len(self._bounds)
+        """Initialise population (if needed) and delegate to base-class loop."""
+        if not self._initialized:
+            n_dims = len(self._bounds)
+            self._population = np.empty(
+                (self._population_size, n_dims), dtype=int
+            )
+            self._fitness_values = np.empty(self._population_size, dtype=float)
 
-        # Reset state for reproducibility on repeated run() calls
-        self._population = np.empty(
-            (self._population_size, n_dims), dtype=int
-        )
-        self._fitness_values = np.empty(self._population_size, dtype=float)
-
-        for i in range(self._population_size):
-            dna = self._random_dna()
-            self._population[i] = dna
-            self._fitness_values[i] = self._evaluate(dna)
+            for i in range(self._population_size):
+                dna = self._random_dna()
+                self._population[i] = dna
+                self._fitness_values[i] = self._evaluate(dna)
+            self._initialized = True
 
         return super().run(n_iterations)
+
+    def _get_state(self) -> dict:
+        """Return GA-specific state for checkpointing."""
+        return {
+            'population': self._population.copy() if self._population is not None else None,
+            'fitness_values': self._fitness_values.copy() if self._fitness_values is not None else None,
+            'population_size': self._population_size,
+            'mutation_rate': self._mutation_rate,
+            'mutation_k': self._mutation_k,
+            'elitism': self._elitism,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore GA-specific state from checkpoint."""
+        self._population = state['population']
+        self._fitness_values = state['fitness_values']
+        self._population_size = state['population_size']
+        self._mutation_rate = state['mutation_rate']
+        self._mutation_k = state['mutation_k']
+        self._elitism = state['elitism']
+        self._initialized = True  # Skip re-initialization on next run()
 
     def _step(self, iteration: int) -> dict | None:
         """Execute one generation of the GA."""
