@@ -94,6 +94,26 @@ class SimulatedAnnealing(DiscreteOptimizer):
         self._current_value: float = float("inf")
         self._step_count: int = 0
 
+    def _get_state(self) -> dict:
+        """Return SimulatedAnnealing-specific state for checkpointing."""
+        return {
+            'n_iterations': self._n_iterations,
+            't_max': self._t_max,
+            't_min': self._t_min,
+            'current': self._current,
+            'current_value': self._current_value,
+            'step_count': self._step_count,  # CRITICAL for cooling schedule
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore SimulatedAnnealing-specific state from checkpoint."""
+        self._n_iterations = state['n_iterations']
+        self._t_max = state['t_max']
+        self._t_min = state['t_min']
+        self._current = state['current']
+        self._current_value = state['current_value']
+        self._step_count = state['step_count']
+
     def _step(self, iteration: int) -> dict | None:
         """Execute one simulated annealing step with temperature-dependent acceptance.
 

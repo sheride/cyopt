@@ -146,6 +146,22 @@ class BasinHopping(DiscreteOptimizer):
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
+    def _get_state(self) -> dict:
+        """Return BasinHopping-specific state for checkpointing."""
+        return {
+            'temperature': self._temperature,
+            'n_perturbations': self._n_perturbations,
+            'current': self._current,
+            'current_value': self._current_value,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore BasinHopping-specific state from checkpoint."""
+        self._temperature = state['temperature']
+        self._n_perturbations = state['n_perturbations']
+        self._current = state['current']
+        self._current_value = state['current_value']
+
     def _step(self, iteration: int) -> dict | None:
         """Execute one basin-hopping step.
 

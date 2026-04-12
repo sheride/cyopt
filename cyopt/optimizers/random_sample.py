@@ -51,6 +51,14 @@ class RandomSample(DiscreteOptimizer):
             callbacks=callbacks,
         )
 
+    def _get_state(self) -> dict:
+        """Return optimizer-specific state (none for RandomSample)."""
+        return {}
+
+    def _set_state(self, state: dict) -> None:
+        """Restore optimizer-specific state (no-op for RandomSample)."""
+        pass
+
     def _step(self, iteration: int) -> dict | None:
         """Sample one random point and evaluate it.
 

@@ -76,6 +76,20 @@ class MCMC(DiscreteOptimizer):
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
+    def _get_state(self) -> dict:
+        """Return MCMC-specific state for checkpointing."""
+        return {
+            'temperature': self._temperature,
+            'current': self._current,
+            'current_value': self._current_value,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore MCMC-specific state from checkpoint."""
+        self._temperature = state['temperature']
+        self._current = state['current']
+        self._current_value = state['current_value']
+
     def _step(self, iteration: int) -> dict | None:
         """Execute one Metropolis-Hastings step.
 

@@ -88,6 +88,30 @@ class BestFirstSearch(DiscreteOptimizer):
         self._visited: set[DNA] = set()
         self._counter: int = 0
 
+    def _get_state(self) -> dict:
+        """Return BestFirstSearch-specific state for checkpointing."""
+        return {
+            'mode': self._mode,
+            'current': self._current,
+            'current_value': self._current_value,
+            'path': list(self._path),
+            'avoid': list(self._avoid),
+            'frontier': list(self._frontier),
+            'visited': list(self._visited),
+            'counter': self._counter,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore BestFirstSearch-specific state from checkpoint."""
+        self._mode = state['mode']
+        self._current = state['current']
+        self._current_value = state['current_value']
+        self._path = list(state['path'])
+        self._avoid = set(state['avoid'])
+        self._frontier = list(state['frontier'])
+        self._visited = set(state['visited'])
+        self._counter = state['counter']
+
     def _step(self, iteration: int) -> dict | None:
         """Execute one search step, dispatching to the selected mode.
 

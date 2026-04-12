@@ -93,6 +93,18 @@ class GreedyWalk(DiscreteOptimizer):
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
+    def _get_state(self) -> dict:
+        """Return GreedyWalk-specific state for checkpointing."""
+        return {
+            'current': self._current,
+            'current_value': self._current_value,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore GreedyWalk-specific state from checkpoint."""
+        self._current = state['current']
+        self._current_value = state['current_value']
+
     def _step(self, iteration: int) -> dict | None:
         """Take one greedy step: evaluate neighbors, move to best if improving.
 

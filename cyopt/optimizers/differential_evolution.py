@@ -89,6 +89,22 @@ class DifferentialEvolution(DiscreteOptimizer):
         self._recombination = recombination
         self._strategy = strategy
 
+    def _get_state(self) -> dict:
+        """Return DE-specific state for checkpointing."""
+        return {
+            'popsize': self._popsize,
+            'mutation': self._mutation,
+            'recombination': self._recombination,
+            'strategy': self._strategy,
+        }
+
+    def _set_state(self, state: dict) -> None:
+        """Restore DE-specific state from checkpoint."""
+        self._popsize = state['popsize']
+        self._mutation = state['mutation']
+        self._recombination = state['recombination']
+        self._strategy = state['strategy']
+
     def _step(self, iteration: int) -> dict | None:
         """Not supported -- DE delegates to SciPy's internal loop.
 
@@ -158,6 +174,7 @@ class DifferentialEvolution(DiscreteOptimizer):
         )
 
         wall_time = time.perf_counter() - t0
+        self._iteration_offset += len(history)
 
         return Result(
             best_solution=self._best_solution,
