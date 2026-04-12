@@ -488,17 +488,13 @@ None -- documentation validation is primarily build-based (`make html` success) 
 | A1 | `docs` optional dependency group in pyproject.toml is good practice | pyproject.toml Update | Low -- only affects non-conda installs |
 | A2 | dbrane-tools notebooks are not actually rendered as doc pages (tutorials.rst just lists them) | Architecture Patterns | Low -- cyopt will use myst-nb toctree integration regardless |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **GitHub repository URL for sphinx-book-theme options**
-   - What we know: dbrane-tools uses `https://github.com/elijahsheridan/dbrane-tools`
-   - What's unclear: Whether cyopt has a GitHub repo yet, and what the URL is
-   - Recommendation: Use `https://github.com/elijahsheridan/cyopt` as placeholder; update when repo is created
+1. **GitHub repository URL for sphinx-book-theme options** (RESOLVED)
+   - Resolution: Use `https://github.com/elijahsheridan/cyopt` as placeholder; update when repo is created.
 
-2. **Notebook execution for FRST tutorials**
-   - What we know: FRST computations can be expensive (minutes to hours for large polytopes)
-   - What's unclear: Exact polytope choices and computation times for Figs 2-5 reproduction
-   - Recommendation: Use small polytopes (low h11) for tutorial demos; reference the paper for full-scale results
+2. **Notebook execution for FRST tutorials** (RESOLVED)
+   - Resolution: The tutorial notebook will reproduce Figs 2-5 from arXiv:2405.08871. Use small polytopes (h11=5-6) which keep computation under 10 minutes per figure. If the paper used larger polytopes for any figure, the notebook will clearly document what the paper used vs what the tutorial uses and why (computation time), but will still produce the same type of analysis/plot. The executor should read arXiv:2405.08871 to identify the exact figure types and adapt polytope choices to keep total notebook execution under 30 minutes.
 
 ## Sources
 
