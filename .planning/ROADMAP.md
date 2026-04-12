@@ -62,8 +62,8 @@ Plans:
   4. All FRST wrapper code works with the current CYTools version installed in the cytools conda environment
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — DNA encoding module, Polytope monkey-patch, and encoding unit tests
-- [ ] 03-02-PLAN.md — FRSTResult, FRSTOptimizer wrapper/factory, export wiring, integration tests
+- [x] 03-01-PLAN.md — DNA encoding module, Polytope monkey-patch, and encoding unit tests
+- [x] 03-02-PLAN.md — FRSTResult, FRSTOptimizer wrapper/factory, export wiring, integration tests
 
 ### Phase 4: Advanced Infrastructure
 **Goal**: Users can attach iteration callbacks for logging/early-stopping and save/resume optimizer state across sessions
