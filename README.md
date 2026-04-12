@@ -1,3 +1,67 @@
 # cyopt
 
-Discrete optimization toolkit for bounded integer-tuple search spaces.
+Discrete optimization toolkit for bounded integer-tuple search spaces, with a focus on FRST optimization of Calabi-Yau hypersurfaces via [CYTools](https://cy.tools).
+
+## Features
+
+- **8 optimizers:** GA, RandomSample, GreedyWalk, BestFirstSearch, BasinHopping, DifferentialEvolution, MCMC, SimulatedAnnealing
+- **Callback system** with early stopping support
+- **Checkpoint/resume** for long-running optimizations
+- **Optional CYTools integration** for FRST optimization via DNA encoding
+
+## Installation
+
+Core package (no CYTools dependency):
+
+```bash
+pip install cyopt
+```
+
+With FRST support (requires CYTools):
+
+```bash
+pip install cyopt[frst]
+```
+
+For development:
+
+```bash
+git clone https://github.com/elijahsheridan/cyopt.git
+cd cyopt
+pip install -e ".[dev,docs]"
+```
+
+## Quickstart
+
+```python
+from cyopt import GA, Bounds
+
+# Minimize sum-of-squares on a 5D integer space
+bounds = tuple((0, 10) for _ in range(5))
+optimizer = GA(lambda x: sum(xi**2 for xi in x), bounds, seed=42)
+result = optimizer.run(100)
+print(result.best_solution, result.best_value)
+```
+
+## Documentation
+
+Full API reference and tutorials: [cyopt documentation](https://elijahsheridan.github.io/cyopt/)
+
+## Citation
+
+If you use cyopt in your research, please cite:
+
+```bibtex
+@article{Sheridan:2024abc,
+    title={Genetic Algorithms for FRST Optimization of Calabi-Yau Hypersurfaces},
+    author={Sheridan, Elijah and others},
+    eprint={2405.08871},
+    archivePrefix={arXiv},
+    primaryClass={hep-th},
+    year={2024}
+}
+```
+
+## License
+
+MIT
