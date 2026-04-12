@@ -24,6 +24,15 @@ dev = [
     "pytest-cov",
     "ruff",
 ]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-book-theme>=1.0",
+    "myst-nb>=1.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=3.0",
+    "sphinx-togglebutton>=0.3",
+    "sphinx-design>=0.5",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["cyopt"]
