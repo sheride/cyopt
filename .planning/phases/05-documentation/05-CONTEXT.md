@@ -21,7 +21,7 @@ Comprehensive documentation for cyopt: Sphinx API reference site, tutorial noteb
 ### Tutorial Notebooks
 - **D-04:** Three tutorial notebooks:
   1. Generic optimizer walkthrough — test functions, instantiate/compare optimizers, convergence plots. No CYTools required.
-  2. arXiv:2405.08871 figure reproduction — reproduce Figs 2-5 from the FRST optimization paper using cyopt's GA on polytopes from the Kreuzer-Skarke database.
+  2. arXiv:2405.08871 figure reproduction — reproduce Figs 2-5 using the h11=23 polytope (331,192 NTFE FRSTs, DNA length 8). Precompute CY volume for all FRSTs (save to disk), then use lookup table as target function. Fig 2: Hamming distance vs volume only (skip flip distance — not implemented). Figs 3-5: full reproduction. Compare GA (optimized + default), BFS, SA, MCMC, Random Sampling.
   3. arXiv:2512.00144 Mori cone cap — GA use case for finding simplicial Mori cone caps.
 - **D-05:** Worked examples with saved output — full code cells with pre-run output (nb_execution_mode='off'). Plots, tables, interpretation included.
 - **D-06:** Notebooks live in `documentation/source/` (or a `tutorials/` subdirectory within it) so myst-nb renders them as doc pages. Also symlinked or duplicated in a top-level `notebooks/` for standalone use (matches dbrane-tools which has `notebooks/` at root).
