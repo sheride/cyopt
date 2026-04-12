@@ -1,6 +1,7 @@
 """cyopt -- Discrete optimization toolkit for bounded integer-tuple search spaces."""
 
-from cyopt._types import DNA, Bounds, FitnessFunction, Result
+from cyopt._checkpoint import CheckpointCallback
+from cyopt._types import DNA, Bounds, Callback, CallbackInfo, FitnessFunction, Result
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.best_first_search import BestFirstSearch
@@ -14,6 +15,9 @@ from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
 __all__ = [
     "BasinHopping",
     "BestFirstSearch",
+    "Callback",
+    "CallbackInfo",
+    "CheckpointCallback",
     "DifferentialEvolution",
     "DiscreteOptimizer",
     "GA",

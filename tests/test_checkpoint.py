@@ -9,8 +9,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from cyopt.optimizers.ga import GA
-from cyopt.optimizers.random_sample import RandomSample
+from cyopt import (
+    GA, RandomSample, GreedyWalk, BestFirstSearch,
+    BasinHopping, MCMC, SimulatedAnnealing, DifferentialEvolution,
+    CheckpointCallback,
+)
 
 
 def _sphere(dna):
@@ -19,6 +22,28 @@ def _sphere(dna):
 
 
 BOUNDS = ((0, 10), (0, 10), (0, 10))
+
+# Parametrized optimizer configurations for cross-optimizer tests
+OPTIMIZER_CONFIGS = [
+    (RandomSample, {}),
+    (GreedyWalk, {}),
+    (GA, {"population_size": 10}),
+    (BestFirstSearch, {"mode": "backtrack"}),
+    (BestFirstSearch, {"mode": "frontier"}),
+    (BasinHopping, {}),
+    (MCMC, {}),
+    (SimulatedAnnealing, {"n_iterations": 50}),
+    (DifferentialEvolution, {"popsize": 5}),
+]
+
+
+def _optimizer_id(val):
+    """Generate test IDs for parametrized optimizer configs."""
+    if isinstance(val, type):
+        return val.__name__
+    if isinstance(val, dict) and "mode" in val:
+        return f"mode={val['mode']}"
+    return str(val)
 
 
 class TestSaveLoadBasic:
@@ -150,55 +175,98 @@ class TestGAInitializationGuard:
         assert loaded._initialized is True
 
 
-class TestAllOptimizers:
-    """Test checkpoint roundtrip for all 8 optimizers."""
+class TestCheckpointCallbackIntegration:
+    """Tests for CheckpointCallback saving at intervals."""
 
-    @pytest.fixture(params=[
-        ("GA", {"population_size": 6}),
-        ("RandomSample", {}),
-        ("GreedyWalk", {}),
-        ("BestFirstSearch", {"mode": "backtrack"}),
-        ("BestFirstSearch_frontier", {"mode": "frontier"}),
-        ("BasinHopping", {"temperature": 1.0}),
-        ("MCMC", {"temperature": 1.0}),
-        ("SimulatedAnnealing", {"n_iterations": 100}),
-        ("DifferentialEvolution", {"popsize": 5}),
-    ])
-    def optimizer_info(self, request):
-        name, kwargs = request.param
-        # Import the right class
-        if name == "GA":
-            from cyopt.optimizers.ga import GA as cls
-        elif name == "RandomSample":
-            from cyopt.optimizers.random_sample import RandomSample as cls
-        elif name == "GreedyWalk":
-            from cyopt.optimizers.greedy_walk import GreedyWalk as cls
-        elif name.startswith("BestFirstSearch"):
-            from cyopt.optimizers.best_first_search import BestFirstSearch as cls
-        elif name == "BasinHopping":
-            from cyopt.optimizers.basin_hopping import BasinHopping as cls
-        elif name == "MCMC":
-            from cyopt.optimizers.mcmc import MCMC as cls
-        elif name == "SimulatedAnnealing":
-            from cyopt.optimizers.simulated_annealing import SimulatedAnnealing as cls
-        elif name == "DifferentialEvolution":
-            from cyopt.optimizers.differential_evolution import DifferentialEvolution as cls
-        else:
-            raise ValueError(f"Unknown optimizer: {name}")
-        return name, cls, kwargs
-
-    def test_roundtrip(self, optimizer_info, tmp_path):
-        """Save and load checkpoint for each optimizer."""
-        name, cls, kwargs = optimizer_info
-        opt = cls(_sphere, BOUNDS, seed=42, **kwargs)
-        opt.run(10)
-        ckpt_path = tmp_path / f"{name}.ckpt"
-        opt.save_checkpoint(ckpt_path)
-
-        loaded = cls.load_checkpoint(ckpt_path, _sphere)
+    def test_checkpoint_callback_interval(self, tmp_path):
+        """CheckpointCallback saves at every_n iterations."""
+        ckpt_path = tmp_path / "test.ckpt"
+        cb = CheckpointCallback(ckpt_path, every_n=10)
+        opt = RandomSample(fitness_fn=_sphere, bounds=BOUNDS, seed=42, callbacks=[cb])
+        opt.run(25)
+        assert ckpt_path.exists()
+        # Load and verify it's a valid checkpoint
+        loaded = RandomSample.load_checkpoint(ckpt_path, fitness_fn=_sphere)
         assert loaded._best_value == opt._best_value
-        assert loaded._best_solution == opt._best_solution
+
+    def test_checkpoint_callback_no_premature_save(self, tmp_path):
+        """CheckpointCallback does not save before every_n iterations."""
+        ckpt_path = tmp_path / "test.ckpt"
+        cb = CheckpointCallback(ckpt_path, every_n=100)
+        opt = RandomSample(fitness_fn=_sphere, bounds=BOUNDS, seed=42, callbacks=[cb])
+        opt.run(50)
+        assert not ckpt_path.exists()
+
+
+class TestAllOptimizers:
+    """Parametrized checkpoint tests for all 8 optimizers."""
+
+    @pytest.mark.parametrize("cls,kwargs", OPTIMIZER_CONFIGS, ids=_optimizer_id)
+    def test_save_load_roundtrip(self, cls, kwargs, tmp_path):
+        """Save and load produces optimizer with same best_value and n_evaluations."""
+        opt = cls(fitness_fn=_sphere, bounds=BOUNDS, seed=42, **kwargs)
+        opt.run(20)
+        path = tmp_path / "test.ckpt"
+        opt.save_checkpoint(path)
+        loaded = cls.load_checkpoint(path, fitness_fn=_sphere)
+        assert loaded._best_value == opt._best_value
         assert loaded._n_evaluations == opt._n_evaluations
-        # Can run again without error
-        result = loaded.run(5)
-        assert result.best_solution is not None
+        assert loaded._best_solution == opt._best_solution
+
+    @pytest.mark.parametrize("cls,kwargs", OPTIMIZER_CONFIGS, ids=_optimizer_id)
+    def test_resume_determinism(self, cls, kwargs, tmp_path):
+        """Resumed run produces identical results to uninterrupted run."""
+        if cls is DifferentialEvolution:
+            pytest.skip("DE restarts from scratch on resume -- cache preserves evaluations but RNG state differs inside SciPy")
+
+        # Uninterrupted run
+        opt_full = cls(fitness_fn=_sphere, bounds=BOUNDS, seed=42, **kwargs)
+        result_full = opt_full.run(40)
+
+        # Split run: 20 + save + load + 20
+        opt_split = cls(fitness_fn=_sphere, bounds=BOUNDS, seed=42, **kwargs)
+        opt_split.run(20)
+        path = tmp_path / "test.ckpt"
+        opt_split.save_checkpoint(path)
+        opt_resumed = cls.load_checkpoint(path, fitness_fn=_sphere)
+        result_resumed = opt_resumed.run(20)
+
+        assert result_full.best_value == result_resumed.best_value
+        assert result_full.best_solution == result_resumed.best_solution
+
+    @pytest.mark.parametrize("cls,kwargs", OPTIMIZER_CONFIGS, ids=_optimizer_id)
+    def test_cache_preserved(self, cls, kwargs, tmp_path):
+        """Cache entries survive save/load cycle."""
+        opt = cls(fitness_fn=_sphere, bounds=BOUNDS, seed=42, **kwargs)
+        opt.run(20)
+        cache_size_before = len(opt._cache)
+        path = tmp_path / "test.ckpt"
+        opt.save_checkpoint(path)
+        loaded = cls.load_checkpoint(path, fitness_fn=_sphere)
+        assert len(loaded._cache) == cache_size_before
+
+    @pytest.mark.parametrize("cls,kwargs", OPTIMIZER_CONFIGS, ids=_optimizer_id)
+    def test_iteration_offset(self, cls, kwargs, tmp_path):
+        """Iteration offset continues correctly after resume."""
+        offsets = []
+        def record_offset(info):
+            offsets.append(info['iteration'])
+
+        opt = cls(fitness_fn=_sphere, bounds=BOUNDS, seed=42, callbacks=[record_offset], **kwargs)
+        opt.run(10)
+        path = tmp_path / "test.ckpt"
+        opt.save_checkpoint(path)
+
+        offsets_resumed = []
+        def record_offset_resumed(info):
+            offsets_resumed.append(info['iteration'])
+
+        loaded = cls.load_checkpoint(path, fitness_fn=_sphere, callbacks=[record_offset_resumed])
+        loaded.run(10)
+
+        # Resumed iterations should start at 10 (not 0)
+        if cls is not DifferentialEvolution:
+            assert offsets_resumed[0] == 10
+        else:
+            # DE iteration tracking is per-generation, offset should be >= 10
+            assert offsets_resumed[0] >= 10

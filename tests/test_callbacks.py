@@ -167,6 +167,25 @@ class TestDECallbacks:
         assert len(result.history) < 100
 
 
+class TestCallbacksAfterResume:
+    """Callbacks fire correctly after loading from checkpoint."""
+
+    def test_callbacks_after_resume(self, tmp_path):
+        """Callbacks fire correctly after loading from checkpoint."""
+        values = []
+        def recorder(info):
+            values.append(info['best_value'])
+
+        opt = RandomSample(fitness_fn=sphere, bounds=BOUNDS, seed=42)
+        opt.run(20)
+        path = tmp_path / "test.ckpt"
+        opt.save_checkpoint(path)
+
+        loaded = RandomSample.load_checkpoint(path, fitness_fn=sphere, callbacks=[recorder])
+        loaded.run(10)
+        assert len(values) == 10
+
+
 class TestAllOptimizersAcceptCallbacks:
     """Every optimizer constructor accepts callbacks parameter."""
 
