@@ -28,6 +28,9 @@ A clean, reusable discrete optimization toolkit that works standalone, with a th
 - [x] FRST-specific optimizer wrappers that connect generic optimizers to the DNA encoding (FRSTOptimizer, frst_optimizer factory, all 8 optimizers verified) — Validated in Phase 3
 - [x] Compatibility with current CYTools API (functions have been moved/renamed since the old code) — Validated in Phase 3
 
+- [x] Iteration callback system for logging, early stopping, and visualization on all optimizers — Validated in Phase 4: Advanced Infrastructure
+- [x] Checkpoint/resume serialization for all optimizers (versioned dict + pickle, _get_state/_set_state protocol) — Validated in Phase 4
+
 ### Active
 - [ ] Sphinx documentation (sphinx-book-theme, autodoc, napoleon, tutorials as notebooks)
 
@@ -81,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-11 after Phase 2 completion*
+*Last updated: 2026-04-12 after Phase 4 completion*
