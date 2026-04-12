@@ -74,9 +74,9 @@ Plans:
   2. User can save optimizer state to disk mid-run and resume from the checkpoint, continuing optimization without loss of cache or best-so-far tracking
 **Plans**: 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Package scaffold, types, cache, and DiscreteOptimizer base class
-- [ ] 01-02-PLAN.md — RandomSample and GreedyWalk optimizers
-- [ ] 01-03-PLAN.md — GA optimizer with composable operators + integration tests
+- [ ] 04-01-PLAN.md — Callback system: type aliases, base class integration, DE support, tests
+- [ ] 04-02-PLAN.md — Checkpoint/resume: _checkpoint module, save/load on base, _get_state/_set_state on all 8 optimizers
+- [ ] 04-03-PLAN.md — Wire exports, CheckpointCallback integration, cross-optimizer checkpoint tests
 
 ### Phase 5: Documentation
 **Goal**: Users can learn and use cyopt through comprehensive API docs and worked tutorials
@@ -102,6 +102,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Foundation + First Optimizers | 3/3 | Complete | - |
 | 2. Remaining Optimizers | 3/3 | Complete | - |
-| 3. FRST Wrapper | 0/2 | Planning | - |
-| 4. Advanced Infrastructure | 0/? | Not started | - |
+| 3. FRST Wrapper | 2/2 | Complete | - |
+| 4. Advanced Infrastructure | 0/3 | Planning | - |
 | 5. Documentation | 0/? | Not started | - |
