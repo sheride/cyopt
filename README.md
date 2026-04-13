@@ -45,7 +45,15 @@ print(result.best_solution, result.best_value)
 
 ## Documentation
 
-Full API reference and tutorials: [cyopt documentation](https://elijahsheridan.github.io/cyopt/)
+Build the Sphinx docs locally:
+
+```bash
+cd documentation
+make html
+open build/html/index.html
+```
+
+Example notebooks in `notebooks/`.
 
 ## Citation
 
@@ -64,9 +72,9 @@ If you use cyopt in your research, please cite:
 }
 ```
 
-## Development
+## Disclaimer
 
-This codebase was developed using [Claude Code](https://claude.ai/claude-code) with the [Get Shit Done (GSD)](https://github.com/bsmi021/claude-gsd) workflow for planning, execution, and verification.
+This package was developed using [Claude Code](https://claude.ai/claude-code) (Anthropic's AI coding assistant), with human direction on physics, design decisions, and correctness validation. Development was managed with the [Get Shit Done (GSD)](https://github.com/atrisdotai/get-shit-done) workflow system for Claude Code, which provides phase-based planning, automated code review, verification loops, and structured execution.
 
 ## License
 
