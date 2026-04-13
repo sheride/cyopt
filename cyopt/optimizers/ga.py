@@ -21,7 +21,7 @@ from cyopt.base import DiscreteOptimizer
 
 def tournament_selection(
     population: np.ndarray,
-    fitness: np.ndarray,
+    weights: np.ndarray,
     rng: np.random.Generator,
     *,
     k: int = 3,
@@ -29,46 +29,40 @@ def tournament_selection(
     """Select two parents via tournament selection.
 
     For each parent, pick *k* random individuals and return the one with the
-    lowest fitness (minimisation).
+    highest selection weight.
     """
     parents = []
     for _ in range(2):
         indices = rng.integers(0, len(population), size=k)
-        best_idx = indices[np.argmin(fitness[indices])]
+        best_idx = indices[np.argmax(weights[indices])]
         parents.append(population[best_idx].copy())
     return parents[0], parents[1]
 
 
 def roulette_wheel_selection(
     population: np.ndarray,
-    fitness: np.ndarray,
+    weights: np.ndarray,
     rng: np.random.Generator,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Select two parents with probability inversely proportional to fitness.
-
-    Lower fitness -> higher selection probability (minimisation).
-    """
-    weights = 1.0 / (fitness - fitness.min() + 1.0)
-    probs = weights / weights.sum()
-    indices = rng.choice(len(population), size=2, p=probs, replace=True)
+    """Select two parents with probability proportional to selection weight."""
+    indices = rng.choice(len(population), size=2, p=weights, replace=True)
     return population[indices[0]].copy(), population[indices[1]].copy()
 
 
 def ranked_selection(
     population: np.ndarray,
-    fitness: np.ndarray,
+    weights: np.ndarray,
     rng: np.random.Generator,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Select two parents with probability proportional to rank.
 
-    Best individual (lowest fitness) gets rank N, worst gets rank 1.
+    Best individual (highest weight) gets rank N, worst gets rank 1.
     """
     n = len(population)
-    # argsort gives indices that would sort fitness ascending (best first)
-    order = np.argsort(fitness)
+    order = np.argsort(weights)  # ascending: worst first
     ranks = np.empty(n, dtype=float)
-    # Best individual (order[0]) gets rank N, worst gets rank 1
-    ranks[order] = np.arange(n, 0, -1, dtype=float)
+    # order[0] is worst (rank 1), order[-1] is best (rank N)
+    ranks[order] = np.arange(1, n + 1, dtype=float)
     probs = ranks / ranks.sum()
     indices = rng.choice(n, size=2, p=probs, replace=True)
     return population[indices[0]].copy(), population[indices[1]].copy()
@@ -167,18 +161,68 @@ _CROSSOVER_REGISTRY: dict[str, Callable] = {
 
 
 # ---------------------------------------------------------------------------
+# Population-level fitness functions (target/fitness mode)
+# ---------------------------------------------------------------------------
+
+def fitness_inverse_square(target_values: np.ndarray, *, mu: float) -> np.ndarray:
+    """Inverse-square fitness: ``(x - mu)**-2``.
+
+    Peaks sharply at *mu*.  Used in arXiv:2405.08871 for volume maximisation.
+    """
+    return (target_values - mu) ** -2
+
+
+def fitness_gaussian(
+    target_values: np.ndarray, *, mu: float, sigma: float
+) -> np.ndarray:
+    """Gaussian fitness: ``exp(-(x - mu)^2 / (2 * sigma^2))``."""
+    return np.exp(-((target_values - mu) ** 2) / (2 * sigma ** 2))
+
+
+_FITNESS_REGISTRY: dict[str, Callable] = {
+    "inverse_square": fitness_inverse_square,
+    "gaussian": fitness_gaussian,
+}
+
+
+# ---------------------------------------------------------------------------
 # GA optimizer
 # ---------------------------------------------------------------------------
 
 class GA(DiscreteOptimizer):
     """Genetic Algorithm optimizer with composable operators.
 
+    Supports two modes of operation:
+
+    **Simple mode** (``fitness_fn`` only): a single scalar objective is
+    minimised.  Selection operates directly on these values.
+
+    **Target/fitness mode** (``target_fn`` + ``fitness``): the *target*
+    computes an observable per DNA (e.g., CY volume) and the *fitness*
+    converts the population's target values into selection probabilities.
+    Best-so-far tracking maximises the target.  This matches the pattern
+    from arXiv:2405.08871 where the target function (volume) is separate
+    from the fitness function (inverse-square peaked at a hyperparameter).
+
     Parameters
     ----------
     fitness_fn : Callable[[DNA], float]
-        Objective function to minimise.
+        Objective function to minimise.  Ignored when *target_fn* is given.
     bounds : Bounds
         Per-dimension ``(lo, hi)`` inclusive bounds.
+    target_fn : Callable[[DNA], float], optional
+        Observable function (maximised).  When provided, *fitness* must also
+        be specified and *fitness_fn* is built automatically.
+    fitness : str | Callable | None
+        Population-level fitness for selection.  Built-in options:
+        ``'inverse_square'`` (``(x - mu)**-2``) and ``'gaussian'``
+        (``exp(-(x - mu)^2 / (2*sigma^2))``).  A callable receives
+        ``(target_values: np.ndarray, **fitness_params) -> np.ndarray``
+        and should return unnormalised positive weights.
+    fitness_params : dict, optional
+        Keyword arguments forwarded to the fitness function (e.g.
+        ``{'mu': 7.87}`` for inverse-square, or ``{'mu': 7, 'sigma': 1}``
+        for Gaussian).
     population_size : int
         Number of individuals in each generation (must be >= 4).
     selection : str | dict | Callable
@@ -204,9 +248,12 @@ class GA(DiscreteOptimizer):
 
     def __init__(
         self,
-        fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        fitness_fn: Callable[[DNA], float] | None = None,
+        bounds: Bounds = (),
         *,
+        target_fn: Callable[[DNA], float] | None = None,
+        fitness: str | Callable | None = None,
+        fitness_params: dict | None = None,
         population_size: int = 50,
         selection: str | dict | Callable = "tournament",
         crossover: str | dict | Callable = "npoint",
@@ -233,6 +280,36 @@ class GA(DiscreteOptimizer):
                 f"elitism must be in [0, population_size), got {elitism}"
             )
 
+        # Target/fitness mode
+        self._target_fn = target_fn
+        self._fitness_params = fitness_params or {}
+
+        if target_fn is not None:
+            if fitness is None:
+                raise ValueError(
+                    "fitness must be specified when target_fn is provided"
+                )
+            # Build fitness_fn for base class: negate target for minimisation
+            fitness_fn = lambda dna: -target_fn(dna)
+
+            # Resolve population-level fitness function
+            if isinstance(fitness, str):
+                self._pop_fitness_fn = _FITNESS_REGISTRY[fitness]
+            elif callable(fitness):
+                self._pop_fitness_fn = fitness
+            else:
+                raise TypeError(
+                    f"fitness must be a str or callable, got {type(fitness).__name__}"
+                )
+            self._use_target_fitness = True
+        else:
+            if fitness_fn is None:
+                raise ValueError(
+                    "Either fitness_fn or target_fn must be provided"
+                )
+            self._pop_fitness_fn = None
+            self._use_target_fitness = False
+
         super().__init__(
             fitness_fn, bounds,
             seed=seed, cache_size=cache_size,
@@ -256,6 +333,7 @@ class GA(DiscreteOptimizer):
         # Population state (initialised in run())
         self._population: np.ndarray | None = None
         self._fitness_values: np.ndarray | None = None
+        self._target_values: np.ndarray | None = None
         self._initialized: bool = False
 
     @staticmethod
@@ -292,6 +370,39 @@ class GA(DiscreteOptimizer):
         raise TypeError(
             f"{name} must be a str, dict, or callable, got {type(spec).__name__}"
         )
+
+    def _compute_selection_weights(self, fitness_vals: np.ndarray) -> np.ndarray:
+        """Compute normalised selection probabilities.
+
+        Returns an array where **higher = more likely to be selected**,
+        normalised to sum to 1.  Selection operators always use ``argmax``
+        / probability-weighted sampling on the result.
+
+        In **simple mode**, converts minimisation fitness values to
+        probabilities via ``1 / (fitness - min + 1)``.
+
+        In **target/fitness mode**, applies the population-level fitness
+        function to the target values and normalises.
+        """
+        if self._use_target_fitness:
+            # fitness_vals are negated targets from base class
+            target_vals = -fitness_vals
+            weights = self._pop_fitness_fn(target_vals, **self._fitness_params)
+        else:
+            # Simple mode: invert so lower fitness -> higher weight
+            weights = 1.0 / (fitness_vals - fitness_vals.min() + 1.0)
+
+        # Clamp negatives/NaN to small positive
+        weights = np.nan_to_num(weights, nan=1e-30, posinf=1e30, neginf=1e-30)
+        weights = np.maximum(weights, 1e-30)
+        total = weights.sum()
+        if total > 0:
+            weights /= total
+        else:
+            weights = np.ones_like(weights) / len(weights)
+        # Ensure last element absorbs rounding
+        weights[-1] = 1.0 - weights[:-1].sum()
+        return weights
 
     def run(self, n_iterations: int):
         """Initialise population (if needed) and delegate to base-class loop."""
@@ -337,10 +448,13 @@ class GA(DiscreteOptimizer):
         fit = self._fitness_values
         n_dims = pop.shape[1]
 
-        # Sort by fitness (ascending -- best first)
+        # Sort by fitness (ascending -- best first for minimisation)
         order = np.argsort(fit)
         pop = pop[order]
         fit = fit[order]
+
+        # Compute selection weights (differs between simple and target mode)
+        sel_weights = self._compute_selection_weights(fit)
 
         # Next generation: elite carry-over
         next_pop = np.empty_like(pop)
@@ -352,7 +466,7 @@ class GA(DiscreteOptimizer):
         while idx < self._population_size:
             # Select parents
             p1, p2 = self._selection_fn(
-                pop, fit, self._rng, **self._selection_params
+                pop, sel_weights, self._rng, **self._selection_params
             )
             parents = np.array([p1, p2])
 

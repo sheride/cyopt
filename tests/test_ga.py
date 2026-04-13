@@ -21,23 +21,26 @@ from cyopt.optimizers.ga import (
 # ---------------------------------------------------------------------------
 
 class TestTournamentSelection:
-    """Tournament selection picks the best of k random candidates."""
+    """Tournament selection picks the individual with highest weight."""
 
-    def test_winner_has_lowest_fitness(self):
-        """Winner of tournament has lowest fitness among candidates."""
+    def test_winner_has_highest_weight(self):
+        """Winner of tournament has highest weight among candidates."""
         rng = np.random.default_rng(42)
         population = np.array([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]])
-        fitness = np.array([10.0, 8.0, 6.0, 4.0, 2.0])
+        # Higher weight = more likely to be selected
+        weights = np.array([0.05, 0.1, 0.15, 0.25, 0.45])
 
-        # Run many tournaments to verify best candidates win
-        winners = []
+        # Run many tournaments to verify high-weight candidates win
+        winner_weights = []
         for _ in range(100):
-            p1, p2 = tournament_selection(population, fitness, rng, k=3)
-            winners.extend([fitness[np.where((population == p1).all(axis=1))[0][0]],
-                            fitness[np.where((population == p2).all(axis=1))[0][0]]])
+            p1, p2 = tournament_selection(population, weights, rng, k=3)
+            winner_weights.extend([
+                weights[np.where((population == p1).all(axis=1))[0][0]],
+                weights[np.where((population == p2).all(axis=1))[0][0]],
+            ])
 
-        # With tournament selection, lower-fitness individuals should win more often
-        assert np.mean(winners) < fitness.mean()
+        # High-weight individuals should win more often
+        assert np.mean(winner_weights) > weights.mean()
 
 
 class TestRouletteWheelSelection:
@@ -47,9 +50,9 @@ class TestRouletteWheelSelection:
         """Roulette wheel returns individuals from the population."""
         rng = np.random.default_rng(42)
         population = np.array([[0, 0], [1, 1], [2, 2], [3, 3]])
-        fitness = np.array([10.0, 5.0, 2.0, 1.0])
+        weights = np.array([0.1, 0.2, 0.3, 0.4])
 
-        p1, p2 = roulette_wheel_selection(population, fitness, rng)
+        p1, p2 = roulette_wheel_selection(population, weights, rng)
 
         # Both parents should be rows from the population
         assert p1.shape == (2,)
@@ -57,17 +60,18 @@ class TestRouletteWheelSelection:
 
 
 class TestRankedSelection:
-    """Ranked selection gives best individual highest probability."""
+    """Ranked selection gives highest-weight individual highest probability."""
 
     def test_best_individual_selected_most(self):
-        """Best individual (lowest fitness) should be selected most often."""
+        """Individual with highest weight should be selected most often."""
         rng = np.random.default_rng(42)
         population = np.array([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]])
-        fitness = np.array([100.0, 80.0, 60.0, 40.0, 1.0])  # index 4 is best
+        # index 4 has highest weight
+        weights = np.array([0.02, 0.05, 0.13, 0.3, 0.5])
 
         counts = np.zeros(5)
         for _ in range(1000):
-            p1, p2 = ranked_selection(population, fitness, rng)
+            p1, p2 = ranked_selection(population, weights, rng)
             for p in [p1, p2]:
                 idx = np.where((population == p).all(axis=1))[0][0]
                 counts[idx] += 1
