@@ -52,13 +52,15 @@ Full API reference and tutorials: [cyopt documentation](https://elijahsheridan.g
 If you use cyopt in your research, please cite:
 
 ```bibtex
-@article{Sheridan:2024abc,
-    title={Genetic Algorithms for FRST Optimization of Calabi-Yau Hypersurfaces},
-    author={Sheridan, Elijah and others},
-    eprint={2405.08871},
-    archivePrefix={arXiv},
-    primaryClass={hep-th},
-    year={2024}
+@article{MacFadden:2024him,
+    author = "MacFadden, Nate and Schachner, Andreas and Sheridan, Elijah",
+    title = "{The DNA of Calabi-Yau Hypersurfaces}",
+    eprint = "2405.08871",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-th",
+    reportNumber = "LMU-ASC 06/24",
+    month = "5",
+    year = "2024"
 }
 ```
 
