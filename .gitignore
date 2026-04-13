@@ -11,3 +11,4 @@ build/
 .planning/
 data/precompute.log
 data/precompute_progress.txt
+CLAUDE.md
