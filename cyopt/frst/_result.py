@@ -12,8 +12,8 @@ class FRSTResult:
     """Result of an FRST optimization run.
 
     Wraps the underlying optimizer ``Result`` and adds decoded triangulation/CY
-    fields. ``best_value`` reports the original (un-negated) target value --
-    higher is better, matching the user's target function convention.
+    fields. ``best_value`` reports the target value directly -- lower is better,
+    matching the minimisation convention used by all cyopt optimizers.
 
     Parameters
     ----------
@@ -42,17 +42,17 @@ class FRSTResult:
 
     @property
     def best_value(self) -> float:
-        """The best target value (un-negated: higher is better).
+        """The best (lowest) target value found.
 
-        Returns ``-inf`` if no valid FRST was found during optimization
+        Returns ``inf`` if no valid FRST was found during optimization
         (all DNA evaluations hit the penalty).
         """
-        return -self.result.best_value
+        return self.result.best_value
 
     @property
     def history(self) -> list[float]:
-        """Best-so-far target values at each iteration (un-negated)."""
-        return [-v for v in self.result.history]
+        """Best-so-far target values at each iteration."""
+        return list(self.result.history)
 
     @property
     def n_evaluations(self) -> int:

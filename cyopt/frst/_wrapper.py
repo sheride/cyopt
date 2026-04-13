@@ -23,7 +23,8 @@ class FRSTOptimizer:
     target : callable
         Target function. Receives a CalabiYau (or Triangulation if
         ``target_mode='triangulation'``) and returns either a float or
-        a ``(float, ancillary_data)`` tuple. Higher values are better.
+        a ``(float, ancillary_data)`` tuple. Lower values are better
+        (minimisation).
     optimizer_cls : type
         A DiscreteOptimizer subclass (e.g., ``GA``, ``RandomSample``).
     target_mode : str
@@ -82,10 +83,6 @@ class FRSTOptimizer:
     def _make_fitness(self, penalty: float):
         """Create fitness function bridging target(CY/Triang) -> DNA -> float.
 
-        The fitness function negates the target value because the generic
-        optimizers minimize, but the user's target convention is "higher
-        is better".
-
         Parameters
         ----------
         penalty : float
@@ -114,15 +111,13 @@ class FRSTOptimizer:
             result = target(obj)
 
             # Support target returning (value, ancillary_data) or just value.
-            # Use length check + indexing rather than isinstance(result, tuple)
-            # to avoid false-positives when target returns a plain tuple.
             if isinstance(result, tuple) and len(result) == 2:
                 value, anc = result
                 ancillary[dna] = anc
             else:
                 value = float(result)
 
-            return -value  # negate: optimizer minimizes, user target maximizes
+            return value
 
         return fitness
 
@@ -181,8 +176,7 @@ def frst_optimizer(poly, target, optimizer=None, target_mode: str = "cy", **kwar
     target : callable
         Target function: ``target(cy) -> float`` or
         ``target(cy) -> (float, ancillary_dict)``.
-        Higher values are better (the wrapper negates internally for
-        minimization).
+        Lower values are better (minimisation).
     optimizer : type[DiscreteOptimizer], optional
         Optimizer class to use. Default: ``GA``.
     target_mode : str
