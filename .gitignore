@@ -9,3 +9,5 @@ build/
 *.so
 .DS_Store
 .planning/
+data/precompute.log
+data/precompute_progress.txt
