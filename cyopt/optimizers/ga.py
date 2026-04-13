@@ -443,7 +443,13 @@ class GA(DiscreteOptimizer):
         self._initialized = True  # Skip re-initialization on next run()
 
     def _step(self, iteration: int) -> dict | None:
-        """Execute one generation of the GA."""
+        """Execute one generation of the GA.
+
+        Enforces population uniqueness: children that duplicate an existing
+        member of the new population are discarded and replaced by fresh
+        select-crossover-mutate attempts.  This matches the original
+        triang_optimizer implementation and prevents population collapse.
+        """
         pop = self._population
         fit = self._fitness_values
         n_dims = pop.shape[1]
@@ -462,8 +468,16 @@ class GA(DiscreteOptimizer):
         next_pop[: self._elitism] = pop[: self._elitism]
         next_fit[: self._elitism] = fit[: self._elitism]
 
+        # Track seen DNA for uniqueness enforcement
+        seen: set[tuple[int, ...]] = set()
+        for i in range(self._elitism):
+            seen.add(tuple(int(x) for x in next_pop[i]))
+
         idx = self._elitism
-        while idx < self._population_size:
+        max_attempts = self._population_size * 50  # safety valve
+        attempts = 0
+        while idx < self._population_size and attempts < max_attempts:
+            attempts += 1
             # Select parents
             p1, p2 = self._selection_fn(
                 pop, sel_weights, self._rng, **self._selection_params
@@ -475,7 +489,7 @@ class GA(DiscreteOptimizer):
                 parents, self._rng, **self._crossover_params
             )
 
-            # Mutation
+            # Mutation + uniqueness check
             for child in (c1, c2):
                 if idx >= self._population_size:
                     break
@@ -487,8 +501,24 @@ class GA(DiscreteOptimizer):
                 for d in range(n_dims):
                     lo, hi = self._bounds[d]
                     child[d] = max(lo, min(hi, child[d]))
+
+                key = tuple(int(x) for x in child)
+                if key in seen:
+                    continue  # skip duplicates
+
+                seen.add(key)
                 next_pop[idx] = child
-                next_fit[idx] = self._evaluate(tuple(int(x) for x in child))
+                next_fit[idx] = self._evaluate(key)
+                idx += 1
+
+        # If we exhausted attempts, fill remaining slots with random DNA
+        while idx < self._population_size:
+            dna = self._random_dna()
+            key = tuple(int(x) for x in dna)
+            if key not in seen:
+                seen.add(key)
+                next_pop[idx] = dna
+                next_fit[idx] = self._evaluate(key)
                 idx += 1
 
         self._population = next_pop
