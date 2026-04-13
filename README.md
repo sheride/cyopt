@@ -64,6 +64,10 @@ If you use cyopt in your research, please cite:
 }
 ```
 
+## Development
+
+This codebase was developed using [Claude Code](https://claude.ai/claude-code) with the [Get Shit Done (GSD)](https://github.com/bsmi021/claude-gsd) workflow for planning, execution, and verification.
+
 ## License
 
 MIT
