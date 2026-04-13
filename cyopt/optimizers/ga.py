@@ -474,9 +474,15 @@ class GA(DiscreteOptimizer):
             seen.add(tuple(int(x) for x in next_pop[i]))
 
         idx = self._elitism
-        max_attempts = self._population_size * 50  # safety valve
+        # Compute search space size for safety valve
+        search_space_size = 1
+        for lo, hi in self._bounds:
+            search_space_size *= (hi - lo + 1)
+        # Can't have more unique members than the search space
+        target_size = min(self._population_size, search_space_size)
+        max_attempts = target_size * 100  # safety valve
         attempts = 0
-        while idx < self._population_size and attempts < max_attempts:
+        while idx < target_size and attempts < max_attempts:
             attempts += 1
             # Select parents
             p1, p2 = self._selection_fn(
@@ -491,7 +497,7 @@ class GA(DiscreteOptimizer):
 
             # Mutation + uniqueness check
             for child in (c1, c2):
-                if idx >= self._population_size:
+                if idx >= target_size:
                     break
                 if self._rng.random() < self._mutation_rate:
                     child = random_mutation(
@@ -512,7 +518,7 @@ class GA(DiscreteOptimizer):
                 idx += 1
 
         # If we exhausted attempts, fill remaining slots with random DNA
-        while idx < self._population_size:
+        while idx < target_size:
             dna = self._random_dna()
             key = tuple(int(x) for x in dna)
             if key not in seen:
@@ -521,8 +527,8 @@ class GA(DiscreteOptimizer):
                 next_fit[idx] = self._evaluate(key)
                 idx += 1
 
-        self._population = next_pop
-        self._fitness_values = next_fit
+        self._population = next_pop[:target_size]
+        self._fitness_values = next_fit[:target_size]
 
         if self._record_history:
             return {
