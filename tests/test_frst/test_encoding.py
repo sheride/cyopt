@@ -173,3 +173,49 @@ class TestMonkeyPatch:
         assert hasattr(Polytope, "triang_to_dna")
         assert hasattr(Polytope, "cy_to_dna")
         assert callable(Polytope.prep_for_optimizers)
+
+
+@requires_cytools
+class TestGrowFRTReturnType:
+    """Regression: grow_frt must always return a set, even when only 1 FRT is found.
+
+    Upstream CYTools' grow_frt returns a bare Triangulation in the
+    single-FRT case, which breaks downstream ``list(p.grow_frt(...))``
+    calls (including CYTools' own face_triangs). cyopt patches this.
+    See grow_frt_iteration_bug.md.
+    """
+
+    def test_grow_frt_single_frt_is_iterable(self):
+        """Single-FRT case returns a set of size 1 (not a bare Triangulation)."""
+        import cyopt.frst  # noqa: F401 -- triggers monkey-patching
+        from cytools import Polytope
+
+        # 2D triangle with 3 points: exactly one FRT exists.
+        p = Polytope([[0, 0], [1, 0], [0, 1]])
+        result = p.grow_frt(N=5, seed=42)
+
+        assert isinstance(result, set), (
+            f"grow_frt must return a set, got {type(result).__name__}"
+        )
+        assert len(result) == 1
+        # list() must not raise (the original bug symptom).
+        items = list(result)
+        assert len(items) == 1
+        # Duck-type check: element behaves like a Triangulation.
+        assert hasattr(items[0], "simplices")
+
+    def test_grow_frt_multi_frt_still_set(self, poly_h11_4):
+        """Multi-FRT case unchanged: still a set with len >= 2."""
+        import cyopt.frst  # noqa: F401
+
+        # Pick the first 2-face and request many FRTs.
+        face_poly = poly_h11_4.faces(2)[0].as_poly()
+        result = face_poly.grow_frt(N=10, seed=0)
+
+        assert isinstance(result, set)
+        if len(result) < 2:
+            pytest.skip(
+                "This 2-face only admits one FRT; multi-FRT path "
+                "cannot be exercised with this fixture."
+            )
+        assert len(result) >= 2
