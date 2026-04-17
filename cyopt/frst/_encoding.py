@@ -8,6 +8,8 @@ FRST triangulations. It provides:
 - ``triang_to_dna``: Decode a Triangulation back into a DNA tuple
 - ``dna_to_cy``: Encode a DNA tuple into a CalabiYau object
 - ``cy_to_dna``: Decode a CalabiYau back into a DNA tuple
+- Normalization wrapper around ``grow_frt`` that forces a set return type,
+  working around an upstream CYTools bug (see ``grow_frt_iteration_bug.md``).
 
 All functions are monkey-patched onto ``cytools.Polytope`` when
 ``patch_polytope()`` is called (automatically on ``import cyopt.frst``).
@@ -208,6 +210,26 @@ def _cy_to_dna(self, cy) -> DNA:
     return self.triang_to_dna(cy.triangulation())
 
 
+def _grow_frt_normalized(self, *args, **kwargs):
+    """Normalize ``Polytope.grow_frt`` to always return a set.
+
+    Upstream CYTools' ``grow_frt`` returns a bare ``Triangulation`` when
+    exactly one FRT is found, and a ``set`` of Triangulations otherwise.
+    That inconsistency breaks downstream callers (including CYTools' own
+    ``face_triangs``) that do ``list(p.grow_frt(...))``. This wrapper
+    guarantees the return value is always iterable as a set of
+    Triangulations.
+
+    See ``grow_frt_iteration_bug.md`` for the original reproducer.
+    """
+    result = _grow_frt_normalized._original(self, *args, **kwargs)
+    # If upstream returned any iterable container, coerce to ``set``.
+    # Otherwise (the single-FRT bug: a bare Triangulation), wrap it.
+    if isinstance(result, (set, frozenset, list, tuple)):
+        return result if isinstance(result, set) else set(result)
+    return {result}
+
+
 def patch_polytope() -> None:
     """Monkey-patch encoding/decoding methods onto ``cytools.Polytope``.
 
@@ -219,6 +241,12 @@ def patch_polytope() -> None:
     - ``dna_to_cy``
     - ``triang_to_dna``
     - ``cy_to_dna``
+
+    It also installs a defensive wrapper around ``Polytope.grow_frt`` that
+    normalizes the return type to a ``set`` in all cases (working around
+    an upstream CYTools bug where the single-FRT case returns a bare
+    ``Triangulation``). The ``grow_frt`` patch is idempotent: re-importing
+    ``cyopt.frst`` does not recursively wrap the method.
     """
     from cytools import Polytope
 
@@ -227,3 +255,12 @@ def patch_polytope() -> None:
     Polytope.dna_to_cy = _dna_to_cy
     Polytope.triang_to_dna = _triang_to_dna
     Polytope.cy_to_dna = _cy_to_dna
+
+    # Defensive patch for upstream CYTools bug: grow_frt returns a bare
+    # Triangulation when len(frts) == 1, breaking list() iteration.
+    # Wrap it to always return a set. See grow_frt_iteration_bug.md.
+    if getattr(Polytope.grow_frt, "_cyopt_patched", False):
+        return  # already patched; idempotent
+    _grow_frt_normalized._original = Polytope.grow_frt
+    _grow_frt_normalized._cyopt_patched = True
+    Polytope.grow_frt = _grow_frt_normalized
