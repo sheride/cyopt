@@ -30,6 +30,9 @@ __all__ = [
     "DNA",
     "Bounds",
     "FitnessFunction",
+    "SearchSpace",
+    "GraphSpace",
+    "TupleSpace",
 ]
 
 __version__ = "0.1.0"
