@@ -8,6 +8,7 @@ which returns an ``FRSTOptimizer`` with a ``.run()`` method.
 from __future__ import annotations
 
 from cyopt.frst._result import FRSTResult
+from cyopt.spaces import TupleSpace
 
 
 class FRSTOptimizer:
@@ -72,7 +73,7 @@ class FRSTOptimizer:
         # Instantiate the underlying generic optimizer
         self._optimizer = optimizer_cls(
             fitness_fn=fitness_fn,
-            bounds=poly._cyopt_bounds,
+            space=TupleSpace(poly._cyopt_bounds),
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
