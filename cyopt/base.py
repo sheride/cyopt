@@ -12,7 +12,13 @@ import numpy as np
 from tqdm import tqdm
 
 from cyopt._cache import EvaluationCache
-from cyopt._checkpoint import CHECKPOINT_VERSION, CheckpointCallback, _migrate
+from cyopt._checkpoint import (
+    CHECKPOINT_VERSION,
+    CheckpointCallback,
+    _deserialize_space,
+    _migrate,
+    _serialize_space,
+)
 from cyopt._types import DNA, Callback, Result
 from cyopt.spaces import SearchSpace
 
@@ -203,6 +209,7 @@ class DiscreteOptimizer(ABC):
 
     def _get_common_state(self) -> dict:
         """Serialize base-class state to a plain dict."""
+        space_kind, space_data = _serialize_space(self._space)
         return {
             '_checkpoint_version': CHECKPOINT_VERSION,
             '_class': type(self).__name__,
@@ -214,7 +221,8 @@ class DiscreteOptimizer(ABC):
             'best_value': self._best_value,
             'n_evaluations': self._n_evaluations,
             'iteration_offset': self._iteration_offset,
-            'space': self._space,
+            'space_kind': space_kind,
+            'space_data': space_data,
             'record_history': self._record_history,
             'progress': self._progress,
         }
@@ -264,6 +272,7 @@ class DiscreteOptimizer(ABC):
         path: str | Path,
         fitness_fn: Callable[[DNA], float],
         *,
+        space: SearchSpace | None = None,
         callbacks: list | None = None,
         **kwargs,
     ) -> "DiscreteOptimizer":
@@ -275,6 +284,11 @@ class DiscreteOptimizer(ABC):
             Path to checkpoint file.
         fitness_fn : Callable[[DNA], float]
             Fitness function (not serialized in checkpoints).
+        space : SearchSpace | None
+            Explicit search space override. Required when the checkpoint's
+            ``space_kind`` is not a known reconstructible kind. Takes
+            precedence over checkpoint-stored reconstruction data when
+            supplied. Default ``None`` (auto-reconstruct from checkpoint).
         callbacks : list or None
             Callbacks for the restored optimizer.
         **kwargs
@@ -291,7 +305,9 @@ class DiscreteOptimizer(ABC):
         TypeError
             If the checkpoint was saved from a different optimizer class.
         ValueError
-            If the checkpoint version is incompatible.
+            If the checkpoint version is incompatible AND no migration path
+            exists, or if the checkpoint's ``space_kind`` is unknown and no
+            ``space=`` was supplied.
         """
         with open(path, 'rb') as f:
             state = pickle.load(f)  # noqa: S301
@@ -307,9 +323,22 @@ class DiscreteOptimizer(ABC):
                 f"but loading as {cls.__name__}"
             )
 
+        # Resolve space: user override takes precedence, else auto-reconstruct.
+        if space is None:
+            kind = state['space_kind']
+            data = state.get('space_data', {})
+            try:
+                space = _deserialize_space(kind, data)
+            except ValueError as e:
+                raise ValueError(
+                    f"Cannot auto-reconstruct space_kind={kind!r} from "
+                    f"checkpoint. Pass space= to load_checkpoint with the "
+                    f"reconstructed instance. Original error: {e}"
+                ) from e
+
         instance = cls(
             fitness_fn=fitness_fn,
-            space=state['space'],
+            space=space,
             callbacks=callbacks,
             **kwargs,
         )
