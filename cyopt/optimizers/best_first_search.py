@@ -5,9 +5,10 @@ from __future__ import annotations
 import heapq
 from collections.abc import Callable
 
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
-from cyopt.optimizers.greedy_walk import NeighborFunction, hamming_neighbors
+from cyopt.optimizers._neighbors import NeighborFunction
+from cyopt.spaces import GraphSpace
 
 
 class BestFirstSearch(DiscreteOptimizer):
@@ -26,13 +27,13 @@ class BestFirstSearch(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``random(rng)`` and ``neighbors(node)``.
     mode : str
         Search mode: ``"backtrack"`` or ``"frontier"``.
     neighbor_fn : NeighborFunction | None
-        Custom neighbor generation function. Defaults to
-        :func:`~cyopt.optimizers.greedy_walk.hamming_neighbors`.
+        Custom neighbor generation function. When provided, shadows
+        ``space.neighbors``. Defaults to ``space.neighbors``.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -51,7 +52,7 @@ class BestFirstSearch(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: GraphSpace,
         *,
         mode: str = "backtrack",
         neighbor_fn: NeighborFunction | None = None,
@@ -67,14 +68,19 @@ class BestFirstSearch(DiscreteOptimizer):
             )
         super().__init__(
             fitness_fn,
-            bounds,
+            space,
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
             progress=progress,
             callbacks=callbacks,
         )
-        self._neighbor_fn: NeighborFunction = neighbor_fn or hamming_neighbors
+        if neighbor_fn is not None:
+            self._neighbor_fn: NeighborFunction | None = neighbor_fn
+            self._use_space_neighbors = False
+        else:
+            self._neighbor_fn = None
+            self._use_space_neighbors = True
         self._mode = mode
         self._current: DNA | None = None
         self._current_value: float = float("inf")
@@ -87,6 +93,12 @@ class BestFirstSearch(DiscreteOptimizer):
         self._frontier: list[tuple[float, int, DNA]] = []
         self._visited: set[DNA] = set()
         self._counter: int = 0
+
+    def _get_neighbors(self, node: DNA) -> list[DNA]:
+        """Resolve the neighbor callable (space.neighbors or user override)."""
+        if self._use_space_neighbors:
+            return list(self._space.neighbors(node))
+        return list(self._neighbor_fn(node))
 
     def _get_state(self) -> dict:
         """Return BestFirstSearch-specific state for checkpointing."""
@@ -144,12 +156,12 @@ class BestFirstSearch(DiscreteOptimizer):
         """
         # Lazy init
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
             self._path.append(self._current)
 
         # Generate and filter neighbors
-        neighbors = self._neighbor_fn(self._current, self._bounds)
+        neighbors = self._get_neighbors(self._current)
         path_set = set(self._path)
         valid = [
             n for n in neighbors
@@ -160,7 +172,7 @@ class BestFirstSearch(DiscreteOptimizer):
             # No valid neighbors -- random restart
             self._path.clear()
             self._avoid.clear()
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
             self._path.append(self._current)
         else:
@@ -208,12 +220,12 @@ class BestFirstSearch(DiscreteOptimizer):
         """
         # Lazy init
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
             self._visited.add(self._current)
 
         # Expand neighbors of current
-        neighbors = self._neighbor_fn(self._current, self._bounds)
+        neighbors = self._get_neighbors(self._current)
         for neighbor in neighbors:
             if neighbor not in self._visited:
                 value = self._evaluate(neighbor)
@@ -231,7 +243,7 @@ class BestFirstSearch(DiscreteOptimizer):
         else:
             # Frontier exhausted -- attempt to find unvisited candidate
             for _ in range(1000):
-                candidate = self._random_dna()
+                candidate = self._space.random(self._rng)
                 if candidate not in self._visited:
                     self._current = candidate
                     self._current_value = self._evaluate(candidate)
@@ -240,7 +252,7 @@ class BestFirstSearch(DiscreteOptimizer):
             else:
                 # Search space fully explored -- reset visited to allow cycling
                 self._visited.clear()
-                self._current = self._random_dna()
+                self._current = self._space.random(self._rng)
                 self._current_value = self._evaluate(self._current)
                 self._visited.add(self._current)
 

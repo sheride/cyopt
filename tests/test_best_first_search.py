@@ -2,8 +2,8 @@
 
 import pytest
 
+from cyopt import TupleSpace
 from cyopt.optimizers.best_first_search import BestFirstSearch
-from cyopt.optimizers.greedy_walk import hamming_neighbors
 
 
 def sphere_fitness(dna):
@@ -11,6 +11,7 @@ def sphere_fitness(dna):
 
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
+SPACE_3D = TupleSpace(BOUNDS_3D)
 
 
 class TestBestFirstSearchBacktrack:
@@ -18,16 +19,16 @@ class TestBestFirstSearchBacktrack:
 
     def test_backtrack_finds_improvement(self):
         """Backtrack mode finds solution better than worst case."""
-        opt = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="backtrack", seed=42)
+        opt = BestFirstSearch(sphere_fitness, SPACE_3D, mode="backtrack", seed=42)
         result = opt.run(50)
         assert result.best_value < 243  # worst: 9^2 * 3
 
     def test_backtrack_seeding(self):
         """Same seed produces identical results in backtrack mode."""
-        opt1 = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="backtrack", seed=777)
+        opt1 = BestFirstSearch(sphere_fitness, SPACE_3D, mode="backtrack", seed=777)
         result1 = opt1.run(30)
 
-        opt2 = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="backtrack", seed=777)
+        opt2 = BestFirstSearch(sphere_fitness, SPACE_3D, mode="backtrack", seed=777)
         result2 = opt2.run(30)
 
         assert result1.best_solution == result2.best_solution
@@ -37,7 +38,7 @@ class TestBestFirstSearchBacktrack:
 
     def test_backtrack_continuation(self):
         """State persists across consecutive run() calls."""
-        opt = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="backtrack", seed=42)
+        opt = BestFirstSearch(sphere_fitness, SPACE_3D, mode="backtrack", seed=42)
         r1 = opt.run(20)
         n_evals_1 = r1.n_evaluations
         best_1 = r1.best_value
@@ -49,8 +50,8 @@ class TestBestFirstSearchBacktrack:
     def test_backtrack_oscillation_avoid(self):
         """Avoid set grows when oscillation is detected."""
         # Use a small space where oscillation is likely
-        small_bounds = ((0, 2), (0, 2))
-        opt = BestFirstSearch(sphere_fitness, small_bounds, mode="backtrack", seed=42)
+        small_space = TupleSpace(((0, 2), (0, 2)))
+        opt = BestFirstSearch(sphere_fitness, small_space, mode="backtrack", seed=42)
         opt.run(50)
         # After many steps in a small space, avoid set should have entries
         # (oscillation detection triggers avoid additions)
@@ -63,16 +64,16 @@ class TestBestFirstSearchFrontier:
 
     def test_frontier_finds_improvement(self):
         """Frontier mode finds solution better than worst case."""
-        opt = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="frontier", seed=42)
+        opt = BestFirstSearch(sphere_fitness, SPACE_3D, mode="frontier", seed=42)
         result = opt.run(50)
         assert result.best_value < 243
 
     def test_frontier_seeding(self):
         """Same seed produces identical results in frontier mode."""
-        opt1 = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="frontier", seed=777)
+        opt1 = BestFirstSearch(sphere_fitness, SPACE_3D, mode="frontier", seed=777)
         result1 = opt1.run(30)
 
-        opt2 = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="frontier", seed=777)
+        opt2 = BestFirstSearch(sphere_fitness, SPACE_3D, mode="frontier", seed=777)
         result2 = opt2.run(30)
 
         assert result1.best_solution == result2.best_solution
@@ -88,12 +89,20 @@ class TestBestFirstSearchGeneral:
         """Custom neighbor_fn is called and changes search behavior."""
         called = {"count": 0}
 
-        def tracking_neighbors(dna, bounds):
+        def tracking_neighbors(dna):
             called["count"] += 1
-            return hamming_neighbors(dna, bounds)
+            # Generate Hamming-distance-1 neighbors within BOUNDS_3D
+            out = []
+            for i, (lo, hi) in enumerate(BOUNDS_3D):
+                for val in range(lo, hi + 1):
+                    if val != dna[i]:
+                        n = list(dna)
+                        n[i] = val
+                        out.append(tuple(n))
+            return out
 
         opt = BestFirstSearch(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             mode="backtrack", neighbor_fn=tracking_neighbors, seed=42,
         )
         opt.run(10)
@@ -102,12 +111,12 @@ class TestBestFirstSearchGeneral:
     def test_invalid_mode_raises(self):
         """Invalid mode raises ValueError."""
         with pytest.raises(ValueError, match="mode must be"):
-            BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="bad")
+            BestFirstSearch(sphere_fitness, SPACE_3D, mode="bad")
 
     def test_record_history(self):
         """record_history=True produces full_history entries."""
         opt = BestFirstSearch(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             mode="backtrack", seed=42, record_history=True,
         )
         result = opt.run(10)
@@ -118,7 +127,7 @@ class TestBestFirstSearchGeneral:
 
     def test_result_fields(self):
         """Result has correct types and values within bounds."""
-        opt = BestFirstSearch(sphere_fitness, BOUNDS_3D, mode="backtrack", seed=42)
+        opt = BestFirstSearch(sphere_fitness, SPACE_3D, mode="backtrack", seed=42)
         result = opt.run(20)
 
         assert isinstance(result.best_solution, tuple)

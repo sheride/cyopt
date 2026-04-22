@@ -14,7 +14,7 @@ import numpy as np
 from cyopt._types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers._neighbors import random_single_flip
-from cyopt.optimizers.greedy_walk import hamming_neighbors
+# from cyopt.optimizers.greedy_walk import hamming_neighbors  # migrated to space.neighbors in Task 3b
 
 
 # ---------------------------------------------------------------------------

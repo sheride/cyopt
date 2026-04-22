@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import pytest
 
+from cyopt import TupleSpace
 from cyopt._types import DNA, Bounds, Callback, CallbackInfo
 from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.ga import GA
@@ -24,6 +25,7 @@ from cyopt.optimizers.differential_evolution import DifferentialEvolution
 
 
 BOUNDS: Bounds = ((0, 9), (0, 9))
+SPACE = TupleSpace(BOUNDS)
 
 
 def sphere(dna: DNA) -> float:
@@ -35,12 +37,12 @@ class TestCallbackEmptyList:
     """Optimizer with callbacks=[] runs normally (no regression)."""
 
     def test_random_sample_empty_callbacks(self):
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[])
         result = opt.run(10)
         assert len(result.history) == 10
 
     def test_ga_empty_callbacks(self):
-        opt = GA(sphere, BOUNDS, seed=42, callbacks=[])
+        opt = GA(sphere, SPACE, seed=42, callbacks=[])
         result = opt.run(5)
         assert len(result.history) == 5
 
@@ -54,7 +56,7 @@ class TestCallbackInfoDict:
         def recorder(info: CallbackInfo) -> None:
             received.append(dict(info))
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[recorder])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[recorder])
         opt.run(5)
 
         assert len(received) == 5
@@ -68,7 +70,7 @@ class TestCallbackInfoDict:
         def recorder(info: CallbackInfo) -> None:
             received.append(dict(info))
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[recorder])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[recorder])
         opt.run(3)
 
         info = received[0]
@@ -91,7 +93,7 @@ class TestMultipleCallbacks:
         def cb_b(info: CallbackInfo) -> None:
             call_order.append("b")
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[cb_a, cb_b])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[cb_a, cb_b])
         opt.run(3)
 
         # Should alternate: a, b, a, b, a, b
@@ -105,7 +107,7 @@ class TestEarlyStopTrueOnly:
         def stop_at_3(info: CallbackInfo) -> bool:
             return info["iteration"] >= 2  # True on iteration 2
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[stop_at_3])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[stop_at_3])
         result = opt.run(100)
         # Should stop early -- history length < 100
         assert len(result.history) < 100
@@ -114,7 +116,7 @@ class TestEarlyStopTrueOnly:
         def return_none(info: CallbackInfo) -> None:
             return None
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[return_none])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[return_none])
         result = opt.run(20)
         assert len(result.history) == 20
 
@@ -122,7 +124,7 @@ class TestEarlyStopTrueOnly:
         def return_false(info: CallbackInfo) -> bool:
             return False
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[return_false])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[return_false])
         result = opt.run(20)
         assert len(result.history) == 20
 
@@ -131,7 +133,7 @@ class TestEarlyStopTrueOnly:
         def return_dict(info: CallbackInfo) -> dict:
             return {"logged": True}  # truthy but not `is True`
 
-        opt = RandomSample(sphere, BOUNDS, seed=42, callbacks=[return_dict])
+        opt = RandomSample(sphere, SPACE, seed=42, callbacks=[return_dict])
         result = opt.run(20)
         assert len(result.history) == 20
 
@@ -145,7 +147,7 @@ class TestDECallbacks:
         def recorder(info: CallbackInfo) -> None:
             received.append(dict(info))
 
-        opt = DifferentialEvolution(sphere, BOUNDS, seed=42, callbacks=[recorder])
+        opt = DifferentialEvolution(sphere, SPACE, seed=42, callbacks=[recorder])
         opt.run(3)
 
         assert len(received) > 0
@@ -161,7 +163,7 @@ class TestDECallbacks:
             call_count += 1
             return call_count >= 2  # Stop after 2nd generation
 
-        opt = DifferentialEvolution(sphere, BOUNDS, seed=42, callbacks=[stop_after_1])
+        opt = DifferentialEvolution(sphere, SPACE, seed=42, callbacks=[stop_after_1])
         result = opt.run(100)
         # Should have stopped early
         assert len(result.history) < 100
@@ -176,7 +178,7 @@ class TestCallbacksAfterResume:
         def recorder(info):
             values.append(info['best_value'])
 
-        opt = RandomSample(fitness_fn=sphere, bounds=BOUNDS, seed=42)
+        opt = RandomSample(fitness_fn=sphere, space=SPACE, seed=42)
         opt.run(20)
         path = tmp_path / "test.ckpt"
         opt.save_checkpoint(path)
@@ -205,6 +207,6 @@ class TestAllOptimizersAcceptCallbacks:
         def recorder(info: CallbackInfo) -> None:
             received.append(info)
 
-        opt = OptimizerClass(sphere, BOUNDS, seed=42, callbacks=[recorder])
+        opt = OptimizerClass(sphere, SPACE, seed=42, callbacks=[recorder])
         result = opt.run(3)
         assert len(received) > 0

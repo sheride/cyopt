@@ -3,8 +3,22 @@
 import numpy as np
 import pytest
 
-from cyopt.optimizers.greedy_walk import hamming_neighbors
 from cyopt.spaces import GraphSpace, SearchSpace, TupleSpace
+
+
+def _legacy_hamming_neighbors(dna, bounds):
+    """Inlined copy of the legacy ``hamming_neighbors`` helper (deleted in
+    Plan 02 Task 3a). Kept here as an independent regression oracle for
+    :meth:`TupleSpace.neighbors`.
+    """
+    out = []
+    for i, (lo, hi) in enumerate(bounds):
+        for val in range(lo, hi + 1):
+            if val != dna[i]:
+                n = list(dna)
+                n[i] = val
+                out.append(tuple(n))
+    return out
 
 
 class TestConstruction:
@@ -76,7 +90,7 @@ class TestNeighbors:
     def test_matches_legacy_hamming(self):
         s = TupleSpace([(0, 3), (0, 2), (0, 4)])
         dna = (1, 1, 2)
-        expected = set(hamming_neighbors(dna, s.bounds))
+        expected = set(_legacy_hamming_neighbors(dna, s.bounds))
         assert set(s.neighbors(dna)) == expected
 
     def test_wrong_dim_raises(self):

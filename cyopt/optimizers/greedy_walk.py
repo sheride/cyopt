@@ -4,42 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-import numpy as np
-
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
-
-
-def hamming_neighbors(dna: DNA, bounds: Bounds) -> list[DNA]:
-    """Generate all Hamming-distance-1 neighbors within bounds.
-
-    For each dimension, generates a neighbor for every valid value
-    different from the current one.
-
-    Parameters
-    ----------
-    dna : DNA
-        Current solution.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
-
-    Returns
-    -------
-    list[DNA]
-        All neighbors differing in exactly one position.
-    """
-    neighbors: list[DNA] = []
-    for i, (lo, hi) in enumerate(bounds):
-        for val in range(lo, hi + 1):
-            if val != dna[i]:
-                neighbor = list(dna)
-                neighbor[i] = val
-                neighbors.append(tuple(neighbor))
-    return neighbors
-
-
-NeighborFunction = Callable[[DNA, Bounds], list[DNA]]
-"""Callable that generates neighbor solutions from a DNA and bounds."""
+from cyopt.optimizers._neighbors import NeighborFunction
+from cyopt.spaces import GraphSpace
 
 
 class GreedyWalk(DiscreteOptimizer):
@@ -53,11 +21,13 @@ class GreedyWalk(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``random(rng)`` and ``neighbors(node)``.
     neighbor_fn : NeighborFunction | None
-        Custom neighbor generation function. Defaults to
-        :func:`hamming_neighbors` (all Hamming-distance-1 neighbors).
+        Custom neighbor generation function. When provided, shadows
+        ``space.neighbors``. Defaults to ``space.neighbors`` which for
+        :class:`~cyopt.spaces.TupleSpace` yields Hamming-distance-1
+        neighbors.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -71,7 +41,7 @@ class GreedyWalk(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: GraphSpace,
         *,
         neighbor_fn: NeighborFunction | None = None,
         seed: int | None = None,
@@ -82,14 +52,19 @@ class GreedyWalk(DiscreteOptimizer):
     ) -> None:
         super().__init__(
             fitness_fn,
-            bounds,
+            space,
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
             progress=progress,
             callbacks=callbacks,
         )
-        self._neighbor_fn: NeighborFunction = neighbor_fn or hamming_neighbors
+        if neighbor_fn is not None:
+            self._neighbor_fn: NeighborFunction | None = neighbor_fn
+            self._use_space_neighbors = False
+        else:
+            self._neighbor_fn = None
+            self._use_space_neighbors = True
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
@@ -123,11 +98,14 @@ class GreedyWalk(DiscreteOptimizer):
         """
         # Initialize on first step
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
 
         # Generate and evaluate all neighbors
-        neighbors = self._neighbor_fn(self._current, self._bounds)
+        if self._use_space_neighbors:
+            neighbors = list(self._space.neighbors(self._current))
+        else:
+            neighbors = list(self._neighbor_fn(self._current))
         best_neighbor: DNA | None = None
         best_neighbor_value = self._current_value
 
@@ -145,7 +123,7 @@ class GreedyWalk(DiscreteOptimizer):
             moved = True
         else:
             # Local minimum reached -- restart from random point
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
 
         if self._record_history:
