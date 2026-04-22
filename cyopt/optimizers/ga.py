@@ -213,7 +213,12 @@ class GA(DiscreteOptimizer):
         Bounded-integer-tuple search space. Required.
     target_fn : Callable[[DNA], float], optional
         Observable function (maximised).  When provided, *fitness* must also
-        be specified and *fitness_fn* is built automatically.
+        be specified and *fitness_fn* is built automatically.  ``target_fn``
+        must return a plain scalar (``float``, ``int``, or numpy scalar);
+        the ``(value, ancillary_data)`` tuple convention used by the FRST
+        wrapper is **not** supported here because GA has no ancillary-data
+        channel.  If you need ancillary data, route ``target_fn`` through
+        :class:`~cyopt.frst.FRSTOptimizer` instead.
     fitness : str | Callable | None
         Population-level fitness for selection.  Built-in options:
         ``'inverse_square'`` (``(x - mu)**-2``) and ``'gaussian'``
