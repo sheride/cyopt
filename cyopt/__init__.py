@@ -3,6 +3,7 @@
 from cyopt._checkpoint import CheckpointCallback
 from cyopt._types import DNA, Bounds, Callback, CallbackInfo, FitnessFunction, Result
 from cyopt.base import DiscreteOptimizer
+from cyopt.spaces import GraphSpace, SearchSpace, TupleSpace
 from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.best_first_search import BestFirstSearch
 from cyopt.optimizers.differential_evolution import DifferentialEvolution

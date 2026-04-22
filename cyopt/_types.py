@@ -1,6 +1,6 @@
 """Core type definitions for cyopt."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 from dataclasses import dataclass
 from typing import Any
 
@@ -9,6 +9,14 @@ DNA = tuple[int, ...]
 
 Bounds = tuple[tuple[int, int], ...]
 """Per-dimension (lo_inclusive, hi_inclusive) bounds for the search space."""
+
+Node = Hashable
+"""A hashable element of a :class:`~cyopt.spaces.SearchSpace`.
+
+:class:`~cyopt.spaces.TupleSpace` nodes are ``tuple[int, ...]`` (=== :data:`DNA`).
+Generalizes :data:`DNA` to non-tuple graph spaces (future phases).
+Hashability is required by :class:`~cyopt._cache.EvaluationCache`.
+"""
 
 FitnessFunction = Callable[[DNA], float]
 """A callable that maps a DNA tuple to a scalar fitness value."""
