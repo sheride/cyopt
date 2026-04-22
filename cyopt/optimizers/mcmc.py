@@ -6,9 +6,10 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers._neighbors import StepFunction, random_single_flip
+from cyopt.spaces import GraphSpace
 
 
 class MCMC(DiscreteOptimizer):
@@ -22,14 +23,17 @@ class MCMC(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``random(rng)``. The default ``step_fn``
+        requires a :class:`~cyopt.spaces.TupleSpace` (it closes over
+        ``space.bounds``). For non-tuple spaces, supply a custom ``step_fn``.
     temperature : float
         Temperature controlling acceptance probability. Higher values
         accept worse solutions more readily.
     step_fn : StepFunction | None
-        Custom proposal function ``(dna, bounds, rng) -> DNA``. Defaults
-        to :func:`~cyopt.optimizers._neighbors.random_single_flip`.
+        Custom proposal function ``(dna, rng) -> DNA``. Defaults to a
+        closure over the space's bounds that calls
+        :func:`~cyopt.optimizers._neighbors.random_single_flip`.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -48,7 +52,7 @@ class MCMC(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: GraphSpace,
         *,
         temperature: float = 1.0,
         step_fn: StepFunction | None = None,
@@ -64,7 +68,7 @@ class MCMC(DiscreteOptimizer):
             )
         super().__init__(
             fitness_fn,
-            bounds,
+            space,
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
@@ -72,7 +76,15 @@ class MCMC(DiscreteOptimizer):
             callbacks=callbacks,
         )
         self._temperature = temperature
-        self._step_fn: StepFunction = step_fn or random_single_flip
+        if step_fn is not None:
+            self._step_fn: StepFunction = step_fn
+        else:
+            # Default wraps the tuple-specific helper with space bounds closed in.
+            # Raises AttributeError on non-TupleSpace (expected).
+            bounds = self._space.bounds
+            self._step_fn = lambda node, rng: random_single_flip(
+                node, bounds, rng
+            )
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 
@@ -109,10 +121,10 @@ class MCMC(DiscreteOptimizer):
         """
         # Lazy init
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
 
-        proposal = self._step_fn(self._current, self._bounds, self._rng)
+        proposal = self._step_fn(self._current, self._rng)
         proposal_value = self._evaluate(proposal)
 
         delta = proposal_value - self._current_value

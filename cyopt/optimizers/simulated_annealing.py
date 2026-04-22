@@ -6,9 +6,10 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers._neighbors import StepFunction, random_single_flip
+from cyopt.spaces import GraphSpace
 
 
 class SimulatedAnnealing(DiscreteOptimizer):
@@ -23,8 +24,10 @@ class SimulatedAnnealing(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``random(rng)``. The default ``step_fn``
+        requires a :class:`~cyopt.spaces.TupleSpace` (it closes over
+        ``space.bounds``). For non-tuple spaces, supply a custom ``step_fn``.
     n_iterations : int
         Total number of iterations for the cooling schedule. The
         temperature reaches ``t_min`` at this step count.
@@ -33,8 +36,9 @@ class SimulatedAnnealing(DiscreteOptimizer):
     t_min : float
         Final (minimum) temperature. Must satisfy ``0 < t_min < t_max``.
     step_fn : StepFunction | None
-        Custom proposal function ``(dna, bounds, rng) -> DNA``. Defaults
-        to :func:`~cyopt.optimizers._neighbors.random_single_flip`.
+        Custom proposal function ``(dna, rng) -> DNA``. Defaults to a
+        closure over the space's bounds that calls
+        :func:`~cyopt.optimizers._neighbors.random_single_flip`.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -53,7 +57,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: GraphSpace,
         *,
         n_iterations: int = 1000,
         t_max: float = 1.0,
@@ -79,7 +83,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
             )
         super().__init__(
             fitness_fn,
-            bounds,
+            space,
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
@@ -89,7 +93,15 @@ class SimulatedAnnealing(DiscreteOptimizer):
         self._n_iterations = n_iterations
         self._t_max = t_max
         self._t_min = t_min
-        self._step_fn: StepFunction = step_fn or random_single_flip
+        if step_fn is not None:
+            self._step_fn: StepFunction = step_fn
+        else:
+            # Default wraps the tuple-specific helper with space bounds closed in.
+            # Raises AttributeError on non-TupleSpace (expected).
+            bounds = self._space.bounds
+            self._step_fn = lambda node, rng: random_single_flip(
+                node, bounds, rng
+            )
         self._current: DNA | None = None
         self._current_value: float = float("inf")
         self._step_count: int = 0
@@ -130,7 +142,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
         """
         # Lazy init
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._current_value = self._evaluate(self._current)
 
         # Exponential cooling schedule
@@ -138,7 +150,7 @@ class SimulatedAnnealing(DiscreteOptimizer):
         temperature = self._t_max * (self._t_min / self._t_max) ** frac
 
         # Propose and evaluate
-        proposal = self._step_fn(self._current, self._bounds, self._rng)
+        proposal = self._step_fn(self._current, self._rng)
         proposal_value = self._evaluate(proposal)
 
         # Metropolis acceptance

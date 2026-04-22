@@ -1,8 +1,9 @@
 """BasinHopping optimizer -- global optimization via perturb + local minimize + Metropolis acceptance.
 
-Implements the basin-hopping algorithm on discrete (integer-tuple) search spaces.
-Unlike SciPy's ``basinhopping`` (which assumes continuous space), this implementation
-operates directly on bounded integer tuples with a greedy-descent local minimizer.
+Implements the basin-hopping algorithm on discrete (graph) search spaces.
+Unlike SciPy's ``basinhopping`` (which assumes continuous space), this
+implementation operates directly on a :class:`~cyopt.spaces.GraphSpace`
+with a greedy-descent local minimizer that uses ``space.neighbors(node)``.
 """
 
 from __future__ import annotations
@@ -11,10 +12,14 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
-from cyopt.optimizers._neighbors import random_single_flip
-# from cyopt.optimizers.greedy_walk import hamming_neighbors  # migrated to space.neighbors in Task 3b
+from cyopt.optimizers._neighbors import (
+    LocalMinimizeFunction,
+    PerturbFunction,
+    random_single_flip,
+)
+from cyopt.spaces import GraphSpace
 
 
 # ---------------------------------------------------------------------------
@@ -23,21 +28,22 @@ from cyopt.optimizers._neighbors import random_single_flip
 
 def _greedy_descent(
     dna: DNA,
-    bounds: Bounds,
+    space: GraphSpace,
     evaluate_fn: Callable[[DNA], float],
 ) -> DNA:
-    """Steepest-descent local minimizer on integer-tuple space.
+    """Steepest-descent local minimizer on a graph search space.
 
     From the starting point, repeatedly moves to the best improving
-    Hamming-distance-1 neighbor. Terminates when no neighbor improves
-    the current value (local minimum reached) or after 100 iterations.
+    neighbor (per ``space.neighbors``). Terminates when no neighbor
+    improves the current value (local minimum reached) or after 100
+    iterations.
 
     Parameters
     ----------
     dna : DNA
         Starting point for local minimization.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``neighbors(node)``.
     evaluate_fn : Callable[[DNA], float]
         Evaluation function (typically ``self._evaluate``).
 
@@ -50,7 +56,7 @@ def _greedy_descent(
     current_value = evaluate_fn(current)
 
     for _ in range(100):
-        neighbors = hamming_neighbors(current, bounds)
+        neighbors = list(space.neighbors(current))
         best_neighbor: DNA | None = None
         best_value = current_value
 
@@ -85,23 +91,25 @@ class BasinHopping(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : GraphSpace
+        Search space providing ``random(rng)`` and ``neighbors(node)``.
+        The default ``perturb_fn`` requires a
+        :class:`~cyopt.spaces.TupleSpace` (it closes over ``space.bounds``).
     temperature : float
         Metropolis temperature controlling acceptance probability.
         Must be > 0. Higher values accept more uphill moves.
     n_perturbations : int
         Number of random single-flips applied per perturbation step
         when using the default perturbation function.
-    local_minimize_fn : Callable[[DNA, Bounds, Callable], DNA] | None
+    local_minimize_fn : LocalMinimizeFunction | None
         Custom local minimizer. Signature:
-        ``local_minimize_fn(dna, bounds, evaluate_fn) -> DNA``.
+        ``local_minimize_fn(dna, space, evaluate_fn) -> DNA``.
         Defaults to :func:`_greedy_descent`.
-    perturb_fn : Callable[[DNA, Bounds, np.random.Generator], DNA] | None
+    perturb_fn : PerturbFunction | None
         Custom perturbation function. Signature:
-        ``perturb_fn(dna, bounds, rng) -> DNA``.
+        ``perturb_fn(dna, rng) -> DNA``.
         Defaults to :func:`random_single_flip` applied ``n_perturbations``
-        times in sequence.
+        times in sequence, closed over ``space.bounds`` (TupleSpace required).
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -115,12 +123,12 @@ class BasinHopping(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: GraphSpace,
         *,
         temperature: float = 1.0,
         n_perturbations: int = 1,
-        local_minimize_fn: Callable[[DNA, Bounds, Callable[[DNA], float]], DNA] | None = None,
-        perturb_fn: Callable[[DNA, Bounds, np.random.Generator], DNA] | None = None,
+        local_minimize_fn: LocalMinimizeFunction | None = None,
+        perturb_fn: PerturbFunction | None = None,
         seed: int | None = None,
         cache_size: int | None = None,
         record_history: bool = False,
@@ -133,7 +141,7 @@ class BasinHopping(DiscreteOptimizer):
             )
 
         super().__init__(
-            fitness_fn, bounds,
+            fitness_fn, space,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
             callbacks=callbacks,
@@ -182,24 +190,26 @@ class BasinHopping(DiscreteOptimizer):
         """
         # Lazy initialization
         if self._current is None:
-            self._current = self._random_dna()
+            self._current = self._space.random(self._rng)
             self._evaluate(self._current)
             self._current = self._local_minimize_fn(
-                self._current, self._bounds, self._evaluate,
+                self._current, self._space, self._evaluate,
             )
             self._current_value = self._evaluate(self._current)
 
         # Perturb
         if self._perturb_fn is not None:
-            perturbed = self._perturb_fn(self._current, self._bounds, self._rng)
+            perturbed = self._perturb_fn(self._current, self._rng)
         else:
             # Default: apply random_single_flip n_perturbations times
+            # (raises AttributeError on non-TupleSpace -- expected)
+            bounds = self._space.bounds
             perturbed = self._current
             for _ in range(self._n_perturbations):
-                perturbed = random_single_flip(perturbed, self._bounds, self._rng)
+                perturbed = random_single_flip(perturbed, bounds, self._rng)
 
         # Local minimize from perturbed point
-        local_min = self._local_minimize_fn(perturbed, self._bounds, self._evaluate)
+        local_min = self._local_minimize_fn(perturbed, self._space, self._evaluate)
         local_min_value = self._evaluate(local_min)
 
         # Metropolis acceptance

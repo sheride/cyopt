@@ -2,6 +2,7 @@
 
 import pytest
 
+from cyopt import TupleSpace
 from cyopt.optimizers.basin_hopping import BasinHopping
 
 
@@ -10,11 +11,12 @@ def sphere_fitness(dna):
 
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
+SPACE_3D = TupleSpace(BOUNDS_3D)
 
 
 def test_finds_improvement():
     """BasinHopping should find a solution better than worst possible."""
-    opt = BasinHopping(sphere_fitness, BOUNDS_3D, seed=42)
+    opt = BasinHopping(sphere_fitness, SPACE_3D, seed=42)
     result = opt.run(30)
     # Worst possible: (9,9,9) = 243
     assert result.best_value < 243
@@ -24,12 +26,12 @@ def test_custom_local_minimize_fn():
     """Injectable local_minimize_fn should be called during optimization."""
     called = {"count": 0}
 
-    def tracking_minimizer(dna, bounds, evaluate_fn):
+    def tracking_minimizer(dna, space, evaluate_fn):
         called["count"] += 1
         return dna  # no-op minimizer
 
     opt = BasinHopping(
-        sphere_fitness, BOUNDS_3D,
+        sphere_fitness, SPACE_3D,
         local_minimize_fn=tracking_minimizer, seed=42,
     )
     opt.run(5)
@@ -39,16 +41,17 @@ def test_custom_local_minimize_fn():
 def test_custom_perturb_fn():
     """Injectable perturb_fn should be called during optimization."""
     called = {"count": 0}
+    local_bounds = BOUNDS_3D
 
-    def tracking_perturb(dna, bounds, rng):
+    def tracking_perturb(dna, rng):
         called["count"] += 1
         # Just flip first dimension
         result = list(dna)
-        result[0] = int(rng.integers(bounds[0][0], bounds[0][1] + 1))
+        result[0] = int(rng.integers(local_bounds[0][0], local_bounds[0][1] + 1))
         return tuple(result)
 
     opt = BasinHopping(
-        sphere_fitness, BOUNDS_3D,
+        sphere_fitness, SPACE_3D,
         perturb_fn=tracking_perturb, seed=42,
     )
     opt.run(5)
@@ -57,10 +60,10 @@ def test_custom_perturb_fn():
 
 def test_seeding():
     """Two runs with the same seed should produce identical results."""
-    opt1 = BasinHopping(sphere_fitness, BOUNDS_3D, seed=777)
+    opt1 = BasinHopping(sphere_fitness, SPACE_3D, seed=777)
     r1 = opt1.run(20)
 
-    opt2 = BasinHopping(sphere_fitness, BOUNDS_3D, seed=777)
+    opt2 = BasinHopping(sphere_fitness, SPACE_3D, seed=777)
     r2 = opt2.run(20)
 
     assert r1.best_solution == r2.best_solution
@@ -70,7 +73,7 @@ def test_seeding():
 
 def test_continuation():
     """State should persist across consecutive run() calls."""
-    opt = BasinHopping(sphere_fitness, BOUNDS_3D, seed=42)
+    opt = BasinHopping(sphere_fitness, SPACE_3D, seed=42)
     r1 = opt.run(15)
     evals_after_first = r1.n_evaluations
     best_after_first = r1.best_value
@@ -83,14 +86,14 @@ def test_continuation():
 def test_invalid_temperature():
     """Temperature <= 0 should raise ValueError."""
     with pytest.raises(ValueError):
-        BasinHopping(sphere_fitness, BOUNDS_3D, temperature=0)
+        BasinHopping(sphere_fitness, SPACE_3D, temperature=0)
     with pytest.raises(ValueError):
-        BasinHopping(sphere_fitness, BOUNDS_3D, temperature=-1)
+        BasinHopping(sphere_fitness, SPACE_3D, temperature=-1)
 
 
 def test_result_fields():
     """Result should have correct types and solution within bounds."""
-    opt = BasinHopping(sphere_fitness, BOUNDS_3D, seed=42)
+    opt = BasinHopping(sphere_fitness, SPACE_3D, seed=42)
     result = opt.run(10)
 
     assert isinstance(result.best_solution, tuple)

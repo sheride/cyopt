@@ -2,6 +2,7 @@
 
 import pytest
 
+from cyopt import TupleSpace
 from cyopt.optimizers._neighbors import random_single_flip
 from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
 
@@ -11,6 +12,7 @@ def sphere_fitness(dna):
 
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
+SPACE_3D = TupleSpace(BOUNDS_3D)
 
 
 class TestSimulatedAnnealing:
@@ -18,14 +20,14 @@ class TestSimulatedAnnealing:
 
     def test_finds_improvement(self):
         """SA finds solution better than worst case."""
-        opt = SimulatedAnnealing(sphere_fitness, BOUNDS_3D, seed=42)
+        opt = SimulatedAnnealing(sphere_fitness, SPACE_3D, seed=42)
         result = opt.run(100)
         assert result.best_value < 243
 
     def test_temperature_decreases(self):
         """Temperature values in full_history decrease over iterations."""
         opt = SimulatedAnnealing(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             n_iterations=100, seed=42, record_history=True,
         )
         result = opt.run(100)
@@ -41,13 +43,14 @@ class TestSimulatedAnnealing:
     def test_custom_step_fn(self):
         """Custom step_fn is called during optimization."""
         called = {"count": 0}
+        local_bounds = BOUNDS_3D
 
-        def tracking_step(dna, bounds, rng):
+        def tracking_step(dna, rng):
             called["count"] += 1
-            return random_single_flip(dna, bounds, rng)
+            return random_single_flip(dna, local_bounds, rng)
 
         opt = SimulatedAnnealing(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             step_fn=tracking_step, seed=42,
         )
         opt.run(20)
@@ -55,10 +58,10 @@ class TestSimulatedAnnealing:
 
     def test_seeding(self):
         """Same seed produces identical results."""
-        opt1 = SimulatedAnnealing(sphere_fitness, BOUNDS_3D, seed=777)
+        opt1 = SimulatedAnnealing(sphere_fitness, SPACE_3D, seed=777)
         result1 = opt1.run(50)
 
-        opt2 = SimulatedAnnealing(sphere_fitness, BOUNDS_3D, seed=777)
+        opt2 = SimulatedAnnealing(sphere_fitness, SPACE_3D, seed=777)
         result2 = opt2.run(50)
 
         assert result1.best_solution == result2.best_solution
@@ -69,7 +72,7 @@ class TestSimulatedAnnealing:
     def test_continuation(self):
         """State persists across consecutive run() calls, step_count accumulates."""
         opt = SimulatedAnnealing(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             n_iterations=100, seed=42,
         )
         r1 = opt.run(50)
@@ -86,7 +89,7 @@ class TestSimulatedAnnealing:
     def test_record_history(self):
         """full_history has temperature key."""
         opt = SimulatedAnnealing(
-            sphere_fitness, BOUNDS_3D,
+            sphere_fitness, SPACE_3D,
             seed=42, record_history=True,
         )
         result = opt.run(20)
@@ -98,14 +101,14 @@ class TestSimulatedAnnealing:
     def test_invalid_n_iterations(self):
         """n_iterations <= 0 raises ValueError."""
         with pytest.raises(ValueError, match="n_iterations must be positive"):
-            SimulatedAnnealing(sphere_fitness, BOUNDS_3D, n_iterations=0)
+            SimulatedAnnealing(sphere_fitness, SPACE_3D, n_iterations=0)
 
     def test_invalid_t_max(self):
         """t_max <= 0 raises ValueError."""
         with pytest.raises(ValueError, match="t_max must be positive"):
-            SimulatedAnnealing(sphere_fitness, BOUNDS_3D, t_max=0)
+            SimulatedAnnealing(sphere_fitness, SPACE_3D, t_max=0)
 
     def test_invalid_t_min_ge_t_max(self):
         """t_min >= t_max raises ValueError."""
         with pytest.raises(ValueError, match="t_min must be less than t_max"):
-            SimulatedAnnealing(sphere_fitness, BOUNDS_3D, t_min=2.0, t_max=1.0)
+            SimulatedAnnealing(sphere_fitness, SPACE_3D, t_min=2.0, t_max=1.0)
