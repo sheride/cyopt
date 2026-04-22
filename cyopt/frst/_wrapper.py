@@ -114,6 +114,7 @@ class FRSTOptimizer:
             # Support target returning (value, ancillary_data) or just value.
             if isinstance(result, tuple) and len(result) == 2:
                 value, anc = result
+                value = float(value)  # coerce for consistency with else branch
                 ancillary[dna] = anc
             else:
                 value = float(result)
