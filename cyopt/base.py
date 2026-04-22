@@ -13,11 +13,12 @@ from tqdm import tqdm
 
 from cyopt._cache import EvaluationCache
 from cyopt._checkpoint import CHECKPOINT_VERSION, CheckpointCallback, _migrate
-from cyopt._types import DNA, Bounds, Callback, Result
+from cyopt._types import DNA, Callback, Result
+from cyopt.spaces import SearchSpace
 
 
 class DiscreteOptimizer(ABC):
-    """Abstract base class for optimizers on bounded integer-tuple search spaces.
+    """Abstract base class for optimizers on an arbitrary :class:`~cyopt.spaces.SearchSpace`.
 
     Provides shared infrastructure: evaluation caching, reproducible seeding,
     best-so-far tracking, iteration history, and tqdm progress reporting.
@@ -27,8 +28,10 @@ class DiscreteOptimizer(ABC):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize. Maps an integer tuple to a scalar.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : SearchSpace
+        The search space. Provides ``random(rng)`` (used for initialization)
+        and, for :class:`~cyopt.spaces.GraphSpace` subclasses, ``neighbors(node)``
+        (used by local optimizers).
     seed : int | None
         Random seed for reproducibility. ``None`` for non-deterministic.
     cache_size : int | None
@@ -45,7 +48,7 @@ class DiscreteOptimizer(ABC):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: SearchSpace,
         seed: int | None = None,
         cache_size: int | None = None,
         record_history: bool = False,
@@ -53,7 +56,7 @@ class DiscreteOptimizer(ABC):
         callbacks: list[Callback] | None = None,
     ) -> None:
         self._fitness_fn = fitness_fn
-        self._bounds = bounds
+        self._space = space
         self._rng = np.random.default_rng(seed)
         self._cache = EvaluationCache(maxsize=cache_size)
         self._record_history = record_history
@@ -101,19 +104,6 @@ class DiscreteOptimizer(ABC):
             self._best_solution = key
 
         return value
-
-    def _random_dna(self) -> DNA:
-        """Generate a random solution within bounds.
-
-        Returns
-        -------
-        DNA
-            A tuple of random integers, each within its dimension's bounds.
-            Upper bounds are inclusive (Pitfall 1: rng.integers uses hi+1).
-        """
-        return tuple(
-            int(self._rng.integers(lo, hi + 1)) for lo, hi in self._bounds
-        )
 
     def run(self, n_iterations: int) -> Result:
         """Execute the optimization loop.
@@ -224,7 +214,7 @@ class DiscreteOptimizer(ABC):
             'best_value': self._best_value,
             'n_evaluations': self._n_evaluations,
             'iteration_offset': self._iteration_offset,
-            'bounds': self._bounds,
+            'space': self._space,
             'record_history': self._record_history,
             'progress': self._progress,
         }
@@ -319,7 +309,7 @@ class DiscreteOptimizer(ABC):
 
         instance = cls(
             fitness_fn=fitness_fn,
-            bounds=state['bounds'],
+            space=state['space'],
             callbacks=callbacks,
             **kwargs,
         )

@@ -2,6 +2,8 @@
 
 import pytest
 
+from cyopt import TupleSpace
+
 
 @pytest.fixture
 def sphere_fitness():
@@ -23,3 +25,15 @@ def standard_bounds():
 def small_bounds():
     """Tiny 2D search space for exhaustive testing."""
     return ((0, 2), (0, 2))
+
+
+@pytest.fixture
+def standard_space(standard_bounds):
+    """TupleSpace wrapping :func:`standard_bounds`."""
+    return TupleSpace(standard_bounds)
+
+
+@pytest.fixture
+def small_space(small_bounds):
+    """TupleSpace wrapping :func:`small_bounds`."""
+    return TupleSpace(small_bounds)
