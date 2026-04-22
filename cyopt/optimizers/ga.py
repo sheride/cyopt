@@ -408,8 +408,15 @@ class GA(DiscreteOptimizer):
             weights /= total
         else:
             weights = np.ones_like(weights) / len(weights)
-        # Ensure last element absorbs rounding
-        weights[-1] = 1.0 - weights[:-1].sum()
+        # Ensure last element absorbs rounding.  Clamp to non-negative to
+        # guard against floating-point cases where weights[:-1].sum() > 1.0
+        # (which would otherwise produce a negative weight and crash
+        # rng.choice with "probabilities are not non-negative").
+        weights[-1] = max(0.0, 1.0 - weights[:-1].sum())
+        # Re-normalize in case clamping changed the sum
+        s = weights.sum()
+        if s > 0:
+            weights /= s
         return weights
 
     def run(self, n_iterations: int):
