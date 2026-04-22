@@ -13,6 +13,7 @@ from cyopt import (
     RandomSample,
     Result,
     SimulatedAnnealing,
+    TupleSpace,
 )
 
 
@@ -22,6 +23,7 @@ def sphere_fitness(dna: tuple[int, ...]) -> float:
 
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
+SPACE_3D = TupleSpace(BOUNDS_3D)
 
 ALL_OPTIMIZERS = [
     (RandomSample, {}),
@@ -42,7 +44,7 @@ class TestAllOptimizersOnSphere:
     @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_all_optimizers_on_sphere(self, OptimizerCls, kwargs):
         """Each optimizer beats worst-possible fitness (243) on sphere."""
-        opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
+        opt = OptimizerCls(sphere_fitness, SPACE_3D, seed=42, **kwargs)
         result = opt.run(30)
         worst_possible = 9 * 9 * 3  # 243
         assert result.best_value < worst_possible
@@ -54,7 +56,7 @@ class TestAllOptimizersReturnResult:
     @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_result_fields(self, OptimizerCls, kwargs):
         """Result has all fields populated correctly."""
-        opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
+        opt = OptimizerCls(sphere_fitness, SPACE_3D, seed=42, **kwargs)
         result = opt.run(20)
 
         assert isinstance(result, Result)
@@ -101,10 +103,10 @@ class TestCacheReducesEvaluations:
 
     def test_cache_reduces_evaluations(self):
         """GA with small population on tiny space should get cache hits."""
-        tiny_bounds = ((0, 2), (0, 2))
+        tiny_space = TupleSpace(((0, 2), (0, 2)))
         # 3*3=9 possible solutions, population of 8, many generations
         # -> guaranteed cache hits
-        ga = GA(sphere_fitness, tiny_bounds, population_size=8, seed=42)
+        ga = GA(sphere_fitness, tiny_space, population_size=8, seed=42)
         result = ga.run(20)
         # Without cache: 8 (init) + 20*~8 (generations) = ~168 evaluations
         # With cache on 9 possible solutions: at most 9 unique evals
@@ -118,7 +120,7 @@ class TestProgressNoCrash:
     def test_progress_no_crash(self, OptimizerCls, kwargs):
         """Running with progress=True doesn't raise."""
         opt = OptimizerCls(
-            sphere_fitness, BOUNDS_3D, seed=42, progress=True, **kwargs
+            sphere_fitness, SPACE_3D, seed=42, progress=True, **kwargs
         )
         result = opt.run(5)
         assert result.best_solution is not None
@@ -130,7 +132,7 @@ class TestContinuation:
     @pytest.mark.parametrize("OptimizerCls,kwargs", ALL_OPTIMIZERS)
     def test_continuation(self, OptimizerCls, kwargs):
         """Second run() continues from prior state."""
-        opt = OptimizerCls(sphere_fitness, BOUNDS_3D, seed=42, **kwargs)
+        opt = OptimizerCls(sphere_fitness, SPACE_3D, seed=42, **kwargs)
         r1 = opt.run(20)
         n_evals_after_first = r1.n_evaluations
         best_after_first = r1.best_value

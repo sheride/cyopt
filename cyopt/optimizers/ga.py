@@ -13,6 +13,7 @@ import numpy as np
 
 from cyopt._types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
+from cyopt.spaces import TupleSpace
 
 
 # ---------------------------------------------------------------------------
@@ -208,8 +209,8 @@ class GA(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimise.  Ignored when *target_fn* is given.
-    bounds : Bounds
-        Per-dimension ``(lo, hi)`` inclusive bounds.
+    space : TupleSpace
+        Bounded-integer-tuple search space. Required.
     target_fn : Callable[[DNA], float], optional
         Observable function (maximised).  When provided, *fitness* must also
         be specified and *fitness_fn* is built automatically.
@@ -249,7 +250,7 @@ class GA(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float] | None = None,
-        bounds: Bounds = (),
+        space: TupleSpace | None = None,
         *,
         target_fn: Callable[[DNA], float] | None = None,
         fitness: str | Callable | None = None,
@@ -267,6 +268,8 @@ class GA(DiscreteOptimizer):
         callbacks: list | None = None,
     ) -> None:
         # Validate hyperparameters (CORE-06)
+        if space is None:
+            raise ValueError("space is required")
         if population_size < 4:
             raise ValueError(
                 f"population_size must be >= 4, got {population_size}"
@@ -311,7 +314,7 @@ class GA(DiscreteOptimizer):
             self._use_target_fitness = False
 
         super().__init__(
-            fitness_fn, bounds,
+            fitness_fn, space,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
             callbacks=callbacks,
@@ -407,14 +410,14 @@ class GA(DiscreteOptimizer):
     def run(self, n_iterations: int):
         """Initialise population (if needed) and delegate to base-class loop."""
         if not self._initialized:
-            n_dims = len(self._bounds)
+            n_dims = self._space.dim
             self._population = np.empty(
                 (self._population_size, n_dims), dtype=int
             )
             self._fitness_values = np.empty(self._population_size, dtype=float)
 
             for i in range(self._population_size):
-                dna = self._random_dna()
+                dna = self._space.random(self._rng)
                 self._population[i] = dna
                 self._fitness_values[i] = self._evaluate(dna)
             self._initialized = True
@@ -476,7 +479,7 @@ class GA(DiscreteOptimizer):
         idx = self._elitism
         # Compute search space size for safety valve
         search_space_size = 1
-        for lo, hi in self._bounds:
+        for lo, hi in self._space.bounds:
             search_space_size *= (hi - lo + 1)
         # Can't have more unique members than the search space
         target_size = min(self._population_size, search_space_size)
@@ -501,11 +504,11 @@ class GA(DiscreteOptimizer):
                     break
                 if self._rng.random() < self._mutation_rate:
                     child = random_mutation(
-                        child, self._bounds, self._rng, k=self._mutation_k
+                        child, self._space.bounds, self._rng, k=self._mutation_k
                     )
                 # Clip to bounds
                 for d in range(n_dims):
-                    lo, hi = self._bounds[d]
+                    lo, hi = self._space.bounds[d]
                     child[d] = max(lo, min(hi, child[d]))
 
                 key = tuple(int(x) for x in child)
@@ -519,7 +522,7 @@ class GA(DiscreteOptimizer):
 
         # If we exhausted attempts, fill remaining slots with random DNA
         while idx < target_size:
-            dna = self._random_dna()
+            dna = self._space.random(self._rng)
             key = tuple(int(x) for x in dna)
             if key not in seen:
                 seen.add(key)

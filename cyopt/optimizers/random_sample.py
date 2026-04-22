@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from cyopt._types import DNA, Bounds
+from cyopt._types import DNA
 from cyopt.base import DiscreteOptimizer
+from cyopt.spaces import TupleSpace
 
 
 class RandomSample(DiscreteOptimizer):
@@ -18,8 +19,8 @@ class RandomSample(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
+    space : TupleSpace
+        Bounded-integer-tuple search space.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
@@ -33,7 +34,7 @@ class RandomSample(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: TupleSpace,
         *,
         seed: int | None = None,
         cache_size: int | None = None,
@@ -43,7 +44,7 @@ class RandomSample(DiscreteOptimizer):
     ) -> None:
         super().__init__(
             fitness_fn,
-            bounds,
+            space,
             seed=seed,
             cache_size=cache_size,
             record_history=record_history,
@@ -72,7 +73,7 @@ class RandomSample(DiscreteOptimizer):
         dict | None
             ``{"sampled": dna, "value": value}`` if recording history.
         """
-        dna = self._random_dna()
+        dna = self._space.random(self._rng)
         value = self._evaluate(dna)
 
         if self._record_history:

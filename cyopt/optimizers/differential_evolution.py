@@ -17,8 +17,9 @@ from collections.abc import Callable
 import numpy as np
 from scipy.optimize import differential_evolution
 
-from cyopt._types import DNA, Bounds, Result
+from cyopt._types import DNA, Result
 from cyopt.base import DiscreteOptimizer
+from cyopt.spaces import TupleSpace
 
 
 class DifferentialEvolution(DiscreteOptimizer):
@@ -38,9 +39,11 @@ class DifferentialEvolution(DiscreteOptimizer):
     ----------
     fitness_fn : Callable[[DNA], float]
         Objective function to minimize.
-    bounds : Bounds
-        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds.
-        Internally transformed to half-open ``(lo, hi+1)`` for SciPy.
+    space : TupleSpace
+        Bounded-integer-tuple search space.
+        Per-dimension ``(lo_inclusive, hi_inclusive)`` bounds from
+        ``space.bounds`` are internally transformed to half-open
+        ``(lo, hi+1)`` for SciPy.
     popsize : int
         Population size multiplier (actual pop = ``popsize * n_dims``).
     mutation : float | tuple[float, float]
@@ -65,7 +68,7 @@ class DifferentialEvolution(DiscreteOptimizer):
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
-        bounds: Bounds,
+        space: TupleSpace,
         *,
         popsize: int = 15,
         mutation: float | tuple[float, float] = (0.5, 1),
@@ -78,7 +81,7 @@ class DifferentialEvolution(DiscreteOptimizer):
         callbacks: list | None = None,
     ) -> None:
         super().__init__(
-            fitness_fn, bounds,
+            fitness_fn, space,
             seed=seed, cache_size=cache_size,
             record_history=record_history, progress=progress,
             callbacks=callbacks,
@@ -153,8 +156,8 @@ class DifferentialEvolution(DiscreteOptimizer):
             return False
 
         # CRITICAL: half-open bounds for integrality
-        de_bounds = [(lo, hi + 1) for lo, hi in self._bounds]
-        integrality = [True] * len(self._bounds)
+        de_bounds = [(lo, hi + 1) for lo, hi in self._space.bounds]
+        integrality = [True] * self._space.dim
 
         t0 = time.perf_counter()
 

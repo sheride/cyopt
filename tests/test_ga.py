@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+from cyopt import TupleSpace
 from cyopt.optimizers.ga import (
     GA,
     _CROSSOVER_REGISTRY,
@@ -159,49 +160,49 @@ class TestRandomMutation:
 class TestGAOperatorInterface:
     """GA supports string, dict, and callable operator specs (D-05, D-06)."""
 
-    def test_string_operators(self, sphere_fitness, standard_bounds):
+    def test_string_operators(self, sphere_fitness, standard_space):
         """GA accepts string operator names."""
-        ga = GA(sphere_fitness, standard_bounds,
+        ga = GA(sphere_fitness, standard_space,
                 selection='tournament', crossover='npoint',
                 seed=42)
         result = ga.run(5)
         assert result.best_solution is not None
 
-    def test_dict_operators(self, sphere_fitness, standard_bounds):
+    def test_dict_operators(self, sphere_fitness, standard_space):
         """GA accepts dict operator specs with parameters."""
-        ga = GA(sphere_fitness, standard_bounds,
+        ga = GA(sphere_fitness, standard_space,
                 selection={'method': 'tournament', 'k': 5},
                 crossover={'method': 'npoint', 'n': 2},
                 seed=42)
         result = ga.run(5)
         assert result.best_solution is not None
 
-    def test_callable_operators(self, sphere_fitness, standard_bounds):
+    def test_callable_operators(self, sphere_fitness, standard_space):
         """GA accepts callable operator specs."""
         def custom_selection(population, fitness, rng, **kwargs):
             idx1 = rng.integers(len(population))
             idx2 = rng.integers(len(population))
             return population[idx1], population[idx2]
 
-        ga = GA(sphere_fitness, standard_bounds,
+        ga = GA(sphere_fitness, standard_space,
                 selection=custom_selection, seed=42)
         result = ga.run(5)
         assert result.best_solution is not None
 
-    def test_invalid_operator_raises_valueerror(self, sphere_fitness, standard_bounds):
+    def test_invalid_operator_raises_valueerror(self, sphere_fitness, standard_space):
         """Invalid operator string raises ValueError with valid options."""
         with pytest.raises(ValueError, match="tournament"):
-            GA(sphere_fitness, standard_bounds, selection='nonexistent')
+            GA(sphere_fitness, standard_space, selection='nonexistent')
 
-    def test_invalid_population_size(self, sphere_fitness, standard_bounds):
+    def test_invalid_population_size(self, sphere_fitness, standard_space):
         """population_size < 4 raises ValueError."""
         with pytest.raises(ValueError, match="population_size"):
-            GA(sphere_fitness, standard_bounds, population_size=1)
+            GA(sphere_fitness, standard_space, population_size=1)
 
-    def test_invalid_mutation_rate(self, sphere_fitness, standard_bounds):
+    def test_invalid_mutation_rate(self, sphere_fitness, standard_space):
         """mutation_rate outside [0, 1] raises ValueError."""
         with pytest.raises(ValueError, match="mutation_rate"):
-            GA(sphere_fitness, standard_bounds, mutation_rate=2.0)
+            GA(sphere_fitness, standard_space, mutation_rate=2.0)
 
 
 class TestGAOptimization:
@@ -209,8 +210,8 @@ class TestGAOptimization:
 
     def test_improves_over_generations(self, sphere_fitness):
         """GA should improve on sphere_fitness over 50 generations."""
-        bounds = ((0, 9),) * 5
-        ga = GA(sphere_fitness, bounds, population_size=20, seed=42)
+        space = TupleSpace(((0, 9),) * 5)
+        ga = GA(sphere_fitness, space, population_size=20, seed=42)
         result = ga.run(50)
 
         # Should improve from initial random (worst possible = 5*81 = 405)
@@ -218,27 +219,27 @@ class TestGAOptimization:
         # History should show improvement (first > last)
         assert result.history[0] >= result.history[-1]
 
-    def test_seeding_reproducibility(self, sphere_fitness, standard_bounds):
+    def test_seeding_reproducibility(self, sphere_fitness, standard_space):
         """Two GA runs with same seed produce identical results."""
-        ga1 = GA(sphere_fitness, standard_bounds, seed=42, population_size=20)
+        ga1 = GA(sphere_fitness, standard_space, seed=42, population_size=20)
         result1 = ga1.run(20)
 
-        ga2 = GA(sphere_fitness, standard_bounds, seed=42, population_size=20)
+        ga2 = GA(sphere_fitness, standard_space, seed=42, population_size=20)
         result2 = ga2.run(20)
 
         assert result1.best_solution == result2.best_solution
         assert result1.best_value == result2.best_value
         assert result1.history == result2.history
 
-    def test_population_size(self, sphere_fitness, standard_bounds):
+    def test_population_size(self, sphere_fitness, standard_space):
         """population_size controls number of individuals."""
-        ga = GA(sphere_fitness, standard_bounds, population_size=10, seed=42)
+        ga = GA(sphere_fitness, standard_space, population_size=10, seed=42)
         ga.run(1)
         assert ga._population.shape[0] == 10
 
-    def test_full_history(self, sphere_fitness, standard_bounds):
+    def test_full_history(self, sphere_fitness, standard_space):
         """record_history=True provides dicts with best, mean, std keys."""
-        ga = GA(sphere_fitness, standard_bounds, population_size=10,
+        ga = GA(sphere_fitness, standard_space, population_size=10,
                 seed=42, record_history=True)
         result = ga.run(10)
 
@@ -249,9 +250,9 @@ class TestGAOptimization:
             assert 'mean' in entry
             assert 'std' in entry
 
-    def test_elitism_preserves_best(self, sphere_fitness, standard_bounds):
+    def test_elitism_preserves_best(self, sphere_fitness, standard_space):
         """With elitism >= 1, best individual never gets worse."""
-        ga = GA(sphere_fitness, standard_bounds, population_size=10,
+        ga = GA(sphere_fitness, standard_space, population_size=10,
                 elitism=2, seed=42)
         result = ga.run(20)
 
