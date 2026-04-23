@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from cyopt._types import DNA, Result
+from cyopt.types import DNA, Result
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 cyopt.types --- Core type definitions
 ======================================
 
-.. automodule:: cyopt._types
+.. automodule:: cyopt.types
    :members:
    :show-inheritance:

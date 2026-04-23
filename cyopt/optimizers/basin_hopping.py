@@ -12,7 +12,7 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt._types import DNA
+from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers._neighbors import (
     LocalMinimizeFunction,

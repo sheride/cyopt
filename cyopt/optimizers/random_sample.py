@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from cyopt._types import DNA
+from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
 

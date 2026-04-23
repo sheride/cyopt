@@ -5,7 +5,7 @@ from collections.abc import Iterable, Sequence
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds
+from cyopt.types import DNA, Bounds
 from cyopt.spaces._graph import GraphSpace
 
 

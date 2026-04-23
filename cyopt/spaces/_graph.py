@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from cyopt.spaces._base import SearchSpace
 
 if TYPE_CHECKING:
-    from cyopt._types import Node
+    from cyopt.types import Node
 
 
 class GraphSpace(SearchSpace):

@@ -17,7 +17,7 @@ All functions are monkey-patched onto ``cytools.Polytope`` when
 
 from __future__ import annotations
 
-from cyopt._types import DNA, Bounds
+from cyopt.types import DNA, Bounds
 
 
 def _normalize_simplices(simplices) -> frozenset[tuple[int, ...]]:

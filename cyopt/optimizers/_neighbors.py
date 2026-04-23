@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds, Node
+from cyopt.types import DNA, Bounds, Node
 
 if TYPE_CHECKING:
     from cyopt.spaces import GraphSpace

@@ -13,7 +13,7 @@ from __future__ import annotations
 import pytest
 
 from cyopt import TupleSpace
-from cyopt._types import DNA, Bounds, Callback, CallbackInfo
+from cyopt.types import DNA, Bounds, Callback, CallbackInfo
 from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk

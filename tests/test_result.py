@@ -2,7 +2,7 @@
 
 import pytest
 
-from cyopt._types import Result
+from cyopt.types import Result
 
 
 class TestResult:

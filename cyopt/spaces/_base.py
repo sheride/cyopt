@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import numpy as np
 
-    from cyopt._types import Node
+    from cyopt.types import Node
 
 
 class SearchSpace(ABC):

@@ -19,7 +19,7 @@ from cyopt._checkpoint import (
     _migrate,
     _serialize_space,
 )
-from cyopt._types import DNA, Callback, Result
+from cyopt.types import DNA, Callback, Result
 from cyopt.spaces import SearchSpace
 
 

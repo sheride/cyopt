@@ -11,7 +11,7 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt._types import DNA, Bounds
+from cyopt.types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
 
