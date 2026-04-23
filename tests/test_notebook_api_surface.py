@@ -70,12 +70,40 @@ def _is_cytools_gated_error(exc: BaseException) -> bool:
 
 
 def _strip_ipython_magic(source: str) -> str:
-    """Drop lines beginning with ``%`` or ``!`` so ``ast.parse`` succeeds."""
-    return "\n".join(
-        line
-        for line in source.splitlines()
-        if not line.lstrip().startswith(("%", "!"))
-    )
+    """Normalize IPython-specific syntax so ``ast.parse`` succeeds.
+
+    Jupyter accepts several non-Python constructs that ``ast.parse`` would
+    otherwise reject, causing the outer cell-level parse to fail and the
+    entire cell (including any valid cyopt references) to be silently
+    skipped. We strip them in a best-effort, line-by-line pass:
+
+    - Lines whose first non-whitespace character is ``%`` or ``!``
+      (line magic / shell escape) are dropped entirely.
+    - Trailing ``?`` / ``??`` help markers on otherwise-valid Python
+      lines are removed (e.g., ``GA?`` -> ``GA``). The help form is
+      always a trailing construct, so stripping suffix ``?`` characters
+      is safe.
+    - Trailing ``;`` cell-terminators (Jupyter's output-suppression
+      convention) are valid Python already, so they pass through
+      unchanged — the strip loop does not remove them.
+
+    The shipped tutorials do not currently use ``?`` / ``??`` suffixes,
+    so this hardening is purely future-proofing: without it, a single
+    ``GA?`` line in a future tutorial cell would cause the drift check
+    to silently skip that cell.
+    """
+    lines: list[str] = []
+    for line in source.splitlines():
+        stripped = line.lstrip()
+        if stripped.startswith(("%", "!")):
+            continue
+        # Drop trailing ``?``/``??`` help markers; preserve trailing
+        # whitespace by rstripping before the suffix check.
+        rstripped = line.rstrip()
+        while rstripped.endswith("?"):
+            rstripped = rstripped[:-1]
+        lines.append(rstripped)
+    return "\n".join(lines)
 
 
 def _attribute_chain(node: ast.AST) -> list[str] | None:
