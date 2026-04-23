@@ -12,7 +12,7 @@ import numpy as np
 from tqdm import tqdm
 
 from cyopt._cache import EvaluationCache
-from cyopt._checkpoint import (
+from cyopt.checkpoint import (
     CHECKPOINT_VERSION,
     CheckpointCallback,
     _deserialize_space,

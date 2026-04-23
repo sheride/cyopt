@@ -1,6 +1,6 @@
 """cyopt -- Discrete optimization toolkit for bounded integer-tuple search spaces."""
 
-from cyopt._checkpoint import CheckpointCallback
+from cyopt.checkpoint import CheckpointCallback
 from cyopt.types import DNA, Bounds, Callback, CallbackInfo, FitnessFunction, Result
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import GraphSpace, SearchSpace, TupleSpace

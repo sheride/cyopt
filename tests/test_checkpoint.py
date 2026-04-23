@@ -14,7 +14,7 @@ from cyopt import (
     BasinHopping, MCMC, SimulatedAnnealing, DifferentialEvolution,
     CheckpointCallback, TupleSpace,
 )
-from cyopt._checkpoint import CHECKPOINT_VERSION, _migrate
+from cyopt.checkpoint import CHECKPOINT_VERSION, _migrate
 
 
 def _sphere(dna):

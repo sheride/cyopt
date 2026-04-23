@@ -1,6 +1,6 @@
 cyopt.checkpoint --- Checkpoint and resume
 ===========================================
 
-.. automodule:: cyopt._checkpoint
+.. automodule:: cyopt.checkpoint
    :members:
    :show-inheritance:
