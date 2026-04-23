@@ -14,7 +14,7 @@ import numpy as np
 
 from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
-from cyopt.optimizers._neighbors import (
+from cyopt.optimizers.neighbors import (
     LocalMinimizeFunction,
     PerturbFunction,
     random_single_flip,

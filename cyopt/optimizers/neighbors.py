@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import numpy as np
 
@@ -13,14 +13,14 @@ if TYPE_CHECKING:
     from cyopt.spaces import GraphSpace
 
 
-NeighborFunction = Callable[[Node], Iterable[Node]]
+NeighborFunction: TypeAlias = Callable[[Node], Iterable[Node]]
 """Callable that yields neighbors of a node.
 
 Per D-07: no Bounds parameter. If bounds are needed, close over a TupleSpace
 or subclass TupleSpace with a custom ``neighbors`` method.
 """
 
-StepFunction = Callable[[Node, np.random.Generator], Node]
+StepFunction: TypeAlias = Callable[[Node, np.random.Generator], Node]
 """Callable that proposes a new node from the current one, given an RNG.
 
 Per D-07: bounds are NOT part of this protocol. If a custom step function
@@ -28,10 +28,10 @@ needs bounds, close over a TupleSpace (or call ``space.bounds``) at
 definition time.
 """
 
-PerturbFunction = Callable[[Node, np.random.Generator], Node]
+PerturbFunction: TypeAlias = Callable[[Node, np.random.Generator], Node]
 """BasinHopping perturbation callable: (node, rng) -> new node."""
 
-LocalMinimizeFunction = Callable[
+LocalMinimizeFunction: TypeAlias = Callable[
     [Node, "GraphSpace", Callable[[Node], float]], Node
 ]
 """BasinHopping local-descent callable: (node, space, evaluate_fn) -> node.

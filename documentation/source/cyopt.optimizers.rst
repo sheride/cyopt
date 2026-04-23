@@ -16,3 +16,4 @@ Optimizer implementations.
    cyopt.optimizers.differential_evolution
    cyopt.optimizers.mcmc
    cyopt.optimizers.simulated_annealing
+   cyopt.optimizers.neighbors

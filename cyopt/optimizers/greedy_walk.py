@@ -6,7 +6,7 @@ from collections.abc import Callable
 
 from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
-from cyopt.optimizers._neighbors import NeighborFunction
+from cyopt.optimizers.neighbors import NeighborFunction
 from cyopt.spaces import GraphSpace
 
 

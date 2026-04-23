@@ -1,6 +1,6 @@
 """Optimizer implementations for cyopt."""
 
-from cyopt.optimizers._neighbors import random_single_flip
+from cyopt.optimizers.neighbors import random_single_flip
 from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.best_first_search import BestFirstSearch
 from cyopt.optimizers.differential_evolution import DifferentialEvolution

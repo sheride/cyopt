@@ -8,7 +8,7 @@ import numpy as np
 
 from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
-from cyopt.optimizers._neighbors import StepFunction, random_single_flip
+from cyopt.optimizers.neighbors import StepFunction, random_single_flip
 from cyopt.spaces import GraphSpace
 
 
@@ -33,7 +33,7 @@ class MCMC(DiscreteOptimizer):
     step_fn : StepFunction | None
         Custom proposal function ``(dna, rng) -> DNA``. Defaults to a
         closure over the space's bounds that calls
-        :func:`~cyopt.optimizers._neighbors.random_single_flip`.
+        :func:`~cyopt.optimizers.neighbors.random_single_flip`.
     seed : int | None
         Random seed for reproducibility.
     cache_size : int | None
