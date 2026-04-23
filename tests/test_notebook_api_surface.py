@@ -160,18 +160,28 @@ def _collect_cyopt_references(notebook_path: Path) -> list[tuple]:
                 records.append(("call", (dotted, kwargs), cell_idx))
 
             elif isinstance(node, ast.Attribute):
-                # Skip attribute expressions that are themselves the func of a
-                # Call; those were handled above. We only want "bare" attribute
-                # references here (e.g., `cyopt.__version__`).
-                # The simplest filter: only record top-level attribute chains
-                # rooted in 'cyopt'. We walk the tree again in a parent-aware
-                # pass would be more precise, but in practice cyopt tutorial
-                # notebooks use bare `cyopt.X.Y` chains rarely outside calls,
-                # and when they do (e.g., `cyopt.__version__`) we want to
-                # verify them. To avoid double-counting Call's func chains,
-                # we skip Attribute nodes whose parent is a Call.func — but
-                # ast.walk does not expose parents. We resolve duplication
-                # in the verifier (resolving the same name twice is a no-op).
+                # Only record "bare" attribute references rooted in literal
+                # ``cyopt`` (e.g., ``cyopt.__version__``, or ``cyopt.X.Y`` used
+                # outside a call site). The ``chain[0] != "cyopt"`` filter is
+                # deliberate, not a bug:
+                #
+                # - Chains rooted in literal ``cyopt`` (e.g., ``cyopt.GA(...)``)
+                #   are visited by ``ast.walk`` BOTH as the Call.func above
+                #   and as a bare Attribute here. Both branches record the
+                #   same dotted path; ``_verify_reference`` is idempotent so
+                #   resolving the same name twice is a no-op. This is the
+                #   only scenario that produces duplicate records.
+                #
+                # - Chains rooted in a locally-bound import (e.g., ``GA``
+                #   from ``from cyopt.optimizers import GA`` followed by
+                #   ``GA.some_method(...)``) are captured ONLY by the Call
+                #   branch above via ``imported_names[root]``. The Attribute
+                #   branch here filters them out because ``chain[0]`` is the
+                #   local name (``"GA"``), not ``"cyopt"``. That asymmetry is
+                #   intentional: the Call branch already covers them, and
+                #   without an import binding we cannot resolve a bare
+                #   ``GA.some_method`` attribute reference to a cyopt path
+                #   anyway.
                 chain = _attribute_chain(node)
                 if chain is None or chain[0] != "cyopt":
                     continue
