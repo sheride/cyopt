@@ -14,7 +14,6 @@ from tqdm import tqdm
 from cyopt._cache import EvaluationCache
 from cyopt.checkpoint import (
     CHECKPOINT_VERSION,
-    CheckpointCallback,
     _deserialize_space,
     _migrate,
     _serialize_space,
@@ -70,10 +69,16 @@ class DiscreteOptimizer(ABC):
         self._callbacks: list[Callback] = list(callbacks) if callbacks else []
         self._iteration_offset: int = 0
 
-        # Bind CheckpointCallback instances to this optimizer
+        # Bind any callback exposing a ``bind()`` method to this optimizer.
+        # Duck-typed (not ``isinstance(cb, CheckpointCallback)``) so that
+        # user-defined callback classes following the same ``bind(optimizer)``
+        # contract are also bound without having to subclass
+        # ``CheckpointCallback``. See ``CheckpointCallback.bind`` docstring
+        # for the contract.
         for cb in self._callbacks:
-            if isinstance(cb, CheckpointCallback):
-                cb.bind(self)
+            bind = getattr(cb, "bind", None)
+            if callable(bind):
+                bind(self)
 
         # Best-so-far tracking (minimization)
         self._best_solution: DNA | None = None
