@@ -88,7 +88,14 @@ def _migrate(state: dict[str, Any], from_version: int) -> dict[str, Any]:
             kind, data = _serialize_space(raw)
             state["space_kind"] = kind
             state["space_data"] = data
-        # else: already migrated (idempotent) -- fall through.
+        elif "space_kind" in state:
+            # Already partially migrated -- OK (idempotent retry).
+            pass
+        else:
+            raise ValueError(
+                "Cannot migrate checkpoint: v1 state lacks any recognized "
+                "space marker ('bounds', 'space', or 'space_kind')."
+            )
         state["_checkpoint_version"] = CHECKPOINT_VERSION
         return state
 

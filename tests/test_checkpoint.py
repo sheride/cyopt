@@ -331,6 +331,25 @@ class TestV1Migration:
         assert migrated['space_data'] == {'bounds': BOUNDS}
         assert 'bounds' not in migrated
 
+    def test_migrate_rejects_malformed_v1_state(self):
+        """_migrate raises ValueError on v1 state lacking any space marker."""
+        state = {'_checkpoint_version': 1, '_class': 'RandomSample'}
+        with pytest.raises(ValueError, match="space marker"):
+            _migrate(state, 1)
+
+    def test_migrate_accepts_already_migrated_v1_state(self):
+        """_migrate is idempotent on v1 state already carrying space_kind."""
+        state = {
+            '_checkpoint_version': 1,
+            '_class': 'RandomSample',
+            'space_kind': 'TupleSpace',
+            'space_data': {'bounds': BOUNDS},
+        }
+        migrated = _migrate(state, 1)
+        assert migrated['_checkpoint_version'] == CHECKPOINT_VERSION
+        assert migrated['space_kind'] == 'TupleSpace'
+        assert migrated['space_data'] == {'bounds': BOUNDS}
+
 
 def test_checkpoint_callback_bind_method(tmp_path):
     """CheckpointCallback.bind sets _optimizer; DiscreteOptimizer.__init__ uses it."""
