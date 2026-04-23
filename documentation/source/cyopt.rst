@@ -15,5 +15,6 @@ Modules
    cyopt.base
    cyopt.types
    cyopt.checkpoint
+   cyopt.spaces
    cyopt.optimizers
    cyopt.frst
