@@ -83,8 +83,8 @@ class TestSaveLoadBasic:
         assert loaded._best_solution == opt._best_solution
         assert loaded._n_evaluations == opt._n_evaluations
 
-    def test_cache_preserved(self, tmp_path):
-        """Loaded optimizer's cache contains same entries as saved."""
+    def test_cache_preserved_save_load(self, tmp_path):
+        """Loaded optimizer's cache contains same entries as saved (RandomSample-specific)."""
         opt = RandomSample(_sphere, space=SPACE, seed=42)
         opt.run(20)
         ckpt_path = tmp_path / "test.ckpt"
@@ -237,8 +237,8 @@ class TestAllOptimizers:
         assert result_full.best_solution == result_resumed.best_solution
 
     @pytest.mark.parametrize("cls,kwargs", OPTIMIZER_CONFIGS, ids=_optimizer_id)
-    def test_cache_preserved(self, cls, kwargs, tmp_path):
-        """Cache entries survive save/load cycle."""
+    def test_cache_preserved_round_trip(self, cls, kwargs, tmp_path):
+        """Cache entries survive save/load cycle (all optimizers)."""
         opt = cls(fitness_fn=_sphere, space=SPACE, seed=42, **kwargs)
         opt.run(20)
         cache_size_before = len(opt._cache)
