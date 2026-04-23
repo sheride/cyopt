@@ -43,6 +43,31 @@ TUTORIAL_DIR = (
 )
 NOTEBOOKS = sorted(TUTORIAL_DIR.glob("*.ipynb"))
 
+# Detect CYTools availability up front so the gated-module branches in
+# ``_verify_reference`` / ``_resolve_callable`` can be intent-explicit
+# ("skip only when CYTools is genuinely unavailable") rather than relying on
+# a fragile ``"cytools" in str(e).lower()`` substring match. The substring
+# guard is kept as a secondary check so an unrelated ImportError that
+# happens to mention "cytools" still does not silently mask drift.
+try:
+    import cytools  # noqa: F401
+
+    _HAS_CYTOOLS = True
+except ImportError:
+    _HAS_CYTOOLS = False
+
+
+def _is_cytools_gated_error(exc: BaseException) -> bool:
+    """Return True if ``exc`` reflects a missing CYTools install in this env.
+
+    The check is conjunctive: both (a) CYTools must be unavailable in the
+    current environment, and (b) the error string must mention ``cytools``.
+    This avoids the false-positive in which an unrelated transitive import
+    failure whose message happens to contain the word "cytools" gets
+    silently treated as gated.
+    """
+    return (not _HAS_CYTOOLS) and ("cytools" in str(exc).lower())
+
 
 def _strip_ipython_magic(source: str) -> str:
     """Drop lines beginning with ``%`` or ``!`` so ``ast.parse`` succeeds."""
@@ -213,8 +238,9 @@ def _verify_reference(kind: str, payload) -> tuple[bool, str]:
             except ModuleNotFoundError as e:
                 # If the *cyopt* submodule itself is missing, that is a real
                 # failure. If an underlying cytools dep is missing we treat
-                # it as gated and report OK.
-                if "cytools" in str(e).lower():
+                # it as gated and report OK -- but only when CYTools is
+                # genuinely absent in this environment (see WR-02 fix).
+                if _is_cytools_gated_error(e):
                     return True, ""
                 return False, f"cannot import module {mod!r}: {e}"
             if not hasattr(module, name):
@@ -233,7 +259,7 @@ def _verify_reference(kind: str, payload) -> tuple[bool, str]:
                     remaining = parts[split:]
                     break
                 except ModuleNotFoundError as e:
-                    if "cytools" in str(e).lower():
+                    if _is_cytools_gated_error(e):
                         return True, ""
                     continue
             else:
@@ -264,7 +290,7 @@ def _resolve_callable(dotted: str):
             remaining = parts[split:]
             break
         except ModuleNotFoundError as e:
-            if "cytools" in str(e).lower():
+            if _is_cytools_gated_error(e):
                 return None  # gated
             continue
     else:
