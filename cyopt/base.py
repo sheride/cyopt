@@ -73,7 +73,7 @@ class DiscreteOptimizer(ABC):
         # Bind CheckpointCallback instances to this optimizer
         for cb in self._callbacks:
             if isinstance(cb, CheckpointCallback):
-                cb._optimizer = self
+                cb.bind(self)
 
         # Best-so-far tracking (minimization)
         self._best_solution: DNA | None = None

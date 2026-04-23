@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from cyopt.base import DiscreteOptimizer
     from cyopt.spaces import SearchSpace
 
 CHECKPOINT_VERSION = 2
@@ -116,6 +117,21 @@ class CheckpointCallback:
         self._path = Path(path)
         self._every_n = every_n
         self._optimizer: Any = None  # Bound during optimizer __init__
+
+    def bind(self, optimizer: "DiscreteOptimizer") -> None:
+        """Bind this callback to an optimizer instance.
+
+        Called automatically by :class:`~cyopt.base.DiscreteOptimizer`
+        during initialization. Subclasses that override this method MUST
+        call ``super().bind(optimizer)``.
+
+        Parameters
+        ----------
+        optimizer : DiscreteOptimizer
+            The optimizer instance whose ``save_checkpoint`` method this
+            callback will invoke.
+        """
+        self._optimizer = optimizer
 
     def __call__(self, info: dict[str, Any]) -> bool | None:
         if (info["iteration"] + 1) % self._every_n == 0:

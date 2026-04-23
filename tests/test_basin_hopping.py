@@ -4,6 +4,7 @@ import pytest
 
 from cyopt import TupleSpace
 from cyopt.optimizers.basin_hopping import BasinHopping
+from cyopt.spaces import GraphSpace
 
 
 def sphere_fitness(dna):
@@ -12,6 +13,36 @@ def sphere_fitness(dna):
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
 SPACE_3D = TupleSpace(BOUNDS_3D)
+
+
+class _BareGraph(GraphSpace):
+    """Minimal concrete GraphSpace with NO ``bounds`` attribute."""
+
+    def random(self, rng):
+        return (0,)
+
+    def neighbors(self, node):
+        return []
+
+
+def test_bh_rejects_non_tuple_space_without_perturb_fn():
+    """Constructing BasinHopping with a bare GraphSpace and no perturb_fn raises TypeError."""
+    space = _BareGraph()
+    with pytest.raises(TypeError, match="perturb_fn"):
+        BasinHopping(sphere_fitness, space, seed=42)
+
+
+def test_bh_accepts_non_tuple_space_with_perturb_fn():
+    """Constructing BasinHopping with a bare GraphSpace + custom perturb_fn succeeds."""
+    space = _BareGraph()
+
+    def my_perturb(dna, rng):
+        return dna
+
+    opt = BasinHopping(
+        sphere_fitness, space, perturb_fn=my_perturb, seed=42,
+    )
+    assert opt is not None
 
 
 def test_finds_improvement():

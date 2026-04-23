@@ -147,6 +147,12 @@ class BasinHopping(DiscreteOptimizer):
             callbacks=callbacks,
         )
 
+        if perturb_fn is None and not hasattr(space, "bounds"):
+            raise TypeError(
+                "default perturb_fn requires a TupleSpace (needs .bounds); "
+                "pass perturb_fn= explicitly for non-tuple GraphSpaces"
+            )
+
         self._temperature = temperature
         self._n_perturbations = n_perturbations
         self._local_minimize_fn = local_minimize_fn or _greedy_descent

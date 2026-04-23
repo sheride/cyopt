@@ -79,12 +79,17 @@ class MCMC(DiscreteOptimizer):
         if step_fn is not None:
             self._step_fn: StepFunction = step_fn
         else:
-            # Default wraps the tuple-specific helper with space bounds closed in.
-            # Raises AttributeError on non-TupleSpace (expected).
-            bounds = self._space.bounds
-            self._step_fn = lambda node, rng: random_single_flip(
-                node, bounds, rng
-            )
+            if not hasattr(space, "bounds"):
+                raise TypeError(
+                    "default step_fn requires a TupleSpace (needs .bounds); "
+                    "pass step_fn= explicitly for non-tuple GraphSpaces"
+                )
+            bounds = space.bounds
+
+            def _default_step(node, rng):
+                return random_single_flip(node, bounds, rng)
+
+            self._step_fn = _default_step
         self._current: DNA | None = None
         self._current_value: float = float("inf")
 

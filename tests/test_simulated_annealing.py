@@ -5,6 +5,7 @@ import pytest
 from cyopt import TupleSpace
 from cyopt.optimizers.neighbors import random_single_flip
 from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
+from cyopt.spaces import GraphSpace
 
 
 def sphere_fitness(dna):
@@ -13,6 +14,36 @@ def sphere_fitness(dna):
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
 SPACE_3D = TupleSpace(BOUNDS_3D)
+
+
+class _BareGraph(GraphSpace):
+    """Minimal concrete GraphSpace with NO ``bounds`` attribute."""
+
+    def random(self, rng):
+        return (0,)
+
+    def neighbors(self, node):
+        return []
+
+
+def test_sa_rejects_non_tuple_space_without_step_fn():
+    """Constructing SA with a bare GraphSpace and no step_fn raises TypeError."""
+    space = _BareGraph()
+    with pytest.raises(TypeError, match="step_fn"):
+        SimulatedAnnealing(sphere_fitness, space, seed=42)
+
+
+def test_sa_accepts_non_tuple_space_with_step_fn():
+    """Constructing SA with a bare GraphSpace + custom step_fn succeeds."""
+    space = _BareGraph()
+
+    def my_step(dna, rng):
+        return dna
+
+    opt = SimulatedAnnealing(
+        sphere_fitness, space, step_fn=my_step, seed=42,
+    )
+    assert opt is not None
 
 
 class TestSimulatedAnnealing:

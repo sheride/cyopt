@@ -5,6 +5,7 @@ import pytest
 from cyopt import TupleSpace
 from cyopt.optimizers.neighbors import random_single_flip
 from cyopt.optimizers.mcmc import MCMC
+from cyopt.spaces import GraphSpace
 
 
 def sphere_fitness(dna):
@@ -13,6 +14,39 @@ def sphere_fitness(dna):
 
 BOUNDS_3D = ((0, 9), (0, 9), (0, 9))
 SPACE_3D = TupleSpace(BOUNDS_3D)
+
+
+class _BareGraph(GraphSpace):
+    """Minimal concrete GraphSpace with NO ``bounds`` attribute.
+
+    Used to verify that optimizers whose default step/perturb function
+    requires a TupleSpace fail fast at ``__init__`` rather than mid-run
+    with an opaque ``AttributeError``.
+    """
+
+    def random(self, rng):
+        return (0,)
+
+    def neighbors(self, node):
+        return []
+
+
+def test_mcmc_rejects_non_tuple_space_without_step_fn():
+    """Constructing MCMC with a bare GraphSpace and no step_fn raises TypeError."""
+    space = _BareGraph()
+    with pytest.raises(TypeError, match="step_fn"):
+        MCMC(sphere_fitness, space, seed=42)
+
+
+def test_mcmc_accepts_non_tuple_space_with_step_fn():
+    """Constructing MCMC with a bare GraphSpace + custom step_fn succeeds."""
+    space = _BareGraph()
+
+    def my_step(dna, rng):
+        return dna
+
+    opt = MCMC(sphere_fitness, space, step_fn=my_step, seed=42)
+    assert opt is not None
 
 
 class TestMCMC:

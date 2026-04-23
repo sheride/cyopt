@@ -332,6 +332,24 @@ class TestV1Migration:
         assert 'bounds' not in migrated
 
 
+def test_checkpoint_callback_bind_method(tmp_path):
+    """CheckpointCallback.bind sets _optimizer; DiscreteOptimizer.__init__ uses it."""
+    ckpt_path = tmp_path / "bind.ckpt"
+    cb = CheckpointCallback(ckpt_path)
+    # Pre-bind: _optimizer is None
+    assert cb._optimizer is None
+
+    # Direct bind() call works
+    sentinel = object()
+    cb.bind(sentinel)
+    assert cb._optimizer is sentinel
+
+    # When passed to a DiscreteOptimizer, the optimizer is bound automatically.
+    cb2 = CheckpointCallback(ckpt_path)
+    opt = RandomSample(_sphere, space=SPACE, seed=42, callbacks=[cb2])
+    assert cb2._optimizer is opt
+
+
 class TestUnknownSpaceKind:
     """Tests for D-09: unknown space_kind requires explicit space= on load."""
 
