@@ -135,6 +135,7 @@ class DifferentialEvolution(DiscreteOptimizer):
             Optimization result. ``full_history`` is always ``None``.
         """
         history: list[float] = []
+        t0 = time.perf_counter()
 
         def wrapped(x: np.ndarray) -> float:
             dna: DNA = tuple(int(xi) for xi in x)
@@ -158,8 +159,6 @@ class DifferentialEvolution(DiscreteOptimizer):
         # CRITICAL: half-open bounds for integrality
         de_bounds = [(lo, hi + 1) for lo, hi in self._space.bounds]
         integrality = [True] * self._space.dim
-
-        t0 = time.perf_counter()
 
         differential_evolution(
             wrapped,

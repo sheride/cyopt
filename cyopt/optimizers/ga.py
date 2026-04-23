@@ -298,7 +298,10 @@ class GA(DiscreteOptimizer):
                     "fitness must be specified when target_fn is provided"
                 )
             # Build fitness_fn for base class: negate target for minimisation
-            fitness_fn = lambda dna: -target_fn(dna)
+            def _neg_target(dna):
+                return -target_fn(dna)
+
+            fitness_fn = _neg_target
 
             # Resolve population-level fitness function
             if isinstance(fitness, str):

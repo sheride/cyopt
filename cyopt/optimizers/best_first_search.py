@@ -49,6 +49,9 @@ class BestFirstSearch(DiscreteOptimizer):
         If *mode* is not ``"backtrack"`` or ``"frontier"``.
     """
 
+    _neighbor_fn: NeighborFunction | None
+    _use_space_neighbors: bool
+
     def __init__(
         self,
         fitness_fn: Callable[[DNA], float],
@@ -76,7 +79,7 @@ class BestFirstSearch(DiscreteOptimizer):
             callbacks=callbacks,
         )
         if neighbor_fn is not None:
-            self._neighbor_fn: NeighborFunction | None = neighbor_fn
+            self._neighbor_fn = neighbor_fn
             self._use_space_neighbors = False
         else:
             self._neighbor_fn = None
