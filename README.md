@@ -34,13 +34,15 @@ pip install -e ".[dev,docs]"
 ## Quickstart
 
 ```python
-from cyopt import GA, Bounds
+from cyopt import GA, TupleSpace
 
-# Minimize sum-of-squares on a 5D integer space
-bounds = tuple((0, 10) for _ in range(5))
-optimizer = GA(lambda x: sum(xi**2 for xi in x), bounds, seed=42)
-result = optimizer.run(100)
-print(result.best_solution, result.best_value)
+def objective(x):
+    return sum((xi - 3) ** 2 for xi in x)
+
+bounds = [(0, 9)] * 3
+ga = GA(objective, space=TupleSpace(bounds), seed=42)
+result = ga.run(100)
+print(f"Best: {result.best_solution} → {result.best_value}")
 ```
 
 ## Documentation
