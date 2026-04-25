@@ -35,6 +35,7 @@ __all__ = [
     "CheckpointCallback",
     "DifferentialEvolution",
     "DiscreteOptimizer",
+    "FRSTFlipGraphSpace",
     "GA",
     "GreedyWalk",
     "LocalMinimizeFunction",
@@ -55,3 +56,24 @@ __all__ = [
 ]
 
 __version__ = "0.1.0"
+
+
+def __getattr__(name):
+    """Lazy attribute access for FRST symbols (PEP 562).
+
+    Top-level ``import cyopt`` must NOT auto-import ``cyopt.frst``
+    (that would trigger CYTools and break the
+    ``test_top_level_import_no_frst`` contract). Instead, expose
+    FRST symbols via lazy attribute access so that
+    ``from cyopt import FRSTFlipGraphSpace`` triggers the
+    ``cyopt.frst`` import (and its ``patch_polytope()`` side effect)
+    only when the symbol is actually requested.
+    """
+    if name == "FRSTFlipGraphSpace":
+        # Importing cyopt.frst triggers patch_polytope() so that
+        # poly.dna_to_frst (used by FRSTFlipGraphSpace.neighbors and
+        # .random) is available on Polytope.
+        import cyopt.frst as _frst
+
+        return _frst.FRSTFlipGraphSpace
+    raise AttributeError(f"module 'cyopt' has no attribute {name!r}")
