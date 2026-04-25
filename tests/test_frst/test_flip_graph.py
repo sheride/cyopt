@@ -154,3 +154,87 @@ def test_coarsening_of_hamming(fixture_name, request):
             f"Flip neighbors of {dna} are not a subset of Hamming "
             f"neighbors: flip={flip_nbs}, hamming={hamming_nbs}"
         )
+
+
+@pytest.fixture(scope="module")
+def poly_with_faces_for_flip():
+    """h11=7 polytope (2 interesting faces) prepped for FRSTFlipGraphSpace.
+
+    Mirrors test_wrapper.py:poly_with_faces. Used by the all-8-optimizers
+    smoke test. Separate fixture (not imported from test_wrapper) keeps the
+    tests independent.
+    """
+    try:
+        from cytools import fetch_polytopes
+    except ImportError:
+        pytest.skip("CYTools not available")
+
+    import cyopt.frst  # noqa: F401 -- triggers patch_polytope
+
+    p = fetch_polytopes(h11=7, limit=1)[0]
+    p.prep_for_optimizers()
+    return p
+
+
+@requires_cytools
+def test_flip_graph_works_with_all_optimizers(poly_with_faces_for_flip):
+    """All 8 optimizers accept FRSTFlipGraphSpace as space= and produce a
+    Result with a valid best_solution.
+
+    GRAPH-01 regression: the class is usable as space= for any of the 8
+    generic optimizers (GA, RandomSample, GreedyWalk, BestFirstSearch,
+    BasinHopping, DifferentialEvolution, MCMC, SimulatedAnnealing).
+    Bypasses frst_optimizer (which always wires TupleSpace internally) by
+    instantiating each optimizer directly, the way Phase 7's benchmark
+    notebook will.
+    """
+    from cyopt import (
+        GA,
+        BasinHopping,
+        BestFirstSearch,
+        DifferentialEvolution,
+        FRSTFlipGraphSpace,
+        GreedyWalk,
+        MCMC,
+        RandomSample,
+        SimulatedAnnealing,
+    )
+
+    poly = poly_with_faces_for_flip
+    space = FRSTFlipGraphSpace(poly)
+
+    # Build a fitness function that matches FRSTOptimizer._make_fitness:
+    # DNA -> dna_to_frst -> get_cy -> target -> float (with penalty for
+    # invalid). Since FRSTFlipGraphSpace.neighbors already filters invalid
+    # DNAs, the penalty path is only exercised by GA/RandomSample/DE which
+    # generate from bounds (not neighbors).
+    def fitness(dna):
+        triang = poly.dna_to_frst(dna)
+        if triang is None:
+            return float("inf")
+        return float(triang.get_cy().h11())
+
+    for cls in [
+        GA,
+        RandomSample,
+        GreedyWalk,
+        BestFirstSearch,
+        BasinHopping,
+        DifferentialEvolution,
+        MCMC,
+        SimulatedAnnealing,
+    ]:
+        opt = cls(fitness_fn=fitness, space=space, seed=42)
+        result = opt.run(3)
+        assert result.best_solution is not None, (
+            f"{cls.__name__} returned None best_solution"
+        )
+        assert isinstance(result.best_value, float), (
+            f"{cls.__name__} best_value is not float"
+        )
+        # Cross-check: best_solution should be a DNA of the right shape.
+        # DE samples by bounds and may select an invalid DNA whose fitness
+        # is the penalty; only assert shape.
+        assert len(result.best_solution) == space.dim, (
+            f"{cls.__name__} returned wrong-shape DNA"
+        )
