@@ -17,6 +17,7 @@ Calabi-Yau hypersurfaces via CYTools.
 
    tutorials/generic_optimizers
    tutorials/frst_optimization
+   tutorials/flip_graph_benchmark
    tutorials/mori_cone_cap
 
 Indices and tables
