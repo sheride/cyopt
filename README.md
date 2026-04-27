@@ -1,5 +1,7 @@
 # cyopt
 
+*Elijah Sheridan, [Andreas Schachner](https://github.com/AndreasSchachner), and [Nate MacFadden](https://github.com/natemacfadden), Liam McAllister Group, Cornell*
+
 Discrete optimization toolkit for bounded integer-tuple search spaces, with a focus on FRST optimization of Calabi-Yau hypersurfaces via [CYTools](https://cy.tools).
 
 ## Features
@@ -80,4 +82,4 @@ This package was developed using [Claude Code](https://claude.ai/claude-code) (A
 
 ## License
 
-MIT
+GNU General Public License v3 or later (GPL-3.0-or-later). See [LICENSE](LICENSE).

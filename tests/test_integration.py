@@ -7,7 +7,6 @@ from cyopt import (
     BasinHopping,
     BestFirstSearch,
     DifferentialEvolution,
-    DiscreteOptimizer,
     GreedyWalk,
     MCMC,
     RandomSample,

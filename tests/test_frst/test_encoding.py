@@ -70,7 +70,6 @@ class TestDNAToFRST:
         # Try all possible DNA values -- some may return None (non-solid cone)
         # If none return None for h11=4, this test documents that behavior
         bounds = poly_h11_4._cyopt_bounds
-        found_none = False
         # Try a few random combos at the extremes
         for dna_val in [
             tuple(hi for _, hi in bounds),  # all max
@@ -78,7 +77,6 @@ class TestDNAToFRST:
         ]:
             result = poly_h11_4.dna_to_frst(dna_val)
             if result is None:
-                found_none = True
                 break
         # Just verify the function runs without error; None is valid output
         assert True

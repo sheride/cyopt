@@ -6,8 +6,6 @@ import pytest
 from cyopt import TupleSpace
 from cyopt.optimizers.ga import (
     GA,
-    _CROSSOVER_REGISTRY,
-    _SELECTION_REGISTRY,
     npoint_crossover,
     random_mutation,
     ranked_selection,
