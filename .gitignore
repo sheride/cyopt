@@ -14,4 +14,6 @@ data/precompute.log
 data/precompute_progress.txt
 data/precompute_progress_flip.txt
 data/h11_23_flip_distances.npz
+data/fig4_*.npz
+data/fig5_*.npz
 CLAUDE.md
