@@ -126,9 +126,10 @@ def save_results(visited_dict, ref_dna, partial=False):
 
 
 t0 = time.time()
+pbar = tqdm(total=n_total_valid, desc="BFS")
+pbar.update(1)  # reference DNA already visited
+bfs_completed = False
 try:
-    pbar = tqdm(total=n_total_valid, desc="BFS")
-    pbar.update(1)  # reference DNA already visited
     while queue:
         current = queue.popleft()
         cur_dist = visited[current]
@@ -151,12 +152,15 @@ try:
                             f"rate={rate:.1f}/s | "
                             f"elapsed={elapsed:.0f}s\n"
                         )
-    pbar.close()
-except KeyboardInterrupt:
-    pbar.close()
-    print("\nKeyboardInterrupt -- saving partial results...")
+    bfs_completed = True
+except BaseException:
+    # Catches KeyboardInterrupt, MemoryError, transient I/O failures, etc.
+    # so a 2.4-hr partial run is never silently discarded. Re-raises after save.
+    print("\nBFS interrupted -- saving partial results...")
     save_results(visited, reference_dna, partial=True)
     raise
+finally:
+    pbar.close()
 
 elapsed = time.time() - t0
 max_dist = max(visited.values())
