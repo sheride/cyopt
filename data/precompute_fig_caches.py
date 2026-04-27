@@ -148,10 +148,20 @@ def run_tracking_by_unique_evals(opt, max_unique_evals, safety_steps=200_000):
 
 
 def make_flip_step_fn(flip_space):
-    """Custom step_fn for MCMC (flip): pick a uniform-random valid flip neighbor."""
+    """Custom step_fn for MCMC (flip): pick a uniform-random valid flip neighbor.
+
+    Caches the neighbor list per DNA across calls. The flip-graph adjacency
+    is deterministic given the committed face_triangs cache, so this is safe
+    and dramatically reduces per-step cost for MCMC (which revisits nodes).
+    """
+    nbr_cache: dict = {}
 
     def step_fn(dna, rng):
-        nbrs = list(flip_space.neighbors(dna))
+        key = tuple(int(x) for x in dna)
+        nbrs = nbr_cache.get(key)
+        if nbrs is None:
+            nbrs = tuple(tuple(int(x) for x in n) for n in flip_space.neighbors(dna))
+            nbr_cache[key] = nbrs
         if not nbrs:
             return dna
         return nbrs[int(rng.integers(len(nbrs)))]
