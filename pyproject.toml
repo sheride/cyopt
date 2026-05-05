@@ -8,9 +8,23 @@ version = "0.1.0"
 description = "Discrete optimization toolkit for bounded integer-tuple search spaces"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "GPL-3.0-or-later"
 authors = [
     {name = "Elijah Sheridan"},
+    {name = "Andreas Schachner"},
+    {name = "Nate MacFadden"},
+]
+keywords = ["calabi-yau", "frst", "discrete optimization", "genetic algorithm", "cytools"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "numpy>=1.24",
@@ -34,6 +48,10 @@ docs = [
     "sphinx-togglebutton>=0.3",
     "sphinx-design>=0.5",
 ]
+
+[project.urls]
+Repository = "https://github.com/elijahsheridan/cyopt"
+Issues = "https://github.com/elijahsheridan/cyopt/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cyopt"]
