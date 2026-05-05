@@ -8,6 +8,7 @@ build/
 .ruff_cache/
 *.so
 .DS_Store
+.ipynb_checkpoints/
 .planning/
 data/precompute.log
 data/precompute_progress.txt

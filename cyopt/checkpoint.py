@@ -1,7 +1,6 @@
 """Checkpoint support for discrete optimizers."""
 from __future__ import annotations
 
-import pickle
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
 

@@ -13,7 +13,7 @@ from __future__ import annotations
 import pytest
 
 from cyopt import TupleSpace
-from cyopt.types import DNA, Bounds, Callback, CallbackInfo
+from cyopt.types import DNA, Bounds, CallbackInfo
 from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
@@ -208,5 +208,5 @@ class TestAllOptimizersAcceptCallbacks:
             received.append(info)
 
         opt = OptimizerClass(sphere, SPACE, seed=42, callbacks=[recorder])
-        result = opt.run(3)
+        opt.run(3)
         assert len(received) > 0
