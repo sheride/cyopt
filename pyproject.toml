@@ -54,7 +54,6 @@ docs = [
 Homepage = "https://github.com/sheride/cyopt"
 Repository = "https://github.com/sheride/cyopt"
 Issues = "https://github.com/sheride/cyopt/issues"
-Documentation = "https://cyopt.readthedocs.io"
 Changelog = "https://github.com/sheride/cyopt/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
