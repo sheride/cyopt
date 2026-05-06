@@ -59,6 +59,12 @@ Changelog = "https://github.com/sheride/cyopt/blob/main/CHANGELOG.md"
 [tool.hatch.build.targets.wheel]
 packages = ["cyopt"]
 
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "data/*.npz",
+    "documentation/build/",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
