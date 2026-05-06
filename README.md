@@ -28,7 +28,7 @@ pip install cyopt[frst]
 For development:
 
 ```bash
-git clone https://github.com/elijahsheridan/cyopt.git
+git clone https://github.com/sheride/cyopt.git
 cd cyopt
 pip install -e ".[dev,docs]"
 ```
