@@ -1,5 +1,7 @@
 """cyopt -- Discrete optimization toolkit for bounded integer-tuple search spaces."""
 
+from importlib.metadata import PackageNotFoundError, version as _version
+
 from cyopt.checkpoint import CheckpointCallback
 from cyopt.types import (
     DNA,
@@ -55,7 +57,10 @@ __all__ = [
     "TupleSpace",
 ]
 
-__version__ = "0.1.0"
+try:
+    __version__ = _version("cyopt")
+except PackageNotFoundError:  # running from an uninstalled source tree
+    __version__ = "0.0.0+unknown"
 
 
 def __getattr__(name):
