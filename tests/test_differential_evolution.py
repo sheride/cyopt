@@ -63,7 +63,7 @@ def test_bounds_respected():
     opt = DifferentialEvolution(sphere_fitness, SPACE_3D, seed=42)
     result = opt.run(10)
 
-    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
+    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D, strict=True):
         assert lo <= val <= hi
 
 

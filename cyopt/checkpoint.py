@@ -140,7 +140,9 @@ class CheckpointCallback:
         self._optimizer = optimizer
 
     def __call__(self, info: dict[str, Any]) -> bool | None:
-        if (info["iteration"] + 1) % self._every_n == 0:
-            if self._optimizer is not None:
-                self._optimizer.save_checkpoint(self._path)
+        if (
+            (info["iteration"] + 1) % self._every_n == 0
+            and self._optimizer is not None
+        ):
+            self._optimizer.save_checkpoint(self._path)
         return None

@@ -147,6 +147,6 @@ class TestSpaceRandom:
             dna = opt._space.random(opt._rng)
             assert isinstance(dna, tuple)
             assert len(dna) == len(standard_bounds)
-            for val, (lo, hi) in zip(dna, standard_bounds):
+            for val, (lo, hi) in zip(dna, standard_bounds, strict=True):
                 assert lo <= val <= hi
                 assert isinstance(val, int)

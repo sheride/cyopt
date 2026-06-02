@@ -62,7 +62,7 @@ class TestAllOptimizersReturnResult:
         assert isinstance(result.best_solution, tuple)
         assert all(isinstance(x, int) for x in result.best_solution)
         # All values within bounds
-        for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
+        for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D, strict=True):
             assert lo <= val <= hi
         assert isinstance(result.best_value, float)
         assert len(result.history) > 0

@@ -133,7 +133,7 @@ class TestBestFirstSearchGeneral:
         assert isinstance(result.best_solution, tuple)
         assert all(isinstance(x, int) for x in result.best_solution)
         assert len(result.best_solution) == 3
-        for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
+        for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D, strict=True):
             assert lo <= val <= hi
         assert isinstance(result.best_value, float)
         assert result.n_evaluations > 0

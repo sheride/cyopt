@@ -388,7 +388,8 @@ def _make_synthetic_notebook(tmp_path: Path, source: str) -> Path:
 
 
 def test_smoke_check_fails_on_broken_import(tmp_path):
-    """Synthetic notebook importing a nonexistent cyopt symbol fails the import check."""
+    """Synthetic notebook importing a nonexistent cyopt symbol fails the
+    import check."""
     path = _make_synthetic_notebook(
         tmp_path, "from cyopt import _NoSuchSymbol_XYZ"
     )

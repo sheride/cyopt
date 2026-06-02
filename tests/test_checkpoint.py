@@ -65,7 +65,8 @@ class TestSaveLoadBasic:
         assert ckpt_path.exists()
 
     def test_load_reconstructs_runnable_optimizer(self, tmp_path):
-        """load_checkpoint with correct class reconstructs an optimizer that can run()."""
+        """load_checkpoint with correct class reconstructs an optimizer
+        that can run()."""
         opt = GA(_sphere, space=SPACE, population_size=6, seed=42)
         opt.run(5)
         ckpt_path = tmp_path / "test.ckpt"
@@ -89,7 +90,8 @@ class TestSaveLoadBasic:
         assert loaded._n_evaluations == opt._n_evaluations
 
     def test_cache_preserved_save_load(self, tmp_path):
-        """Loaded optimizer's cache contains same entries as saved (RandomSample-specific)."""
+        """Loaded optimizer's cache contains same entries as saved
+        (RandomSample-specific)."""
         opt = RandomSample(_sphere, space=SPACE, seed=42)
         opt.run(20)
         ckpt_path = tmp_path / "test.ckpt"
@@ -122,7 +124,8 @@ class TestSaveLoadBasic:
         assert iterations_seen[-1] == 59  # Last iteration
 
     def test_checkpoint_has_version(self, tmp_path):
-        """Checkpoint file contains _checkpoint_version key set to CHECKPOINT_VERSION."""
+        """Checkpoint file contains _checkpoint_version key set to
+        CHECKPOINT_VERSION."""
         opt = RandomSample(_sphere, space=SPACE, seed=42)
         opt.run(5)
         ckpt_path = tmp_path / "test.ckpt"
@@ -224,7 +227,10 @@ class TestAllOptimizers:
     def test_resume_determinism(self, cls, kwargs, tmp_path):
         """Resumed run produces identical results to uninterrupted run."""
         if cls is DifferentialEvolution:
-            pytest.skip("DE restarts from scratch on resume -- cache preserves evaluations but RNG state differs inside SciPy")
+            pytest.skip(
+                "DE restarts from scratch on resume -- cache preserves "
+                "evaluations but RNG state differs inside SciPy"
+            )
 
         # Uninterrupted run
         opt_full = cls(fitness_fn=_sphere, space=SPACE, seed=42, **kwargs)
@@ -259,7 +265,10 @@ class TestAllOptimizers:
         def record_offset(info):
             offsets.append(info['iteration'])
 
-        opt = cls(fitness_fn=_sphere, space=SPACE, seed=42, callbacks=[record_offset], **kwargs)
+        opt = cls(
+            fitness_fn=_sphere, space=SPACE, seed=42,
+            callbacks=[record_offset], **kwargs,
+        )
         opt.run(10)
         path = tmp_path / "test.ckpt"
         opt.save_checkpoint(path)
@@ -268,7 +277,9 @@ class TestAllOptimizers:
         def record_offset_resumed(info):
             offsets_resumed.append(info['iteration'])
 
-        loaded = cls.load_checkpoint(path, fitness_fn=_sphere, callbacks=[record_offset_resumed])
+        loaded = cls.load_checkpoint(
+            path, fitness_fn=_sphere, callbacks=[record_offset_resumed]
+        )
         loaded.run(10)
 
         # Resumed iterations should start at 10 (not 0)
@@ -283,7 +294,8 @@ class TestV1Migration:
     """Tests for v1 -> v2 checkpoint migration (D-10)."""
 
     def test_v1_checkpoint_migrates_to_v2(self, tmp_path):
-        """A synthetic v1 checkpoint with raw bounds loads into a working v2 optimizer."""
+        """A synthetic v1 checkpoint with raw bounds loads into a working
+        v2 optimizer."""
         # First, save a real v2 checkpoint, then rewrite it as v1 shape.
         opt = RandomSample(_sphere, space=SPACE, seed=42)
         opt.run(5)
@@ -313,7 +325,8 @@ class TestV1Migration:
         path = tmp_path / "v1b.ckpt"
         opt.save_checkpoint(path)
 
-        # Simulate Plan-02-era v1: raw 'space' key, no 'space_kind'/'space_data', version 1.
+        # Simulate Plan-02-era v1: raw 'space' key, no 'space_kind'/'space_data',
+        # version 1.
         with open(path, 'rb') as f:
             state = pickle.load(f)
         state['_checkpoint_version'] = 1
@@ -378,7 +391,8 @@ class TestUnknownSpaceKind:
     """Tests for D-09: unknown space_kind requires explicit space= on load."""
 
     def test_unknown_kind_without_space_raises(self, tmp_path):
-        """Unknown space_kind + no space= kwarg -> ValueError with 'Unknown space_kind'."""
+        """Unknown space_kind + no space= kwarg -> ValueError with
+        'Unknown space_kind'."""
         opt = RandomSample(_sphere, space=SPACE, seed=42)
         opt.run(5)
         path = tmp_path / "unknown.ckpt"

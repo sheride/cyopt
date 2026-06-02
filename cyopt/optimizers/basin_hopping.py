@@ -1,5 +1,6 @@
-"""BasinHopping optimizer -- global optimization via perturb + local minimize + Metropolis acceptance.
+"""BasinHopping optimizer.
 
+Global optimization via perturb + local minimize + Metropolis acceptance.
 Implements the basin-hopping algorithm on discrete (graph) search spaces.
 Unlike SciPy's ``basinhopping`` (which assumes continuous space), this
 implementation operates directly on a :class:`~cyopt.spaces.GraphSpace`

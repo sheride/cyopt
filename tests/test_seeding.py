@@ -54,10 +54,14 @@ class TestSeedingReproducibility:
 
     def test_best_first_search_backtrack_seeding(self, sphere_fitness, standard_space):
         """BestFirstSearch (backtrack): same seed -> identical results."""
-        opt1 = BestFirstSearch(sphere_fitness, standard_space, seed=777, mode="backtrack")
+        opt1 = BestFirstSearch(
+            sphere_fitness, standard_space, seed=777, mode="backtrack"
+        )
         result1 = opt1.run(30)
 
-        opt2 = BestFirstSearch(sphere_fitness, standard_space, seed=777, mode="backtrack")
+        opt2 = BestFirstSearch(
+            sphere_fitness, standard_space, seed=777, mode="backtrack"
+        )
         result2 = opt2.run(30)
 
         assert result1.best_solution == result2.best_solution
@@ -67,10 +71,14 @@ class TestSeedingReproducibility:
 
     def test_best_first_search_frontier_seeding(self, sphere_fitness, standard_space):
         """BestFirstSearch (frontier): same seed -> identical results."""
-        opt1 = BestFirstSearch(sphere_fitness, standard_space, seed=777, mode="frontier")
+        opt1 = BestFirstSearch(
+            sphere_fitness, standard_space, seed=777, mode="frontier"
+        )
         result1 = opt1.run(30)
 
-        opt2 = BestFirstSearch(sphere_fitness, standard_space, seed=777, mode="frontier")
+        opt2 = BestFirstSearch(
+            sphere_fitness, standard_space, seed=777, mode="frontier"
+        )
         result2 = opt2.run(30)
 
         assert result1.best_solution == result2.best_solution
@@ -93,10 +101,14 @@ class TestSeedingReproducibility:
 
     def test_differential_evolution_seeding(self, sphere_fitness, standard_space):
         """DifferentialEvolution: same seed -> identical results."""
-        opt1 = DifferentialEvolution(sphere_fitness, standard_space, seed=777, popsize=5)
+        opt1 = DifferentialEvolution(
+            sphere_fitness, standard_space, seed=777, popsize=5
+        )
         result1 = opt1.run(20)
 
-        opt2 = DifferentialEvolution(sphere_fitness, standard_space, seed=777, popsize=5)
+        opt2 = DifferentialEvolution(
+            sphere_fitness, standard_space, seed=777, popsize=5
+        )
         result2 = opt2.run(20)
 
         assert result1.best_solution == result2.best_solution
@@ -118,10 +130,14 @@ class TestSeedingReproducibility:
 
     def test_simulated_annealing_seeding(self, sphere_fitness, standard_space):
         """SimulatedAnnealing: same seed -> identical results."""
-        opt1 = SimulatedAnnealing(sphere_fitness, standard_space, seed=777, n_iterations=50)
+        opt1 = SimulatedAnnealing(
+            sphere_fitness, standard_space, seed=777, n_iterations=50
+        )
         result1 = opt1.run(50)
 
-        opt2 = SimulatedAnnealing(sphere_fitness, standard_space, seed=777, n_iterations=50)
+        opt2 = SimulatedAnnealing(
+            sphere_fitness, standard_space, seed=777, n_iterations=50
+        )
         result2 = opt2.run(50)
 
         assert result1.best_solution == result2.best_solution
