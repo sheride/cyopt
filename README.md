@@ -49,6 +49,31 @@ result = ga.run(100)
 print(f"Best: {result.best_solution} → {result.best_value}")
 ```
 
+## Benchmarks
+
+cyopt reproduces the FRST-optimization study of the companion paper
+(arXiv:2405.08871) and extends it. Two pre-run notebooks contain the full
+analysis on the paper's $h^{1,1}=23$ reference polytope (150 seeds, identical
+paired seeding, measured in *unique objective evaluations*):
+
+- [`notebooks/frst_optimization.ipynb`](notebooks/frst_optimization.ipynb) —
+  reproduces the paper's Figs 2–5: a Genetic Algorithm reaches the optimum far
+  more efficiently than Markov Chain Monte Carlo or Simulated Annealing.
+- [`notebooks/flip_graph_benchmark.ipynb`](notebooks/flip_graph_benchmark.ipynb) —
+  works on a graph whose nodes are DNAs and whose edges connect DNAs differing
+  in one entry (one 2-face's triangulation). `FRSTFlipGraphSpace` restricts
+  those edges to a *single bistellar flip* of that face's triangulation — rather
+  than a swap to any of its other triangulations — which leaves each DNA with
+  ~14 neighbors on average instead of 32. The notebook tests whether that
+  restriction speeds up `BestFirstSearch`. It **does not** on this polytope:
+  flip-restricted search reaches mean $\log_{10}(V) = 6.69$ vs $6.73$ without
+  the restriction (global max $\approx 6.91$), and the Genetic Algorithm on the
+  unrestricted graph beats both — an empirical falsification of the "fewer,
+  more natural moves ⇒ faster search" prior (caveat: single polytope).
+
+Figures ship pre-computed; reproducing them from scratch is CYTools-backed and
+multi-hour (see each notebook's "Reproducing this notebook" section).
+
 ## Documentation
 
 Build the Sphinx docs locally:
