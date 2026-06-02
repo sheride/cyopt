@@ -190,12 +190,12 @@ def test_flip_graph_works_with_all_optimizers(poly_with_faces_for_flip):
     """
     from cyopt import (
         GA,
+        MCMC,
         BasinHopping,
         BestFirstSearch,
         DifferentialEvolution,
         FRSTFlipGraphSpace,
         GreedyWalk,
-        MCMC,
         RandomSample,
         SimulatedAnnealing,
     )

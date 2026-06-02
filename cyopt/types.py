@@ -24,10 +24,12 @@ FitnessFunction = Callable[[DNA], float]
 """A callable that maps a DNA tuple to a scalar fitness value."""
 
 CallbackInfo = dict[str, Any]
-"""Info dict passed to callbacks: iteration, best_value, best_solution, n_evaluations, wall_time."""
+"""Info dict passed to callbacks: iteration, best_value, best_solution,
+n_evaluations, wall_time."""
 
 Callback = Callable[[CallbackInfo], bool | None]
-"""Callback function. Receives iteration info dict. Return True to trigger early stopping."""
+"""Callback function. Receives iteration info dict. Return True to trigger
+early stopping."""
 
 
 @dataclass(frozen=True)

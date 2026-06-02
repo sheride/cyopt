@@ -18,8 +18,8 @@ from cyopt.checkpoint import (
     _migrate,
     _serialize_space,
 )
-from cyopt.types import DNA, Callback, Result
 from cyopt.spaces import SearchSpace
+from cyopt.types import DNA, Callback, Result
 
 
 class DiscreteOptimizer(ABC):
@@ -143,7 +143,11 @@ class DiscreteOptimizer(ABC):
         for i in iterator:
             step_info = self._step(i)
             history.append(self._best_value)
-            if self._record_history and full_history is not None and step_info is not None:
+            if (
+                self._record_history
+                and full_history is not None
+                and step_info is not None
+            ):
                 full_history.append(step_info)
 
             if self._callbacks:
@@ -251,9 +255,12 @@ class DiscreteOptimizer(ABC):
         """Return optimizer-specific state. Override in subclasses."""
         return {}
 
-    def _set_state(self, state: dict) -> None:
-        """Restore optimizer-specific state. Override in subclasses."""
-        pass
+    def _set_state(self, state: dict) -> None:  # noqa: B027
+        """Restore optimizer-specific state. Override in subclasses.
+
+        Intentionally a no-op by default (the mirror of :meth:`_get_state`);
+        subclasses that carry extra state override it.
+        """
 
     def save_checkpoint(self, path: str | Path) -> None:
         """Save optimizer state to a pickle file.
@@ -282,7 +289,7 @@ class DiscreteOptimizer(ABC):
         space: SearchSpace | None = None,
         callbacks: list | None = None,
         **kwargs,
-    ) -> "DiscreteOptimizer":
+    ) -> DiscreteOptimizer:
         """Load optimizer state from a checkpoint file.
 
         Parameters

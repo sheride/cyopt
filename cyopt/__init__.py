@@ -1,19 +1,10 @@
 """cyopt -- Discrete optimization toolkit for bounded integer-tuple search spaces."""
 
-from importlib.metadata import PackageNotFoundError, version as _version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _version
 
-from cyopt.checkpoint import CheckpointCallback
-from cyopt.types import (
-    DNA,
-    Bounds,
-    Callback,
-    CallbackInfo,
-    FitnessFunction,
-    Node,
-    Result,
-)
 from cyopt.base import DiscreteOptimizer
-from cyopt.spaces import GraphSpace, SearchSpace, TupleSpace
+from cyopt.checkpoint import CheckpointCallback
 from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.best_first_search import BestFirstSearch
 from cyopt.optimizers.differential_evolution import DifferentialEvolution
@@ -28,6 +19,16 @@ from cyopt.optimizers.neighbors import (
 )
 from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
+from cyopt.spaces import GraphSpace, SearchSpace, TupleSpace
+from cyopt.types import (
+    DNA,
+    Bounds,
+    Callback,
+    CallbackInfo,
+    FitnessFunction,
+    Node,
+    Result,
+)
 
 __all__ = [
     "BasinHopping",

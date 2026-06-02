@@ -2,8 +2,8 @@
 
 import pytest
 
-from cyopt.types import Result
 from cyopt.base import DiscreteOptimizer
+from cyopt.types import Result
 
 
 class _DummyOptimizer(DiscreteOptimizer):
@@ -147,6 +147,6 @@ class TestSpaceRandom:
             dna = opt._space.random(opt._rng)
             assert isinstance(dna, tuple)
             assert len(dna) == len(standard_bounds)
-            for val, (lo, hi) in zip(dna, standard_bounds):
+            for val, (lo, hi) in zip(dna, standard_bounds, strict=True):
                 assert lo <= val <= hi
                 assert isinstance(val, int)

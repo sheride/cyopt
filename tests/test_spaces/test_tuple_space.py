@@ -59,7 +59,7 @@ class TestRandom:
             x = s.random(rng)
             assert isinstance(x, tuple)
             assert len(x) == 3
-            for val, (lo, hi) in zip(x, s.bounds):
+            for val, (lo, hi) in zip(x, s.bounds, strict=True):
                 assert isinstance(val, int)
                 assert lo <= val <= hi
 

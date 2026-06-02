@@ -26,7 +26,8 @@ class _BareGraph(GraphSpace):
 
 
 def test_bh_rejects_non_tuple_space_without_perturb_fn():
-    """Constructing BasinHopping with a bare GraphSpace and no perturb_fn raises TypeError."""
+    """Constructing BasinHopping with a bare GraphSpace and no perturb_fn
+    raises TypeError."""
     space = _BareGraph()
     with pytest.raises(TypeError, match="perturb_fn"):
         BasinHopping(sphere_fitness, space, seed=42)
@@ -133,5 +134,5 @@ def test_result_fields():
     assert isinstance(result.wall_time, float)
     assert len(result.history) == 10
 
-    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
+    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D, strict=True):
         assert lo <= val <= hi

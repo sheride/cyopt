@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from cyopt.base import DiscreteOptimizer
@@ -23,7 +23,7 @@ History:
 # Space (de)serialization
 # ------------------------------------------------------------------
 
-def _serialize_space(space: "SearchSpace") -> tuple[str, dict]:
+def _serialize_space(space: SearchSpace) -> tuple[str, dict]:
     """Return ``(space_kind, space_data)`` for checkpoint storage.
 
     Known space types produce a non-empty ``space_data`` dict suitable for
@@ -40,7 +40,7 @@ def _serialize_space(space: "SearchSpace") -> tuple[str, dict]:
     return kind, {}
 
 
-def _deserialize_space(space_kind: str, space_data: dict) -> "SearchSpace":
+def _deserialize_space(space_kind: str, space_data: dict) -> SearchSpace:
     """Reconstruct a SearchSpace instance from ``(space_kind, space_data)``.
 
     Raises
@@ -125,7 +125,7 @@ class CheckpointCallback:
         self._every_n = every_n
         self._optimizer: Any = None  # Bound during optimizer __init__
 
-    def bind(self, optimizer: "DiscreteOptimizer") -> None:
+    def bind(self, optimizer: DiscreteOptimizer) -> None:
         """Bind this callback to an optimizer instance.
 
         Called automatically by :class:`~cyopt.base.DiscreteOptimizer`
@@ -141,7 +141,9 @@ class CheckpointCallback:
         self._optimizer = optimizer
 
     def __call__(self, info: dict[str, Any]) -> bool | None:
-        if (info["iteration"] + 1) % self._every_n == 0:
-            if self._optimizer is not None:
-                self._optimizer.save_checkpoint(self._path)
+        if (
+            (info["iteration"] + 1) % self._every_n == 0
+            and self._optimizer is not None
+        ):
+            self._optimizer.save_checkpoint(self._path)
         return None

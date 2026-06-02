@@ -15,9 +15,9 @@ except ImportError as e:
     ) from e
 
 from cyopt.frst._encoding import patch_polytope
+from cyopt.frst._flip_graph import FRSTFlipGraphSpace
 from cyopt.frst._result import FRSTResult
 from cyopt.frst._wrapper import FRSTOptimizer, frst_optimizer
-from cyopt.frst._flip_graph import FRSTFlipGraphSpace
 
 __all__ = [
     "FRSTFlipGraphSpace",

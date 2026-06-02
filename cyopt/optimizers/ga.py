@@ -11,10 +11,9 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt.types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
-
+from cyopt.types import DNA, Bounds
 
 # ---------------------------------------------------------------------------
 # Selection operators
@@ -91,7 +90,9 @@ def npoint_crossover(
     """
     length = parents.shape[1]
     # Choose n unique cut points in [1, length-1), then sort
-    points = np.sort(rng.choice(np.arange(1, length), size=min(n, length - 1), replace=False))
+    points = np.sort(
+        rng.choice(np.arange(1, length), size=min(n, length - 1), replace=False)
+    )
 
     child1 = parents[0].copy()
     child2 = parents[1].copy()
@@ -442,8 +443,14 @@ class GA(DiscreteOptimizer):
     def _get_state(self) -> dict:
         """Return GA-specific state for checkpointing."""
         return {
-            'population': self._population.copy() if self._population is not None else None,
-            'fitness_values': self._fitness_values.copy() if self._fitness_values is not None else None,
+            'population': (
+                self._population.copy() if self._population is not None else None
+            ),
+            'fitness_values': (
+                self._fitness_values.copy()
+                if self._fitness_values is not None
+                else None
+            ),
             'population_size': self._population_size,
             'mutation_rate': self._mutation_rate,
             'mutation_k': self._mutation_k,

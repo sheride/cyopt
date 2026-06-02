@@ -24,7 +24,7 @@ class SearchSpace(ABC):
     """
 
     @abstractmethod
-    def random(self, rng: "np.random.Generator") -> "Node":
+    def random(self, rng: np.random.Generator) -> Node:
         """Draw a uniformly random element of the space.
 
         Parameters

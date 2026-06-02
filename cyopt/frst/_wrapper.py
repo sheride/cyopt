@@ -104,10 +104,7 @@ class FRSTOptimizer:
             if triang is None:
                 return penalty  # non-solid cone
 
-            if target_mode == "cy":
-                obj = triang.get_cy()
-            else:
-                obj = triang
+            obj = triang.get_cy() if target_mode == "cy" else triang
 
             result = target(obj)
 

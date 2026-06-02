@@ -6,10 +6,10 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers.neighbors import StepFunction, random_single_flip
 from cyopt.spaces import GraphSpace
+from cyopt.types import DNA
 
 
 class SimulatedAnnealing(DiscreteOptimizer):

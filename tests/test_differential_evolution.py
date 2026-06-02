@@ -63,7 +63,7 @@ def test_bounds_respected():
     opt = DifferentialEvolution(sphere_fitness, SPACE_3D, seed=42)
     result = opt.run(10)
 
-    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D):
+    for val, (lo, hi) in zip(result.best_solution, BOUNDS_3D, strict=True):
         assert lo <= val <= hi
 
 
@@ -82,6 +82,7 @@ def test_result_fields():
 def test_uses_public_api():
     """DifferentialEvolution should not use scipy private API."""
     import inspect
+
     import cyopt.optimizers.differential_evolution as de_module
 
     source = inspect.getsource(de_module)

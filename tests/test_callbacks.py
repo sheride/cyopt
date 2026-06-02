@@ -13,16 +13,15 @@ from __future__ import annotations
 import pytest
 
 from cyopt import TupleSpace
-from cyopt.types import DNA, Bounds, CallbackInfo
-from cyopt.optimizers.random_sample import RandomSample
+from cyopt.optimizers.basin_hopping import BasinHopping
+from cyopt.optimizers.best_first_search import BestFirstSearch
+from cyopt.optimizers.differential_evolution import DifferentialEvolution
 from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
-from cyopt.optimizers.best_first_search import BestFirstSearch
-from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.mcmc import MCMC
+from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
-from cyopt.optimizers.differential_evolution import DifferentialEvolution
-
+from cyopt.types import DNA, Bounds, CallbackInfo
 
 BOUNDS: Bounds = ((0, 9), (0, 9))
 SPACE = TupleSpace(BOUNDS)
@@ -60,9 +59,13 @@ class TestCallbackInfoDict:
         opt.run(5)
 
         assert len(received) == 5
-        required_keys = {"iteration", "best_value", "best_solution", "n_evaluations", "wall_time"}
+        required_keys = {
+            "iteration", "best_value", "best_solution", "n_evaluations", "wall_time"
+        }
         for info in received:
-            assert required_keys <= set(info.keys()), f"Missing keys: {required_keys - set(info.keys())}"
+            assert required_keys <= set(info.keys()), (
+                f"Missing keys: {required_keys - set(info.keys())}"
+            )
 
     def test_info_dict_types(self):
         received = []
@@ -151,7 +154,9 @@ class TestDECallbacks:
         opt.run(3)
 
         assert len(received) > 0
-        required_keys = {"iteration", "best_value", "best_solution", "n_evaluations", "wall_time"}
+        required_keys = {
+            "iteration", "best_value", "best_solution", "n_evaluations", "wall_time"
+        }
         for info in received:
             assert required_keys <= set(info.keys())
 
@@ -183,7 +188,9 @@ class TestCallbacksAfterResume:
         path = tmp_path / "test.ckpt"
         opt.save_checkpoint(path)
 
-        loaded = RandomSample.load_checkpoint(path, fitness_fn=sphere, callbacks=[recorder])
+        loaded = RandomSample.load_checkpoint(
+            path, fitness_fn=sphere, callbacks=[recorder]
+        )
         loaded.run(10)
         assert len(values) == 10
 
