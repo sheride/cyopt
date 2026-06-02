@@ -67,8 +67,9 @@ def _deserialize_space(space_kind: str, space_data: dict) -> "SearchSpace":
 def _migrate(state: dict[str, Any], from_version: int) -> dict[str, Any]:
     """Migrate checkpoint state from an older version to ``CHECKPOINT_VERSION``.
 
-    Currently supports v1 -> v2 (wraps raw ``bounds`` -- or a Plan-02-era raw
-    pickled ``space`` object -- as ``space_kind='TupleSpace'`` + ``space_data``).
+    Currently supports v1 -> v2 by wrapping raw ``bounds`` -- or an
+    intermediate raw pickled ``space`` object -- as
+    ``space_kind='TupleSpace'`` + ``space_data``.
 
     Raises
     ------
@@ -81,7 +82,7 @@ def _migrate(state: dict[str, Any], from_version: int) -> dict[str, Any]:
             state["space_kind"] = "TupleSpace"
             state["space_data"] = {"bounds": bounds}
         elif "space" in state:
-            # Plan-02 intermediate: the state pickled a raw SearchSpace object.
+            # Intermediate v1 format: the state pickled a raw SearchSpace object.
             # Extract its reconstruction data, then drop the raw reference.
             raw = state.pop("space")
             kind, data = _serialize_space(raw)

@@ -19,3 +19,5 @@ data/h11_23_flip_distances.npz
 data/fig4_*.npz
 data/fig5_*.npz
 CLAUDE.md
+
+documentation/source/_autosummary/

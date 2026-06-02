@@ -1,0 +1,183 @@
+<script>
+if(typeof window.MathJax==='undefined'){window.MathJax={tex:{inlineMath:[['$','$']]},svg:{fontCache:'global'}};var _mjs=document.createElement('script');_mjs.src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';_mjs.async=true;document.head.appendChild(_mjs);}
+</script>
+<div class="cy-fig mathjax_process" id="f3-optimizers">
+<style>
+.cy-fig{position:relative;margin:1.5rem auto;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif;color:#1a1a1a}
+.cy-fig .cy-chart{position:relative;width:880px;max-width:100%;margin:0 auto}
+.cy-fig .cy-asvg{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:0;overflow:visible}
+.cy-fig .cy-step{position:relative;z-index:1}
+.cy-fig .cy-step-hdr{display:flex;align-items:center;margin-bottom:16px;margin-top:22px}
+.cy-fig .cy-step-hdr span.lbl{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;padding-right:11px}
+.cy-fig .cy-step-hdr span.rl{flex:1;height:1px}
+.cy-fig .blue .lbl{color:#2B5F8E}.cy-fig .blue .rl{background:#2B5F8E}
+.cy-fig .green .lbl{color:#3A7D5A}.cy-fig .green .rl{background:#3A7D5A}
+.cy-fig .bx{border-radius:7px;padding:11px 16px;box-shadow:0 2px 7px rgba(0,0,0,.10);text-align:center;background-clip:padding-box}
+.cy-fig .bx .t{font-size:12.5px;font-weight:700;margin-bottom:5px;letter-spacing:.15px}
+.cy-fig .bx .d{font-size:10px;line-height:1.65}
+.cy-fig .bx code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:9.5px}
+.cy-fig .lb {background:#D6E8F5;border:1.3px solid #4A8ABF}.cy-fig .lb .t{color:#1B3A5C}.cy-fig .lb .d{color:#444}
+.cy-fig .lb2{background:#EAF3FB;border:1.3px solid #4A8ABF}.cy-fig .lb2 .t{color:#1B3A5C}.cy-fig .lb2 .d{color:#444}
+.cy-fig .db {background:#0F2942;border:1.5px solid #1a5080}.cy-fig .db .t{color:#fff}.cy-fig .db .d{color:#9EC5E8}.cy-fig .db code{color:#9EC5E8}
+.cy-fig .dg {background:#0D3320;border:1.5px solid #1d6037}.cy-fig .dg .t{color:#fff}.cy-fig .dg .d{color:#8FCF9F}.cy-fig .dg code{color:#8FCF9F}
+.cy-fig .lg {background:#D4EDDA;border:1.3px solid #52A070}.cy-fig .lg .t{color:#1A4D2E}.cy-fig .lg .d{color:#444}
+.cy-fig .gap-sm{height:28px}.cy-fig .gap-md{height:38px}
+.cy-fig .cy-title{text-align:center;font-size:16.5px;font-weight:700;color:#1a1a1a;letter-spacing:.3px;margin-bottom:4px;margin-top:4px}
+.cy-fig .cy-helpers{margin-top:30px;padding:12px 14px;border:1px dashed #cdd6df;border-radius:6px;background:#fafbfc}
+.cy-fig .cy-helpers .hh{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#888;text-align:center;margin-bottom:8px}
+.cy-fig mjx-container{vertical-align:middle}
+#f3-optimizers .cy-chart{width:840px}
+#f3-optimizers .f3-block{padding:0 20px}
+#f3-optimizers .f3-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+#f3-optimizers .f3-row2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+html[data-theme="dark"] .cy-fig .cy-title{color:#f0f0f0}
+html[data-theme="dark"] .cy-fig .blue .lbl{color:#79B5DD}
+html[data-theme="dark"] .cy-fig .blue .rl{background:#79B5DD}
+html[data-theme="dark"] .cy-fig .green .lbl{color:#82C998}
+html[data-theme="dark"] .cy-fig .green .rl{background:#82C998}
+</style>
+
+<div class="cy-chart" id="f3-chart">
+  <svg class="cy-asvg" id="f3-asvg"><defs></defs></svg>
+
+  <div class="cy-title">cyopt &mdash; Optimizer algorithms</div>
+
+  <!-- Population-based -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Population-based &nbsp;&mdash;&nbsp; global search</span><span class="rl"></span></div>
+    <div class="f3-block">
+      <div class="f3-row3">
+        <div class="bx lb">
+          <div class="t">GA</div>
+          <div class="d">
+            initialise population of size $P$<br>
+            select &rarr; cross &rarr; mutate &rarr; elite carry-over<br>
+            <em>selection:</em> tournament / roulette / ranked<br>
+            <em>crossover:</em> $n$-point / uniform<br>
+            target&thinsp;+&thinsp;fitness mode: inverse-square, Gaussian
+          </div>
+        </div>
+        <div class="bx lb">
+          <div class="t">DifferentialEvolution</div>
+          <div class="d">
+            wraps <code>scipy.optimize.differential_evolution</code><br>
+            <code>integrality=True</code> for all dimensions<br>
+            strategies: <code>best1bin</code>, <code>rand1bin</code>, &hellip;<br>
+            restarts population each <code>run()</code> call
+          </div>
+        </div>
+        <div class="bx lb">
+          <div class="t">RandomSample</div>
+          <div class="d">
+            uniform random baseline<br>
+            draw from <code>space.random(rng)</code> each step<br>
+            track the running best<br>
+            useful as a performance reference
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Graph-local -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Graph-local &nbsp;&mdash;&nbsp; neighbor-based search</span><span class="rl"></span></div>
+    <div class="f3-block">
+      <div class="f3-row3">
+        <div class="bx lb2">
+          <div class="t">GreedyWalk</div>
+          <div class="d">
+            move to best improving neighbor<br>
+            restart from random point when stuck<br>
+            Hamming-1 or custom <code>neighbor_fn</code>
+          </div>
+        </div>
+        <div class="bx lb2">
+          <div class="t">BestFirstSearch</div>
+          <div class="d">
+            <em>backtrack:</em> path + avoid set, oscillation detection<br>
+            <em>frontier:</em> min-heap priority queue<br>
+            never re-visits nodes (frontier mode)
+          </div>
+        </div>
+        <div class="bx lb2">
+          <div class="t">BasinHopping</div>
+          <div class="d">
+            perturb &rarr; greedy descent &rarr; Metropolis accept<br>
+            escapes shallow local minima<br>
+            customisable <code>perturb_fn</code> &amp; <code>local_minimize_fn</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Stochastic -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Stochastic &nbsp;&mdash;&nbsp; temperature-driven acceptance</span><span class="rl"></span></div>
+    <div class="f3-block">
+      <div class="f3-row2">
+        <div class="bx db">
+          <div class="t">SimulatedAnnealing</div>
+          <div class="d">
+            propose via <code>step_fn</code> &nbsp;&middot;&nbsp; Metropolis accept<br>
+            exponential cooling: $T(t) = T_\max \bigl(\tfrac{T_\min}{T_\max}\bigr)^{t/N}$<br>
+            <code>_step_count</code> accumulates across <code>run()</code> calls<br>
+            custom <code>step_fn(dna, rng) &rarr; DNA</code>
+          </div>
+        </div>
+        <div class="bx db">
+          <div class="t">MCMC</div>
+          <div class="d">
+            propose via <code>step_fn</code> &nbsp;&middot;&nbsp; Metropolis-Hastings<br>
+            accept with probability $\min\!\bigl(1,\, e^{-\Delta f / T}\bigr)$<br>
+            fixed temperature $T$ (no cooling schedule)<br>
+            custom <code>step_fn(dna, rng) &rarr; DNA</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Shared infrastructure -->
+  <div class="cy-helpers">
+    <div class="hh">Shared infrastructure (all optimizers)</div>
+    <div class="f3-row3">
+      <div class="bx lb">
+        <div class="t">EvaluationCache</div>
+        <div class="d">LRU; avoids re-evaluating same DNA; serialised in checkpoints</div>
+      </div>
+      <div class="bx lb">
+        <div class="t">Callbacks</div>
+        <div class="d"><code>CallbackInfo</code> each iteration; <code>return True</code> for early stop; <code>CheckpointCallback</code></div>
+      </div>
+      <div class="bx lb">
+        <div class="t">Checkpoint / resume</div>
+        <div class="d"><code>save_checkpoint(path)</code> &nbsp;&middot;&nbsp; <code>load_checkpoint(path, fn)</code>; v1&rarr;v2 migration</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  function drawF3(){
+    var chart=document.getElementById('f3-chart'),svg=document.getElementById('f3-asvg');
+    if(!chart||!svg)return;
+    svg.setAttribute('height',chart.scrollHeight);
+    var cr=chart.getBoundingClientRect();
+    svg.setAttribute('viewBox','0 0 '+cr.width+' '+chart.scrollHeight);
+  }
+  function setup(){if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF3);});});}else{setTimeout(function(){requestAnimationFrame(drawF3);},400);}}
+  if(document.readyState==='complete'||document.readyState==='interactive')setup();else window.addEventListener('load',setup);
+  var _t;window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF3);});},100);});
+})();
+</script>

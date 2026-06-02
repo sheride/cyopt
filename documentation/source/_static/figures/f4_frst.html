@@ -1,0 +1,204 @@
+<script>
+if(typeof window.MathJax==='undefined'){window.MathJax={tex:{inlineMath:[['$','$']]},svg:{fontCache:'global'}};var _mjs=document.createElement('script');_mjs.src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';_mjs.async=true;document.head.appendChild(_mjs);}
+</script>
+<div class="cy-fig mathjax_process" id="f4-frst">
+<style>
+.cy-fig{position:relative;margin:1.5rem auto;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif;color:#1a1a1a}
+.cy-fig .cy-chart{position:relative;width:880px;max-width:100%;margin:0 auto}
+.cy-fig .cy-asvg{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:0;overflow:visible}
+.cy-fig .cy-step{position:relative;z-index:1}
+.cy-fig .cy-step-hdr{display:flex;align-items:center;margin-bottom:16px;margin-top:22px}
+.cy-fig .cy-step-hdr span.lbl{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;padding-right:11px}
+.cy-fig .cy-step-hdr span.rl{flex:1;height:1px}
+.cy-fig .blue .lbl{color:#2B5F8E}.cy-fig .blue .rl{background:#2B5F8E}
+.cy-fig .green .lbl{color:#3A7D5A}.cy-fig .green .rl{background:#3A7D5A}
+.cy-fig .bx{border-radius:7px;padding:11px 16px;box-shadow:0 2px 7px rgba(0,0,0,.10);text-align:center;background-clip:padding-box}
+.cy-fig .bx .t{font-size:12.5px;font-weight:700;margin-bottom:5px;letter-spacing:.15px}
+.cy-fig .bx .d{font-size:10px;line-height:1.65}
+.cy-fig .bx code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:9.5px}
+.cy-fig .lb {background:#D6E8F5;border:1.3px solid #4A8ABF}.cy-fig .lb .t{color:#1B3A5C}.cy-fig .lb .d{color:#444}
+.cy-fig .lb2{background:#EAF3FB;border:1.3px solid #4A8ABF}.cy-fig .lb2 .t{color:#1B3A5C}.cy-fig .lb2 .d{color:#444}
+.cy-fig .db {background:#0F2942;border:1.5px solid #1a5080}.cy-fig .db .t{color:#fff}.cy-fig .db .d{color:#9EC5E8}.cy-fig .db code{color:#9EC5E8}
+.cy-fig .dg {background:#0D3320;border:1.5px solid #1d6037}.cy-fig .dg .t{color:#fff}.cy-fig .dg .d{color:#8FCF9F}.cy-fig .dg code{color:#8FCF9F}
+.cy-fig .lg {background:#D4EDDA;border:1.3px solid #52A070}.cy-fig .lg .t{color:#1A4D2E}.cy-fig .lg .d{color:#444}
+.cy-fig .gap-sm{height:28px}.cy-fig .gap-md{height:38px}
+.cy-fig .cy-title{text-align:center;font-size:16.5px;font-weight:700;color:#1a1a1a;letter-spacing:.3px;margin-bottom:4px;margin-top:4px}
+.cy-fig mjx-container{vertical-align:middle}
+#f4-frst .cy-chart{width:800px}
+#f4-frst .f4-pad{padding:0 60px}
+#f4-frst .f4-padl{padding:0 120px}
+#f4-frst .f4-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+#f4-frst .f4-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+html[data-theme="dark"] .cy-fig .cy-title{color:#f0f0f0}
+html[data-theme="dark"] .cy-fig .blue .lbl{color:#79B5DD}
+html[data-theme="dark"] .cy-fig .blue .rl{background:#79B5DD}
+html[data-theme="dark"] .cy-fig .green .lbl{color:#82C998}
+html[data-theme="dark"] .cy-fig .green .rl{background:#82C998}
+</style>
+
+<div class="cy-chart" id="f4-chart">
+
+  <svg class="cy-asvg" id="f4-asvg">
+    <defs>
+      <marker id="f4-ab" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#2B5F8E"/></marker>
+      <marker id="f4-ag" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#3A7D5A"/></marker>
+    </defs>
+  </svg>
+
+  <div class="cy-title">cyopt.frst &mdash; FRST optimisation layer</div>
+
+  <!-- Input -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Input &nbsp;&mdash;&nbsp; CYTools polytope</span><span class="rl"></span></div>
+    <div class="f4-padl">
+      <div class="bx lb" id="f4-poly">
+        <div class="t">reflexive <code>Polytope</code></div>
+        <div class="d">from the Kreuzer&ndash;Skarke database via <code>cytools.fetch_polytopes()</code><br>or constructed from vertices: <code>Polytope(verts)</code></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Prep -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Preparation &nbsp;&mdash;&nbsp; <code>poly.prep_for_optimizers()</code></span><span class="rl"></span></div>
+    <div class="f4-pad">
+      <div class="f4-row3">
+        <div class="bx lb2" id="f4-faces">
+          <div class="t">2-face triangulations</div>
+          <div class="d"><code>_cyopt_face_triangs</code><br><code>_cyopt_interesting</code>: faces with $>1$ FRT<br>idempotent; cached on polytope</div>
+        </div>
+        <div class="bx lb2" id="f4-bounds">
+          <div class="t">DNA bounds</div>
+          <div class="d"><code>_cyopt_bounds</code>: <code>((0, $N_i{-}1$), &hellip;)</code><br>one coordinate per interesting face<br>directly usable as <code>TupleSpace</code> bounds</div>
+        </div>
+        <div class="bx lb2" id="f4-simp">
+          <div class="t">simplex sets</div>
+          <div class="d"><code>_cyopt_face_simp_sets</code><br>pre-indexed frozensets for O(1) reverse lookup<br>used by <code>triang_to_dna</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- DNA encoding -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">DNA encoding &nbsp;&mdash;&nbsp; monkey-patched <code>Polytope</code> methods</span><span class="rl"></span></div>
+    <div class="f4-pad">
+      <div class="f4-row3">
+        <div class="bx lb" id="f4-d2f">
+          <div class="t"><code>dna_to_frst(dna)</code></div>
+          <div class="d">assemble face triangulations by DNA index<br>call <code>triangfaces_to_frst()</code><br>returns <code>None</code> for non-solid cones</div>
+        </div>
+        <div class="bx lb" id="f4-t2d">
+          <div class="t"><code>triang_to_dna(triang)</code></div>
+          <div class="d">restrict to each interesting face<br>reverse-map simplex set &rarr; index<br>roundtrip: <code>triang_to_dna(dna_to_frst(d)) = d</code></div>
+        </div>
+        <div class="bx lb" id="f4-d2cy">
+          <div class="t"><code>dna_to_cy(dna)</code></div>
+          <div class="d">calls <code>dna_to_frst</code> then <code>.get_cy()</code><br>also: <code>cy_to_dna(cy)</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Two paths -->
+  <div class="cy-step">
+    <div class="cy-step-hdr green"><span class="lbl">Optimisation &nbsp;&mdash;&nbsp; two paths</span><span class="rl"></span></div>
+    <div class="f4-pad">
+      <div class="f4-row2">
+        <div class="bx lg" id="f4-fopt">
+          <div class="t">FRSTOptimizer &nbsp;/&nbsp; <code>frst_optimizer()</code></div>
+          <div class="d">wraps any of the 8 generic optimizers<br>with <code>TupleSpace(_cyopt_bounds)</code><br>fitness: DNA &rarr; Triang/CY &rarr; target &rarr; float<br>penalty for non-solid-cone DNAs<br><code>target(cy) &rarr; float</code> or <code>(float, ancillary)</code></div>
+        </div>
+        <div class="bx lg" id="f4-fgs">
+          <div class="t">FRSTFlipGraphSpace</div>
+          <div class="d">lazy bistellar-flip neighbor generator<br>coarsening of Hamming-1: one flip per face<br>validity filter: <code>dna_to_frst &ne; None</code><br>hub topology: asymmetric out-degree<br>plug in as <code>space=</code> to any optimizer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Output -->
+  <div class="cy-step">
+    <div class="cy-step-hdr green"><span class="lbl">Output &nbsp;&mdash;&nbsp; decoded result</span><span class="rl"></span></div>
+    <div class="f4-padl">
+      <div class="bx dg" id="f4-res">
+        <div class="t">FRSTResult</div>
+        <div class="d"><code>best_dna</code> &nbsp;&middot;&nbsp; <code>best_value</code> &nbsp;&middot;&nbsp; <code>best_triangulation</code> &nbsp;&middot;&nbsp; <code>best_cy</code><br><code>history</code> &nbsp;&middot;&nbsp; <code>n_evaluations</code> &nbsp;&middot;&nbsp; <code>ancillary_data</code></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  function drawF4(){
+    var chart=document.getElementById('f4-chart'),svg=document.getElementById('f4-asvg');
+    if(!chart||!svg)return;
+    while(svg.lastChild){if(svg.lastChild.tagName==='defs')break;svg.removeChild(svg.lastChild);}
+    var cr=chart.getBoundingClientRect(),H=chart.scrollHeight;
+    svg.setAttribute('height',H);svg.setAttribute('viewBox','0 0 '+cr.width+' '+H);
+    function g(id){var el=document.getElementById(id);if(!el)return null;var r=el.getBoundingClientRect();return{cx:r.left-cr.left+r.width/2,cy:r.top-cr.top+r.height/2,t:r.top-cr.top,b:r.bottom-cr.top,l:r.left-cr.left,r:r.right-cr.left};}
+    function arr(x1,y1,x2,y2,col,mk){var el=document.createElementNS('http://www.w3.org/2000/svg','line');el.setAttribute('x1',x1);el.setAttribute('y1',y1);el.setAttribute('x2',x2);el.setAttribute('y2',y2);el.setAttribute('stroke',col);el.setAttribute('stroke-width','1.6');el.setAttribute('marker-end','url(#'+mk+')');svg.appendChild(el);}
+    function seg(x1,y1,x2,y2,col){var el=document.createElementNS('http://www.w3.org/2000/svg','line');el.setAttribute('x1',x1);el.setAttribute('y1',y1);el.setAttribute('x2',x2);el.setAttribute('y2',y2);el.setAttribute('stroke',col);el.setAttribute('stroke-width','1.6');svg.appendChild(el);}
+    var B='#2B5F8E',G='#3A7D5A';
+    var poly=g('f4-poly'),faces=g('f4-faces'),bounds=g('f4-bounds'),simp=g('f4-simp');
+    var d2f=g('f4-d2f'),t2d=g('f4-t2d'),d2cy=g('f4-d2cy');
+    var fopt=g('f4-fopt'),fgs=g('f4-fgs'),res=g('f4-res');
+
+    // poly → prep fan-out
+    if(poly&&faces&&simp){
+      var by1=poly.b+(faces.t-poly.b)/2;
+      seg(poly.cx,poly.b,poly.cx,by1,B);seg(faces.cx,by1,simp.cx,by1,B);
+      arr(faces.cx,by1,faces.cx,faces.t-2,B,'f4-ab');
+      arr(bounds.cx,by1,bounds.cx,bounds.t-2,B,'f4-ab');
+      arr(simp.cx,by1,simp.cx,simp.t-2,B,'f4-ab');
+    }
+    // prep layer -> encoding fan-out
+    if(faces&&bounds&&simp&&d2f&&t2d&&d2cy){
+      var prepBottom=Math.max(faces.b,bounds.b,simp.b);
+      var by2=prepBottom+(d2f.t-prepBottom)/2;
+      seg(faces.cx,faces.b,faces.cx,by2,B);
+      seg(bounds.cx,bounds.b,bounds.cx,by2,B);
+      seg(simp.cx,simp.b,simp.cx,by2,B);
+      seg(faces.cx,by2,simp.cx,by2,B);
+      arr(d2f.cx,by2,d2f.cx,d2f.t-2,B,'f4-ab');
+      arr(t2d.cx,by2,t2d.cx,t2d.t-2,B,'f4-ab');
+      arr(d2cy.cx,by2,d2cy.cx,d2cy.t-2,B,'f4-ab');
+    }
+    // encoding layer -> two-path fan-out
+    if(d2f&&t2d&&d2cy&&fopt&&fgs){
+      var encBottom=Math.max(d2f.b,t2d.b,d2cy.b);
+      var by3=encBottom+(fopt.t-encBottom)/2;
+      seg(d2f.cx,d2f.b,d2f.cx,by3,G);
+      seg(t2d.cx,t2d.b,t2d.cx,by3,G);
+      seg(d2cy.cx,d2cy.b,d2cy.cx,by3,G);
+      seg(d2f.cx,by3,d2cy.cx,by3,G);
+      arr(fopt.cx,by3,fopt.cx,fopt.t-2,G,'f4-ag');
+      arr(fgs.cx,by3,fgs.cx,fgs.t-2,G,'f4-ag');
+    }
+    // both paths → merge bus → FRSTResult
+    if(fopt&&fgs&&res){
+      var by4=fopt.b+(res.t-fopt.b)/2;
+      seg(fopt.cx,fopt.b,fopt.cx,by4,G);
+      seg(fgs.cx,fgs.b,fgs.cx,by4,G);
+      seg(fopt.cx,by4,fgs.cx,by4,G);
+      arr(res.cx,by4,res.cx,res.t-2,G,'f4-ag');
+    }
+  }
+  function setup(){if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF4);});});}else{setTimeout(function(){requestAnimationFrame(drawF4);},400);}}
+  if(document.readyState==='complete'||document.readyState==='interactive')setup();else window.addEventListener('load',setup);
+  var _t;window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF4);});},100);});
+})();
+</script>

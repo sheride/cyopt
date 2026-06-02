@@ -16,16 +16,16 @@ if TYPE_CHECKING:
 NeighborFunction: TypeAlias = Callable[[Node], Iterable[Node]]
 """Callable that yields neighbors of a node.
 
-Per D-07: no Bounds parameter. If bounds are needed, close over a TupleSpace
-or subclass TupleSpace with a custom ``neighbors`` method.
+The protocol deliberately has no Bounds parameter. If bounds are needed,
+close over a TupleSpace or subclass TupleSpace with a custom ``neighbors``
+method.
 """
 
 StepFunction: TypeAlias = Callable[[Node, np.random.Generator], Node]
 """Callable that proposes a new node from the current one, given an RNG.
 
-Per D-07: bounds are NOT part of this protocol. If a custom step function
-needs bounds, close over a TupleSpace (or call ``space.bounds``) at
-definition time.
+Bounds are not part of this protocol. If a custom step function needs bounds,
+close over a TupleSpace (or call ``space.bounds``) at definition time.
 """
 
 PerturbFunction: TypeAlias = Callable[[Node, np.random.Generator], Node]

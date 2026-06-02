@@ -1,0 +1,173 @@
+<script>
+if(typeof window.MathJax==='undefined'){window.MathJax={tex:{inlineMath:[['$','$']]},svg:{fontCache:'global'}};var _mjs=document.createElement('script');_mjs.src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';_mjs.async=true;document.head.appendChild(_mjs);}
+</script>
+<div class="cy-fig mathjax_process" id="f1-workflow">
+<style>
+.cy-fig{position:relative;margin:1.5rem auto;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif;color:#1a1a1a}
+.cy-fig .cy-chart{position:relative;width:880px;max-width:100%;margin:0 auto}
+.cy-fig .cy-asvg{position:absolute;top:0;left:0;width:100%;pointer-events:none;z-index:0;overflow:visible}
+.cy-fig .cy-step{position:relative;z-index:1}
+.cy-fig .cy-step-hdr{display:flex;align-items:center;margin-bottom:16px;margin-top:22px}
+.cy-fig .cy-step-hdr span.lbl{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;padding-right:11px}
+.cy-fig .cy-step-hdr span.rl{flex:1;height:1px}
+.cy-fig .blue .lbl{color:#2B5F8E}.cy-fig .blue .rl{background:#2B5F8E}
+.cy-fig .green .lbl{color:#3A7D5A}.cy-fig .green .rl{background:#3A7D5A}
+.cy-fig .bx{border-radius:7px;padding:11px 16px;box-shadow:0 2px 7px rgba(0,0,0,.10);text-align:center;background-clip:padding-box}
+.cy-fig .bx .t{font-size:12.5px;font-weight:700;margin-bottom:5px;letter-spacing:.15px}
+.cy-fig .bx .d{font-size:10px;line-height:1.65}
+.cy-fig .bx code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:9.5px}
+.cy-fig .lb {background:#D6E8F5;border:1.3px solid #4A8ABF}.cy-fig .lb .t{color:#1B3A5C}.cy-fig .lb .d{color:#444}
+.cy-fig .lb2{background:#EAF3FB;border:1.3px solid #4A8ABF}.cy-fig .lb2 .t{color:#1B3A5C}.cy-fig .lb2 .d{color:#444}
+.cy-fig .db {background:#0F2942;border:1.5px solid #1a5080}.cy-fig .db .t{color:#fff}.cy-fig .db .d{color:#9EC5E8}.cy-fig .db code{color:#9EC5E8}
+.cy-fig .dg {background:#0D3320;border:1.5px solid #1d6037}.cy-fig .dg .t{color:#fff}.cy-fig .dg .d{color:#8FCF9F}.cy-fig .dg code{color:#8FCF9F}
+.cy-fig .lg {background:#D4EDDA;border:1.3px solid #52A070}.cy-fig .lg .t{color:#1A4D2E}.cy-fig .lg .d{color:#444}
+.cy-fig .gap-sm{height:28px}.cy-fig .gap-md{height:38px}
+.cy-fig .cy-title{text-align:center;font-size:16.5px;font-weight:700;color:#1a1a1a;letter-spacing:.3px;margin-bottom:4px;margin-top:4px}
+.cy-fig .cy-or-div{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;font-size:10.5px;font-style:italic;gap:6px}
+.cy-fig .cy-or-div .or-l{width:1px;flex:1;background:#e0e0e0}
+.cy-fig mjx-container{vertical-align:middle}
+#f1-workflow .cy-chart{width:820px}
+#f1-workflow .f1-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#f1-workflow .f1-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+#f1-workflow .f1-or  {display:grid;grid-template-columns:1fr 36px 1fr;gap:0;align-items:stretch}
+#f1-workflow .f1-pad {padding:0 60px}
+#f1-workflow .f1-padl{padding:0 120px}
+html[data-theme="dark"] .cy-fig .cy-title{color:#f0f0f0}
+html[data-theme="dark"] .cy-fig .blue .lbl{color:#79B5DD}
+html[data-theme="dark"] .cy-fig .blue .rl{background:#79B5DD}
+html[data-theme="dark"] .cy-fig .green .lbl{color:#82C998}
+html[data-theme="dark"] .cy-fig .green .rl{background:#82C998}
+</style>
+
+<div class="cy-chart" id="f1-chart">
+
+  <svg class="cy-asvg" id="f1-asvg">
+    <defs>
+      <marker id="f1-ab" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#2B5F8E"/></marker>
+      <marker id="f1-ag" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto">
+        <polygon points="0 0,8 3,0 6" fill="#3A7D5A"/></marker>
+    </defs>
+  </svg>
+
+  <div class="cy-title">cyopt &mdash; Optimisation workflow</div>
+
+  <!-- Step 1: Define the problem -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Step 1 &nbsp;&mdash;&nbsp; Define the problem</span><span class="rl"></span></div>
+    <div class="f1-pad">
+      <!-- fitness function -->
+      <div class="f1-row3" style="margin-bottom:14px">
+        <div class="bx lb" id="f1-fn" style="grid-column:2">
+          <div class="t">fitness_fn</div>
+          <div class="d"><code>DNA &rarr; float</code><br>objective to minimise</div>
+        </div>
+      </div>
+      <!-- two search-space paths -->
+      <div class="f1-or">
+        <div class="bx lb" id="f1-tuple">
+          <div class="t">DNA (integer tuple)</div>
+          <div class="d">
+            <code>TupleSpace(bounds)</code><br>
+            nodes are <code>(int, &hellip;)</code> tuples<br>
+            Hamming-1 neighbors<br>
+            <em>or custom</em> <code>GraphSpace</code>
+          </div>
+        </div>
+        <div class="cy-or-div"><div class="or-l"></div><div style="white-space:nowrap;font-size:9px;color:#bbb">or</div><div class="or-l"></div></div>
+        <div class="bx lb" id="f1-graph">
+          <div class="t">Graph search space</div>
+          <div class="d">
+            any <code>GraphSpace</code> with custom <code>neighbors()</code><br>
+            <em>in particular:</em> <code>FRSTFlipGraphSpace</code><br>
+            lazy bistellar-flip graph over FRST DNAs
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Step 2: Choose an optimizer -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Step 2 &nbsp;&mdash;&nbsp; Choose an optimizer</span><span class="rl"></span></div>
+    <div class="f1-padl">
+      <div class="bx db" id="f1-opt">
+        <div class="t">DiscreteOptimizer</div>
+        <div class="d">
+          GA &nbsp;&middot;&nbsp; RandomSample &nbsp;&middot;&nbsp; GreedyWalk &nbsp;&middot;&nbsp; BestFirstSearch<br>
+          BasinHopping &nbsp;&middot;&nbsp; DifferentialEvolution &nbsp;&middot;&nbsp; MCMC &nbsp;&middot;&nbsp; SimulatedAnnealing<br>
+          <code>seed=</code> &nbsp;&middot;&nbsp; <code>cache_size=</code> &nbsp;&middot;&nbsp; <code>callbacks=</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Step 3: Run -->
+  <div class="cy-step">
+    <div class="cy-step-hdr blue"><span class="lbl">Step 3 &nbsp;&mdash;&nbsp; Run</span><span class="rl"></span></div>
+    <div class="f1-padl">
+      <div class="bx lb2" id="f1-run">
+        <div class="t"><code>optimizer.run(n_iterations)</code></div>
+        <div class="d">
+          evaluate &nbsp;&rarr;&nbsp; cache &nbsp;&rarr;&nbsp; track best &nbsp;&rarr;&nbsp; step &nbsp;&rarr;&nbsp; callbacks<br>
+          optional: <code>progress=True</code> &nbsp;&middot;&nbsp; <code>record_history=True</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-md"></div>
+
+  <!-- Step 4: Result -->
+  <div class="cy-step">
+    <div class="cy-step-hdr green"><span class="lbl">Step 4 &nbsp;&mdash;&nbsp; Result</span><span class="rl"></span></div>
+    <div class="f1-padl">
+      <div class="bx dg" id="f1-result">
+        <div class="t">Result &nbsp;/&nbsp; FRSTResult</div>
+        <div class="d">
+          <code>best_solution</code> &nbsp;&middot;&nbsp; <code>best_value</code> &nbsp;&middot;&nbsp; <code>history</code><br>
+          <code>n_evaluations</code> &nbsp;&middot;&nbsp; <code>wall_time</code><br>
+          <em>FRST additionally:</em> <code>best_triangulation</code> &nbsp;&middot;&nbsp; <code>best_cy</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  function drawF1(){
+    var chart=document.getElementById('f1-chart'),svg=document.getElementById('f1-asvg');
+    if(!chart||!svg)return;
+    while(svg.lastChild){if(svg.lastChild.tagName==='defs')break;svg.removeChild(svg.lastChild);}
+    var cr=chart.getBoundingClientRect(),H=chart.scrollHeight;
+    svg.setAttribute('height',H);svg.setAttribute('viewBox','0 0 '+cr.width+' '+H);
+    function g(id){var el=document.getElementById(id);if(!el)return null;var r=el.getBoundingClientRect();return{cx:r.left-cr.left+r.width/2,t:r.top-cr.top,b:r.bottom-cr.top,l:r.left-cr.left,r:r.right-cr.left};}
+    function arr(x1,y1,x2,y2,col,mk){var el=document.createElementNS('http://www.w3.org/2000/svg','line');el.setAttribute('x1',x1);el.setAttribute('y1',y1);el.setAttribute('x2',x2);el.setAttribute('y2',y2);el.setAttribute('stroke',col);el.setAttribute('stroke-width','1.6');el.setAttribute('marker-end','url(#'+mk+')');svg.appendChild(el);}
+    function seg(x1,y1,x2,y2,col){var el=document.createElementNS('http://www.w3.org/2000/svg','line');el.setAttribute('x1',x1);el.setAttribute('y1',y1);el.setAttribute('x2',x2);el.setAttribute('y2',y2);el.setAttribute('stroke',col);el.setAttribute('stroke-width','1.6');svg.appendChild(el);}
+    var B='#2B5F8E',G='#3A7D5A';
+    var fn=g('f1-fn'),tup=g('f1-tuple'),grp=g('f1-graph'),opt=g('f1-opt'),run=g('f1-run'),result=g('f1-result');
+    // problem definition inputs -> merge bus -> optimizer
+    if(fn&&tup&&grp&&opt){
+      var spaceBottom=Math.max(tup.b,grp.b);
+      var by1=spaceBottom+(opt.t-spaceBottom)/2;
+      seg(fn.cx,fn.b,fn.cx,by1,B);
+      seg(tup.cx,tup.b,tup.cx,by1,B);
+      seg(grp.cx,grp.b,grp.cx,by1,B);
+      seg(tup.cx,by1,grp.cx,by1,B);
+      arr(opt.cx,by1,opt.cx,opt.t-2,B,'f1-ab');
+    }
+    if(opt&&run)arr(opt.cx,opt.b,run.cx,run.t-2,B,'f1-ab');
+    if(run&&result)arr(run.cx,run.b,result.cx,result.t-2,G,'f1-ag');
+  }
+  function setup(){if(window.MathJax&&MathJax.startup&&MathJax.startup.promise){MathJax.startup.promise.then(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF1);});});}else{setTimeout(function(){requestAnimationFrame(drawF1);},400);}}
+  if(document.readyState==='complete'||document.readyState==='interactive')setup();else window.addEventListener('load',setup);
+  var _t;window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(function(){requestAnimationFrame(function(){requestAnimationFrame(drawF1);});},100);});
+})();
+</script>

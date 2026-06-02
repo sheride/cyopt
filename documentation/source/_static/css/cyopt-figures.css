@@ -1,0 +1,225 @@
+/* =========================================================================
+   cyopt workflow / module-graph figures
+   -------------------------------------------------------------------------
+   Shared stylesheet for the HTML+SVG figures embedded via `raw` HTML in
+   the API pages (cyopt.rst, cyopt.optimizers.rst, cyopt.frst.rst, etc.).
+
+   All rules are scoped under `.cy-fig` so the styles do not bleed into
+   the surrounding Sphinx theme.  Each individual figure on a page should
+   be wrapped in `<div class="cy-fig"> ... </div>`.
+   ========================================================================= */
+
+.cy-fig {
+  --b-dark:  #1B3A5C;
+  --b-mid:   #2B5F8E;
+  --b-fill:  #D6E8F5;
+  --b-fill2: #EAF3FB;
+  --b-bord:  #4A8ABF;
+  --b-inv:   #0F2942;
+  --g-dark:  #1A4D2E;
+  --g-mid:   #3A7D5A;
+  --g-fill:  #D4EDDA;
+  --g-bord:  #52A070;
+  --g-inv:   #0D3320;
+  --tx-dk:   #1a1a1a;
+  --tx-md:   #444;
+  --tx-lt:   #888;
+  --cy-radius: 7px;
+  --cy-shadow: 0 2px 7px rgba(0, 0, 0, .10);
+
+  position: relative;
+  margin: 1.5rem auto;
+  font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+  color: var(--tx-dk);
+}
+
+/* ── Inner chart container ───────────────────────────────────── */
+.cy-fig .cy-chart {
+  position: relative;
+  width: 880px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Arrow SVG overlay ──────────────────────────────────────── */
+.cy-fig .cy-asvg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: visible;
+}
+
+/* ── Section dividers ───────────────────────────────────────── */
+.cy-fig .cy-step {
+  position: relative;
+  z-index: 1;
+}
+
+.cy-fig .cy-step-hdr {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  margin-top: 22px;
+}
+.cy-fig .cy-step-hdr span.lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-right: 11px;
+}
+.cy-fig .cy-step-hdr span.rl { flex: 1; height: 1px; }
+.cy-fig .blue  .lbl { color: var(--b-mid); }
+.cy-fig .blue  .rl  { background: var(--b-mid); }
+.cy-fig .green .lbl { color: var(--g-mid); }
+.cy-fig .green .rl  { background: var(--g-mid); }
+
+/* ── Generic box ────────────────────────────────────────────── */
+.cy-fig .bx {
+  border-radius: var(--cy-radius);
+  padding: 11px 16px;
+  box-shadow: var(--cy-shadow);
+  text-align: center;
+  background-clip: padding-box;
+}
+.cy-fig .bx .t {
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  letter-spacing: .15px;
+}
+.cy-fig .bx .d {
+  font-size: 10px;
+  line-height: 1.65;
+}
+.cy-fig .bx code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 9.5px;
+}
+
+/* ── Colour variants ────────────────────────────────────────── */
+.cy-fig .lb  { background: var(--b-fill);  border: 1.3px solid var(--b-bord); }
+.cy-fig .lb  .t { color: var(--b-dark); }
+.cy-fig .lb  .d { color: var(--tx-md);  }
+
+.cy-fig .lb2 { background: var(--b-fill2); border: 1.3px solid var(--b-bord); }
+.cy-fig .lb2 .t { color: var(--b-dark); }
+.cy-fig .lb2 .d { color: var(--tx-md);  }
+
+.cy-fig .db  { background: var(--b-inv);   border: 1.5px solid #1a5080; }
+.cy-fig .db  .t { color: #fff; }
+.cy-fig .db  .d { color: #9EC5E8; }
+.cy-fig .db  code { color: #9EC5E8; }
+
+.cy-fig .lg  { background: var(--g-fill);  border: 1.3px solid var(--g-bord); }
+.cy-fig .lg  .t { color: var(--g-dark); }
+.cy-fig .lg  .d { color: var(--tx-md);  }
+
+.cy-fig .dg  { background: var(--g-inv);   border: 1.5px solid #1d6037; }
+.cy-fig .dg  .t { color: #fff; }
+.cy-fig .dg  .d { color: #8FCF9F; }
+.cy-fig .dg  code { color: #8FCF9F; }
+
+.cy-fig .gh  { background: #fafafa; border: 1.3px dashed #bbb; }
+.cy-fig .gh  .t { color: #555; font-size: 11px; }
+.cy-fig .gh  .d { color: #777; font-size: 9.5px; }
+
+/* "or" divider — vertical separator */
+.cy-fig .cy-or-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+  font-size: 10.5px;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  gap: 6px;
+}
+.cy-fig .cy-or-div .or-l { width: 1px; flex: 1; background: #e0e0e0; }
+.cy-fig .cy-or-div .or-t { white-space: nowrap; }
+
+/* ── Spacing helpers ────────────────────────────────────────── */
+.cy-fig .gap-sm { height: 28px; }
+.cy-fig .gap-md { height: 38px; }
+
+/* ── Common layout patterns ─────────────────────────────────── */
+.cy-fig .cy-row2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.cy-fig .cy-row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.cy-fig .cy-row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.cy-fig .cy-chain { display: flex; flex-direction: column; gap: 20px; }
+.cy-fig .cy-pad   { padding: 0 60px; }
+.cy-fig .cy-padl  { padding: 0 100px; }
+.cy-fig .cy-padxl { padding: 0 150px; }
+
+/* ── Output bar ─────────────────────────────────────────────── */
+.cy-fig .cy-out-bar {
+  background: #f0f2f4;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 11px 22px;
+  font-size: 11.5px;
+  color: var(--tx-md);
+  text-align: center;
+  line-height: 1.75;
+}
+.cy-fig .cy-out-bar strong { color: var(--tx-dk); font-size: 12px; }
+
+/* ── Helpers box (dashed border group) ──────────────────────── */
+.cy-fig .cy-helpers {
+  margin-top: 30px;
+  padding: 12px 14px;
+  border: 1px dashed #cdd6df;
+  border-radius: 6px;
+  background: #fafbfc;
+}
+.cy-fig .cy-helpers .hh {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px;
+  text-transform: uppercase; color: #888;
+  text-align: center; margin-bottom: 8px;
+}
+
+/* ── Title ──────────────────────────────────────────────────── */
+.cy-fig .cy-title {
+  text-align: center;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--tx-dk);
+  letter-spacing: .3px;
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+
+/* ── MathJax baseline alignment ─────────────────────────────── */
+.cy-fig mjx-container { vertical-align: middle; }
+
+/* ── Dark-mode adjustments ──────────────────────────────────── */
+.cy-fig .cy-title       { color: var(--pst-color-text-base, var(--tx-dk)); }
+.cy-fig .cy-out-bar       { color: var(--tx-md) !important; }
+.cy-fig .cy-out-bar strong { color: var(--tx-dk) !important; }
+
+html[data-theme="dark"] .cy-fig .cy-title { color: #f0f0f0; }
+html[data-theme="dark"] .cy-fig .blue  .lbl { color: #79B5DD; }
+html[data-theme="dark"] .cy-fig .blue  .rl  { background: #79B5DD; }
+html[data-theme="dark"] .cy-fig .green .lbl { color: #82C998; }
+html[data-theme="dark"] .cy-fig .green .rl  { background: #82C998; }
+html[data-theme="dark"] .cy-fig .cy-or-div   { color: #888; }
+html[data-theme="dark"] .cy-fig .cy-or-div .or-l { background: #555; }
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .cy-fig .cy-title { color: #f0f0f0; }
+  html:not([data-theme="light"]) .cy-fig .blue  .lbl { color: #79B5DD; }
+  html:not([data-theme="light"]) .cy-fig .blue  .rl  { background: #79B5DD; }
+  html:not([data-theme="light"]) .cy-fig .green .lbl { color: #82C998; }
+  html:not([data-theme="light"]) .cy-fig .green .rl  { background: #82C998; }
+  html:not([data-theme="light"]) .cy-fig .cy-or-div   { color: #888; }
+  html:not([data-theme="light"]) .cy-fig .cy-or-div .or-l { background: #555; }
+}
+
+/* ── Print ──────────────────────────────────────────────────── */
+@media print {
+  .cy-fig .cy-chart { width: 100%; }
+}
