@@ -11,10 +11,9 @@ from collections.abc import Callable
 
 import numpy as np
 
-from cyopt.types import DNA, Bounds
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
-
+from cyopt.types import DNA, Bounds
 
 # ---------------------------------------------------------------------------
 # Selection operators

@@ -37,8 +37,9 @@ class TestPrepForOptimizers:
 
     def test_prep_rejects_non_reflexive(self):
         """prep_for_optimizers raises ValueError on non-reflexive polytope."""
-        import cyopt.frst  # noqa: F401
         from cytools import Polytope
+
+        import cyopt.frst  # noqa: F401
 
         # A simplex is not reflexive
         verts = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
@@ -53,8 +54,9 @@ class TestDNAToFRST:
 
     def test_dna_to_frst_valid(self, poly_h11_4):
         """dna_to_frst with valid DNA returns a Triangulation."""
-        import cyopt.frst  # noqa: F401
         from cytools.triangulation import Triangulation
+
+        import cyopt.frst  # noqa: F401
 
         poly_h11_4.prep_for_optimizers()
         # Use all-zeros DNA (always valid -- picks first triangulation per face)
@@ -136,8 +138,9 @@ class TestDNAToCY:
 
     def test_dna_to_cy(self, poly_h11_4):
         """dna_to_cy returns a CalabiYau object."""
-        import cyopt.frst  # noqa: F401
         from cytools.calabiyau import CalabiYau
+
+        import cyopt.frst  # noqa: F401
 
         poly_h11_4.prep_for_optimizers()
         dna = tuple(0 for _ in poly_h11_4._cyopt_bounds)
@@ -162,8 +165,9 @@ class TestMonkeyPatch:
 
     def test_methods_on_polytope(self):
         """All encoding functions are accessible as bound methods after import."""
-        import cyopt.frst  # noqa: F401
         from cytools import Polytope
+
+        import cyopt.frst  # noqa: F401
 
         assert hasattr(Polytope, "prep_for_optimizers")
         assert hasattr(Polytope, "dna_to_frst")
@@ -185,8 +189,9 @@ class TestGrowFRTReturnType:
 
     def test_grow_frt_single_frt_is_iterable(self):
         """Single-FRT case returns a set of size 1 (not a bare Triangulation)."""
-        import cyopt.frst  # noqa: F401 -- triggers monkey-patching
         from cytools import Polytope
+
+        import cyopt.frst  # noqa: F401 -- triggers monkey-patching
 
         # 2D triangle with 3 points: exactly one FRT exists.
         p = Polytope([[0, 0], [1, 0], [0, 1]])

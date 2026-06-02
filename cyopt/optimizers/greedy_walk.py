@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.optimizers.neighbors import NeighborFunction
 from cyopt.spaces import GraphSpace
+from cyopt.types import DNA
 
 
 class GreedyWalk(DiscreteOptimizer):

@@ -2,8 +2,8 @@
 
 import pytest
 
-from cyopt.types import Result
 from cyopt.base import DiscreteOptimizer
+from cyopt.types import Result
 
 
 class _DummyOptimizer(DiscreteOptimizer):

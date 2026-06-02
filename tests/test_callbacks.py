@@ -13,16 +13,15 @@ from __future__ import annotations
 import pytest
 
 from cyopt import TupleSpace
-from cyopt.types import DNA, Bounds, CallbackInfo
-from cyopt.optimizers.random_sample import RandomSample
+from cyopt.optimizers.basin_hopping import BasinHopping
+from cyopt.optimizers.best_first_search import BestFirstSearch
+from cyopt.optimizers.differential_evolution import DifferentialEvolution
 from cyopt.optimizers.ga import GA
 from cyopt.optimizers.greedy_walk import GreedyWalk
-from cyopt.optimizers.best_first_search import BestFirstSearch
-from cyopt.optimizers.basin_hopping import BasinHopping
 from cyopt.optimizers.mcmc import MCMC
+from cyopt.optimizers.random_sample import RandomSample
 from cyopt.optimizers.simulated_annealing import SimulatedAnnealing
-from cyopt.optimizers.differential_evolution import DifferentialEvolution
-
+from cyopt.types import DNA, Bounds, CallbackInfo
 
 BOUNDS: Bounds = ((0, 9), (0, 9))
 SPACE = TupleSpace(BOUNDS)

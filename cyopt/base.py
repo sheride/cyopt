@@ -18,8 +18,8 @@ from cyopt.checkpoint import (
     _migrate,
     _serialize_space,
 )
-from cyopt.types import DNA, Callback, Result
 from cyopt.spaces import SearchSpace
+from cyopt.types import DNA, Callback, Result
 
 
 class DiscreteOptimizer(ABC):
@@ -280,7 +280,7 @@ class DiscreteOptimizer(ABC):
         space: SearchSpace | None = None,
         callbacks: list | None = None,
         **kwargs,
-    ) -> "DiscreteOptimizer":
+    ) -> DiscreteOptimizer:
         """Load optimizer state from a checkpoint file.
 
         Parameters

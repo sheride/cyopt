@@ -5,8 +5,8 @@ from collections.abc import Iterable, Sequence
 
 import numpy as np
 
-from cyopt.types import DNA, Bounds
 from cyopt.spaces._graph import GraphSpace
+from cyopt.types import DNA, Bounds
 
 
 class TupleSpace(GraphSpace):

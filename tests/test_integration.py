@@ -4,11 +4,11 @@ import pytest
 
 from cyopt import (
     GA,
+    MCMC,
     BasinHopping,
     BestFirstSearch,
     DifferentialEvolution,
     GreedyWalk,
-    MCMC,
     RandomSample,
     Result,
     SimulatedAnnealing,
@@ -77,12 +77,12 @@ class TestImportPublicAPI:
         """Public API imports succeed and are the expected types."""
         from cyopt import (
             GA,
+            MCMC,
             BasinHopping,
             BestFirstSearch,
             DifferentialEvolution,
             DiscreteOptimizer,
             GreedyWalk,
-            MCMC,
             RandomSample,
             Result,
             SimulatedAnnealing,

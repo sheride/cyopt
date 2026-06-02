@@ -20,7 +20,7 @@ class GraphSpace(SearchSpace):
     """
 
     @abstractmethod
-    def neighbors(self, node: "Node") -> "Iterable[Node]":
+    def neighbors(self, node: Node) -> Iterable[Node]:
         """Yield the neighbors of ``node`` in the graph.
 
         Parameters

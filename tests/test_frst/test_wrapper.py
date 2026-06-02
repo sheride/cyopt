@@ -94,11 +94,11 @@ class TestFRSTOptimizerFactory:
         """All 8 optimizer classes work through the FRST wrapper."""
         from cyopt import (
             GA,
+            MCMC,
             BasinHopping,
             BestFirstSearch,
             DifferentialEvolution,
             GreedyWalk,
-            MCMC,
             RandomSample,
             SimulatedAnnealing,
         )

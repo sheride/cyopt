@@ -17,9 +17,9 @@ from collections.abc import Callable
 import numpy as np
 from scipy.optimize import differential_evolution
 
-from cyopt.types import DNA, Result
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
+from cyopt.types import DNA, Result
 
 
 class DifferentialEvolution(DiscreteOptimizer):

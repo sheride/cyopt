@@ -61,7 +61,7 @@ class FRSTFlipGraphSpace(GraphSpace):
     search space.
     """
 
-    def __init__(self, polytope: "Polytope") -> None:
+    def __init__(self, polytope: Polytope) -> None:
         if not getattr(polytope, "_cyopt_prepped", False):
             raise RuntimeError(
                 "FRSTFlipGraphSpace requires polytope.prep_for_optimizers() "
@@ -74,7 +74,7 @@ class FRSTFlipGraphSpace(GraphSpace):
         self._tuple_space = TupleSpace(polytope._cyopt_bounds)
 
     @property
-    def polytope(self) -> "Polytope":
+    def polytope(self) -> Polytope:
         """The ambient polytope whose flip graph this space represents."""
         return self._poly
 
@@ -88,7 +88,7 @@ class FRSTFlipGraphSpace(GraphSpace):
         """Number of DNA coordinates (= number of interesting 2-faces)."""
         return self._tuple_space.dim
 
-    def random(self, rng: np.random.Generator) -> "DNA":
+    def random(self, rng: np.random.Generator) -> DNA:
         """Draw a uniformly random valid DNA via bounded rejection sampling.
 
         Reuses :meth:`TupleSpace.random` and rejects until a DNA with
@@ -125,7 +125,7 @@ class FRSTFlipGraphSpace(GraphSpace):
             "attempts; polytope may have very few valid DNAs."
         )
 
-    def neighbors(self, dna: "DNA") -> "Iterable[DNA]":
+    def neighbors(self, dna: DNA) -> Iterable[DNA]:
         """Yield DNAs reachable from ``dna`` by a single 2-face flip.
 
         Each emitted DNA differs from ``dna`` in exactly one coordinate

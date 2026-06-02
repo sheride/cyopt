@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from cyopt.types import DNA
 from cyopt.base import DiscreteOptimizer
 from cyopt.spaces import TupleSpace
+from cyopt.types import DNA
 
 
 class RandomSample(DiscreteOptimizer):

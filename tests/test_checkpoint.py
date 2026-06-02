@@ -8,9 +8,16 @@ import numpy as np
 import pytest
 
 from cyopt import (
-    GA, RandomSample, GreedyWalk, BestFirstSearch,
-    BasinHopping, MCMC, SimulatedAnnealing, DifferentialEvolution,
-    CheckpointCallback, TupleSpace,
+    GA,
+    MCMC,
+    BasinHopping,
+    BestFirstSearch,
+    CheckpointCallback,
+    DifferentialEvolution,
+    GreedyWalk,
+    RandomSample,
+    SimulatedAnnealing,
+    TupleSpace,
 )
 from cyopt.checkpoint import CHECKPOINT_VERSION, _migrate
 

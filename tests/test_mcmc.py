@@ -3,8 +3,8 @@
 import pytest
 
 from cyopt import TupleSpace
-from cyopt.optimizers.neighbors import random_single_flip
 from cyopt.optimizers.mcmc import MCMC
+from cyopt.optimizers.neighbors import random_single_flip
 from cyopt.spaces import GraphSpace
 
 

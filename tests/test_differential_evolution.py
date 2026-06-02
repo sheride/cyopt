@@ -82,6 +82,7 @@ def test_result_fields():
 def test_uses_public_api():
     """DifferentialEvolution should not use scipy private API."""
     import inspect
+
     import cyopt.optimizers.differential_evolution as de_module
 
     source = inspect.getsource(de_module)
