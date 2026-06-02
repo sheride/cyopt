@@ -2,7 +2,7 @@
 
 Provides tournament, roulette-wheel, and ranked selection; n-point and uniform
 crossover; random k-point mutation; and elitist survival.  Operators can be
-specified as strings, dicts (with parameters), or callables (D-05, D-06).
+specified as strings, dicts (with parameters), or callables.
 """
 
 from __future__ import annotations
@@ -334,7 +334,7 @@ class GA(DiscreteOptimizer):
         self._mutation_k = mutation_k
         self._elitism = elitism
 
-        # Resolve operators (D-05, D-06)
+        # Resolve operator specifications.
         self._selection_fn, self._selection_params = self._resolve_operator(
             selection, _SELECTION_REGISTRY, "selection"
         )

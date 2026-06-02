@@ -23,8 +23,7 @@ from cyopt.types import DNA, Callback, Result
 
 
 class DiscreteOptimizer(ABC):
-    """Abstract base class for optimizers on an arbitrary
-    :class:`~cyopt.spaces.SearchSpace`.
+    """Abstract base class for optimizers over integer-tuple search spaces.
 
     Provides shared infrastructure: evaluation caching, reproducible seeding,
     best-so-far tracking, iteration history, and tqdm progress reporting.
@@ -37,7 +36,9 @@ class DiscreteOptimizer(ABC):
     space : SearchSpace
         The search space. Provides ``random(rng)`` (used for initialization)
         and, for :class:`~cyopt.spaces.GraphSpace` subclasses, ``neighbors(node)``
-        (used by local optimizers).
+        (used by local optimizers). Emitted candidates must be convertible to
+        ``tuple[int, ...]`` because the cache canonicalizes keys as
+        :data:`~cyopt.types.DNA`.
     seed : int | None
         Random seed for reproducibility. ``None`` for non-deterministic.
     cache_size : int | None
@@ -93,7 +94,7 @@ class DiscreteOptimizer(ABC):
         ----------
         dna : DNA
             Candidate solution. Converted to ``tuple[int, ...]`` for
-            consistent cache keys (Pitfall 4).
+            consistent cache keys.
 
         Returns
         -------

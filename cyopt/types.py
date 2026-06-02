@@ -14,8 +14,10 @@ Node = Hashable
 """A hashable element of a :class:`~cyopt.spaces.SearchSpace`.
 
 :class:`~cyopt.spaces.TupleSpace` nodes are ``tuple[int, ...]`` (=== :data:`DNA`).
-Generalizes :data:`DNA` to non-tuple graph spaces (future phases).
-Hashability is required by :class:`~cyopt._cache.EvaluationCache`.
+The generic neighbour-callable protocols use :data:`Node`, but built-in
+optimizers currently evaluate candidates as :data:`DNA`, so custom spaces
+should emit integer-tuple-compatible nodes unless they also customize the
+evaluation path. Hashability is required by :class:`~cyopt._cache.EvaluationCache`.
 """
 
 FitnessFunction = Callable[[DNA], float]

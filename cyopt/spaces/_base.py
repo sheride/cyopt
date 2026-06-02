@@ -18,6 +18,9 @@ class SearchSpace(ABC):
     :class:`TupleSpace` adds coordinate access).
 
     Nodes MUST be hashable (required for cyopt's evaluation cache).
+    The built-in optimizers currently canonicalize evaluated candidates as
+    ``tuple[int, ...]``, so custom spaces should emit integer-tuple-compatible
+    nodes unless paired with a custom evaluation path.
     """
 
     @abstractmethod

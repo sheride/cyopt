@@ -4,7 +4,6 @@ This module provides :class:`FRSTFlipGraphSpace`, a :class:`GraphSpace`
 subclass whose ``neighbors(dna)`` lazily emits all DNAs reachable from
 ``dna`` by performing a single bistellar flip on a single 2-face,
 filtered to those that extend to a globally valid FRST. It is the
-architectural payoff of Phase 04.1's ``SearchSpace`` abstraction: a
 coarsening of the Hamming-1 graph that respects the natural topology of
 FRST space.
 """
@@ -69,8 +68,8 @@ class FRSTFlipGraphSpace(GraphSpace):
             )
         self._poly = polytope
         # Reuse TupleSpace for random() sampling and bounds-shape
-        # introspection. Per D-02: zero upfront enumeration of flips,
-        # zero precomputation of valid-DNA sets.
+        # introspection. Construction performs zero upfront enumeration of
+        # flips and zero precomputation of valid-DNA sets.
         self._tuple_space = TupleSpace(polytope._cyopt_bounds)
 
     @property
@@ -112,10 +111,9 @@ class FRSTFlipGraphSpace(GraphSpace):
             If no valid DNA is found in 1000 attempts; the polytope may
             have very few jointly-valid DNAs.
         """
-        # TODO(phase-7-perf): if rejection rate is pathological on real
-        # benchmark polytopes (e.g., h11=23), switch to a per-face
-        # direct sampling path that draws a random FRT per face from
-        # poly._cyopt_face_triangs (see RESEARCH.md Open Question 2).
+        # TODO(perf): if rejection rate is pathological on real benchmark
+        # polytopes (e.g., h11=23), switch to a per-face direct sampling path
+        # that draws a random FRT per face from poly._cyopt_face_triangs.
         for _ in range(1000):
             dna = self._tuple_space.random(rng)
             if self._poly.dna_to_frst(dna) is not None:
@@ -163,16 +161,14 @@ class FRSTFlipGraphSpace(GraphSpace):
             face_simp_sets = poly._cyopt_face_simp_sets[face_idx]
             current = face_ts[dna[i]]
             # CYTools flip API. only_fine=True is REQUIRED for 2D fine
-            # triangulations (without it, TOPCOM raises IndexError:
-            # vector -- see RESEARCH.md Pitfall 1). The
-            # _fine_neighbors_2d fast path is gated on this flag.
+            # triangulations (without it, TOPCOM can raise IndexError:
+            # vector). The _fine_neighbors_2d fast path is gated on this flag.
             for neigh in current.neighbors(only_fine=True):
                 # Reverse lookup: find k such that face_ts[k] == neigh.
                 # Use precomputed _cyopt_face_simp_sets (already built
-                # by prep_for_optimizers; see RESEARCH.md Section 2).
-                # Defensive try/except guards against future
-                # CYTools-version drift returning a triangulation
-                # outside face_ts (Pitfall 7).
+                # by prep_for_optimizers).
+                # Defensive try/except guards against future CYTools-version
+                # drift returning a triangulation outside face_ts.
                 neigh_set = _normalize_simplices(neigh.simplices())
                 try:
                     k = face_simp_sets.index(neigh_set)
@@ -185,8 +181,8 @@ class FRSTFlipGraphSpace(GraphSpace):
                 candidate = dna[:i] + (k,) + dna[i + 1:]
                 # Lazy validity filter (GRAPH-02): joint cone solidity
                 # across all faces. dna_to_frst returns None for
-                # non-solid combinations -- strictly stronger than
-                # per-face grow_frt checks (RESEARCH.md Section 3).
+                # non-solid combinations, which is stricter than per-face
+                # grow_frt checks.
                 if poly.dna_to_frst(candidate) is None:
                     continue
                 yield candidate
