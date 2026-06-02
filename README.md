@@ -4,6 +4,8 @@
 
 Discrete optimization toolkit for bounded integer-tuple search spaces, with a focus on FRST optimization of Calabi-Yau hypersurfaces via [CYTools](https://cy.tools).
 
+**Paper:** *[The DNA of Calabi-Yau Hypersurfaces](https://onlinelibrary.wiley.com/doi/full/10.1002/prop.70060)* (journal version; arXiv preprint [PDF](arxiv_paper.pdf))
+
 ## Features
 
 - **8 optimizers:** GA, RandomSample, GreedyWalk, BestFirstSearch, BasinHopping, DifferentialEvolution, MCMC, SimulatedAnnealing
@@ -64,15 +66,18 @@ Example notebooks in `notebooks/`.
 If you use cyopt in your research, please cite:
 
 ```bibtex
-@article{MacFadden:2024him,
-    author = "MacFadden, Nate and Schachner, Andreas and Sheridan, Elijah",
-    title = "{The DNA of Calabi-Yau Hypersurfaces}",
-    eprint = "2405.08871",
-    archivePrefix = "arXiv",
-    primaryClass = "hep-th",
-    reportNumber = "LMU-ASC 06/24",
-    month = "5",
-    year = "2024"
+@article{https://doi.org/10.1002/prop.70060,
+    author = {MacFadden, Nate and Schachner, Andreas and Sheridan, Elijah},
+    title = {The DNA of Calabi–Yau Hypersurfaces},
+    journal = {Fortschritte der Physik},
+    volume = {74},
+    number = {2},
+    pages = {e70060},
+    keywords = {Batyrev's Construction, Calabi-Yau Manifold, Genetic Algorithms, Kreuzer-Skarke Database, Machine Learning, Optimization, String Theory},
+    doi = {https://doi.org/10.1002/prop.70060},
+    url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/prop.70060},
+    eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/prop.70060},
+    year = {2026}
 }
 ```
 
