@@ -247,6 +247,10 @@ def patch_polytope() -> None:
     ``Triangulation``). The ``grow_frt`` patch is idempotent: re-importing
     ``cyopt.frst`` does not recursively wrap the method.
     """
+    # CYTools attaches grow_frt to Polytope as an import side effect of
+    # cytools.ntfe.face_triangulations, which cytools.ntfe.__init__ does not
+    # pull in -- so importing Polytope alone leaves grow_frt missing.
+    import cytools.ntfe.face_triangulations  # noqa: F401
     from cytools import Polytope
 
     Polytope.prep_for_optimizers = _prep_for_optimizers
